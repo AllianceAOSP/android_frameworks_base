@@ -18,6 +18,10 @@
     <!-- Is Advanced Reboot enabled? -->
     <bool name="config_advanced_reboot">true</bool>
 
+    <!-- The list of components which should be automatically disabled. -->
+    <string-array name="config_disabledComponents" translatable="false">
+    </string-array>
+
     <!-- Package name providing alternate WebView implementation.
          Fall back to config_webViewPackageName if not available. -->
     <string name="config_alternateWebViewPackageName" translatable="false">com.google.android.webview</string>
