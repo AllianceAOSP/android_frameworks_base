@@ -15,10 +15,20 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Is Advanced Reboot enabled? -->
-    <bool name="config_advanced_reboot">true</bool>
+    <!-- Defines the shutdown options shown in the reboot dialog. -->
+    <array name="shutdown_reboot_options" translatable="false">
+        <item>@string/reboot_reboot</item>
+        <item>@string/reboot_soft</item>
+        <item>@string/reboot_recovery</item>
+        <item>@string/reboot_bootloader</item>
+    </array>
 
-    <!-- Package name providing alternate WebView implementation.
-         Fall back to config_webViewPackageName if not available. -->
-    <string name="config_alternateWebViewPackageName" translatable="false">com.google.android.webview</string>
+    <!-- Do not translate. Defines the shutdown actions passed to the kernel.
+         The first item should be empty for regular reboot. -->
+    <string-array name="shutdown_reboot_actions" translatable="false">
+        <item></item>
+        <item>soft_reboot</item>
+        <item>recovery</item>
+        <item>bootloader</item>
+     </string-array>
 </resources>
