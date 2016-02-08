@@ -633,6 +633,7 @@ public class AudioService extends IAudioService.Stub {
         updateStreamVolumeAlias(false /*updateVolumes*/, TAG);
         readPersistedSettings();
         mSettingsObserver = new SettingsObserver();
+        initVolumeSteps();
         createStreamStates();
 
         mMediaFocusControl = new MediaFocusControl(mAudioHandler.getLooper(),
@@ -828,6 +829,19 @@ public class AudioService extends IAudioService.Stub {
         onIndicateSystemReady();
         // indicate the end of reconfiguration phase to audio HAL
         AudioSystem.setParameters("restarting=false");
+    }
+
+    private void initVolumeSteps() {
+    	MAX_STREAM_VOLUME[AudioSystem.STREAM_VOICE_CALL] = Settings.System.getInt(mContentResolver, "volume_steps_voice_call", MAX_STREAM_VOLUME[AudioSystem.STREAM_VOICE_CALL]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_SYSTEM] = Settings.System.getInt(mContentResolver, "volume_steps_system", MAX_STREAM_VOLUME[AudioSystem.STREAM_SYSTEM]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_RING] = Settings.System.getInt(mContentResolver, "volume_steps_ring", MAX_STREAM_VOLUME[AudioSystem.STREAM_RING]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_MUSIC] = Settings.System.getInt(mContentResolver, "volume_steps_music", MAX_STREAM_VOLUME[AudioSystem.STREAM_MUSIC]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_ALARM] = Settings.System.getInt(mContentResolver, "volume_steps_alarm", MAX_STREAM_VOLUME[AudioSystem.STREAM_ALARM]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_NOTIFICATION] = Settings.System.getInt(mContentResolver, "volume_steps_notification", MAX_STREAM_VOLUME[AudioSystem.STREAM_NOTIFICATION]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_BLUETOOTH_SCO] = Settings.System.getInt(mContentResolver, "volume_steps_bluetooth_sco", MAX_STREAM_VOLUME[AudioSystem.STREAM_BLUETOOTH_SCO]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_SYSTEM_ENFORCED] = Settings.System.getInt(mContentResolver, "volume_steps_system_enforced", MAX_STREAM_VOLUME[AudioSystem.STREAM_SYSTEM_ENFORCED]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_DTMF] = Settings.System.getInt(mContentResolver, "volume_steps_dtmf", MAX_STREAM_VOLUME[AudioSystem.STREAM_DTMF]);
+        MAX_STREAM_VOLUME[AudioSystem.STREAM_TTS] = Settings.System.getInt(mContentResolver, "volume_steps_tts", MAX_STREAM_VOLUME[AudioSystem.STREAM_TTS]);
     }
 
     private void createAudioSystemThread() {
@@ -1777,6 +1791,10 @@ public class AudioService extends IAudioService.Stub {
                 userId);
     }
 
+    protected static void setMaxStreamVolume(int streamType, int maxVol) {
+    	MAX_STREAM_VOLUME[streamType] = maxVol;
+    }
+
     /** @see AudioManager#getStreamVolume(int) */
     public int getStreamVolume(int streamType) {
         ensureValidStreamType(streamType);
@@ -1800,6 +1818,12 @@ public class AudioService extends IAudioService.Stub {
     public int getStreamMaxVolume(int streamType) {
         ensureValidStreamType(streamType);
         return (mStreamStates[streamType].getMaxIndex() + 5) / 10;
+    }
+
+    public void setStreamMaxVolume(int streamType, int maxVol) {
+    	ensureValidStreamType(streamType);
+    	mStreamStates[streamType].setMaxIndex(maxVol);
+    	setMaxStreamVolume(streamType, maxVol);
     }
 
     /** @see AudioManager#getStreamMinVolume(int) */
@@ -3628,7 +3652,7 @@ public class AudioService extends IAudioService.Stub {
     public class VolumeStreamState {
         private final int mStreamType;
         private final int mIndexMin;
-        private final int mIndexMax;
+        private int mIndexMax;
 
         private boolean mIsMuted;
         private String mVolumeIndexSettingName;
@@ -3848,6 +3872,15 @@ public class AudioService extends IAudioService.Stub {
 
         public int getMaxIndex() {
             return mIndexMax;
+        }
+
+        public void setMaxIndex(int maxVol) {
+        	mIndexMax = maxVol;
+        	AudioSystem.initStreamVolume(mStreamType, 0, mIndexMax);
+        	mIndexMax = maxVol;
+        	mIndexMax *= 10;
+        	Intent intent = new Intent(AudioManager.VOLUME_STEPS_CHANGED_ACTION);
+        	sendBroadcastToAll(intent);
         }
 
         public int getMinIndex() {
