@@ -263,15 +263,13 @@ public class NotificationPanelView extends PanelView implements
         mAfforanceHelper = new KeyguardAffordanceHelper(this, getContext());
         mLastOrientation = getResources().getConfiguration().orientation;
 
-        int qsContainerBG = Settings.System.getInt(getContext().getContentResolver(), "qs_container_bg", null);
-        if (qsContainerBG != null) {
+        int qsContainerBG = Settings.System.getInt(getContext().getContentResolver(), "qs_container_bg", 0);
+        if (qsContainerBG != 0) {
         	Drawable bg = mQsContainer.getBackground();
         	if (bg instanceof ShapeDrawable) {
         		((ShapeDrawable) bg).getPaint().setColor(qsContainerBG);
         	} else if (bg instanceof GradientDrawable) {
         		((GradientDrawable) bg).setColor(qsContainerBG);
-        	} else {
-        		bg.setColor(qsContainerBG);
         	}
         }
 
