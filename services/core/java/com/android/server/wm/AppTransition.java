@@ -1488,7 +1488,7 @@ public class AppTransition implements Dump {
                     Settings.System.getUriFor(Settings.System.ANIMATION_REVERSE_EXIT), false, this);
             for (int i = 0; i < 10; i++) {
                 resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.ACTIVITY_ANIMATIONS[i]), false, this);
+                    Settings.System.getUriFor(Settings.System.ANIMATION_ACTIVITY[i]), false, this);
             }
         }
          @Override
@@ -1500,7 +1500,7 @@ public class AppTransition implements Dump {
     private void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
         for (int i = 0; i < 10; i++) {  
-            mActivityAnimations[i] = Settings.System.getInt(resolver, Settings.System.ACTIVITY_ANIMATIONS[i], 0);
+            mActivityAnimations[i] = Settings.System.getInt(resolver, Settings.System.ANIMATION_ACTIVITY[i], 0);
         }
 
         mNoOverrides = Settings.System.getInt(resolver, Settings.System.ANIMATION_NO_OVERRIDE, 0) == 1;

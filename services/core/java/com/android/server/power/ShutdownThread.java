@@ -46,6 +46,7 @@ import android.os.Vibrator;
 import android.os.SystemVibrator;
 import android.os.storage.IMountService;
 import android.os.storage.IMountShutdownObserver;
+import android.provider.Settings;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.view.Gravity;
