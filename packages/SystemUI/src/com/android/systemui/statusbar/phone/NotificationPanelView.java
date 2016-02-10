@@ -30,6 +30,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.MathUtils;
 import android.view.MotionEvent;
@@ -258,6 +262,18 @@ public class NotificationPanelView extends PanelView implements
         mQsNavbarScrim = findViewById(R.id.qs_navbar_scrim);
         mAfforanceHelper = new KeyguardAffordanceHelper(this, getContext());
         mLastOrientation = getResources().getConfiguration().orientation;
+
+        int qsContainerBG = Settings.System.getInt(getContext().getContentResolver(), "qs_container_bg", null);
+        if (qsContainerBG != null) {
+        	Drawable bg = mQsContainer.getBackground();
+        	if (bg instanceof ShapeDrawable) {
+        		((ShapeDrawable) bg).getPaint().setColor(qsContainerBG);
+        	} else if (bg instanceof GradientDrawable) {
+        		((GradientDrawable) bg).setColor(qsContainerBG);
+        	} else {
+        		bg.setColor(qsContainerBG);
+        	}
+        }
 
         // recompute internal state when qspanel height changes
         mQsContainer.addOnLayoutChangeListener(new OnLayoutChangeListener() {
