@@ -54,7 +54,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.view.animation.Animation;
-import android.view.animation.AnimationListener;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.view.inputmethod.CompletionInfo;
@@ -1664,11 +1664,11 @@ public class InputMethodService extends AbstractInputMethodService {
     }
 
     private Animation retrieveAnimation(boolean enter){
-        int[] animArray = AwesomeAnimationHelper.getAnimations(enter ? mAnimationEnterIndex : mAnimationExitIndex, mExitOnly, mReverseExit);
+        int[] animArray = AnimationHelper.getAnimations(enter ? mAnimationEnterIndex : mAnimationExitIndex, mExitOnly, mReverseExit);
         int animInt = enter ? animArray[1] : animArray[0];
         if (animInt == 0) return null;
         Animation anim = AnimationUtils.loadAnimation(this, animInt);
-        Interpolator intplr= AwesomeAnimationHelper.getInterpolator(this, mInterpolatorIndex);
+        Interpolator intplr= AnimationHelper.getInterpolator(this, mInterpolatorIndex);
         if (intplr != null) anim.setInterpolator(intplr);
         if (mAnimationDuration > 0) {
             anim.setDuration(mAnimationDuration);
