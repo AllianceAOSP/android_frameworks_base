@@ -3225,8 +3225,54 @@ public final class Settings {
         /**
          * Whether to dismiss foreground task with other tasks
          */
-         public static final String RECENTS_CLEAR_ALL_DISMISS_ALL = "recents_clear_all_dismiss_all";
+        public static final String RECENTS_CLEAR_ALL_DISMISS_ALL = "recents_clear_all_dismiss_all";
 
+        /**
+         * Activity animations
+         */
+        public static final String[] ANIMATION_ACTIVITY = new String[] {
+         		"activity_open",
+         		"activity_close",
+         		"task_open",
+         		"task_close",
+         		"task_to_front",
+         		"task_to_back",
+         		"wallpaper_open",
+         		"wallpaper_close",
+         		"wallpaper_intra_open",
+         		"wallpaper_intra_close",
+         		"task_open_behind"
+         };
+
+         /**
+          * Duration of Activity animations
+          */
+         public static final String ACTIVITY_ANIMATION_DURATION = "activity_animation_duration";
+
+         /**
+          * Power menu animation
+          */
+         public static final String ANIMATION_POWER_MENU = "animation_power_menu";
+
+         public static final String ANIMATION_NO_OVERRIDE = "animation_no_override";
+
+         public static final String ANIMATION_EXIT_ONLY = "animation_exit_only";
+
+         public static final String ANIMATION_REVERSE_EXIT = "animation_reverse_exit";
+
+         public static final String ANIMATION_LISTVIEW = "animation_listview";
+
+         public static final String ANIMATION_LISTVIEW_INTERPOLATOR = "animation_listview_interpolator";
+
+         public static final String ANIMATION_TOAST = "animation_toast";
+
+         public static final String ANIMATION_IME_DURATION = "animation_ime_duration";
+
+         public static final String ANIMATION_IME_ENTER = "animation_ime_enter";
+
+         public static final String ANIMATION_IME_EXIT = "animation_ime_exit";
+
+         public static final String ANIMATION_IME_INTERPOLATOR = "animation_ime_interpolator";
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add

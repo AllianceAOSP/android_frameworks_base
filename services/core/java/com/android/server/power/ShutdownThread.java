@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
- * Copyright (C) 2015 The Pure Nexus Project
+ * Copyright (C) 2016 AllianceROM
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,10 @@ import android.os.storage.IMountService;
 import android.os.storage.IMountShutdownObserver;
 import android.system.ErrnoException;
 import android.system.Os;
+import android.view.Gravity;
 import android.widget.ListView;
 
+import com.android.internal.R;
 import com.android.internal.telephony.ITelephony;
 import com.android.server.pm.PackageManagerService;
 
@@ -230,11 +232,68 @@ public final class ShutdownThread extends Thread {
 
             closer.dialog = sConfirmDialog;
             sConfirmDialog.setOnDismissListener(closer);
+
+            WindowManager.LayoutParams attrs = sConfirmDialog.getWindow().getAttributes();
+
+            boolean isPrimary = UserHandle.getCallingUserId() == UserHandle.USER_OWNER;
+            int powerMenuAnimation = isPrimary ? getPowerMenuAnimation(context) : 0;
+
+            switch (powerMenuAnimation) {
+                case 0:
+                default:
+                    break;
+                case 1:
+                    attrs.windowAnimations = R.style.PowerMenuBottomAnimation;
+                    attrs.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 2:
+                    attrs.windowAnimations = R.style.PowerMenuTopAnimation;
+                    attrs.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 3:
+                    attrs.windowAnimations = R.style.PowerMenuRotateAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 4:
+                    attrs.windowAnimations = R.style.PowerMenuXylonAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 5:
+                    attrs.windowAnimations = R.style.PowerMenuTranslucentAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 6:
+                    attrs.windowAnimations = R.style.PowerMenuTurnAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 7:
+                    attrs.windowAnimations = R.style.PowerMenuFlyAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 8:
+                    attrs.windowAnimations = R.style.PowerMenuCardAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 9:
+                    attrs.windowAnimations = R.style.PowerMenuTranslucentAnimation;
+                    attrs.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 10:
+                    attrs.windowAnimations = R.style.PowerMenuTranslucentAnimation;
+                    attrs.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                    break;
+            }
+
             sConfirmDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
             sConfirmDialog.show();
         } else {
             beginShutdownSequence(context);
         }
+    }
+
+    private static int getPowerMenuAnimation(Context context) {
+        return Settings.System.getInt(context.getContentResolver(),
+                Settings.System.ANIMATION_POWER_MENU, 0);
     }
 
     private static void doSoftReboot() {
@@ -360,6 +419,56 @@ public final class ShutdownThread extends Thread {
         }
         pd.setCancelable(false);
         pd.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+
+        WindowManager.LayoutParams attrs = pd.getWindow().getAttributes();
+        boolean isPrimary = UserHandle.getCallingUserId() == UserHandle.USER_OWNER;
+        int powerMenuAnimation= isPrimary ? getPowerMenuAnimation(context) : 0;
+
+        switch (powerMenuAnimation) {
+                case 0:
+                default:
+                    break;
+                case 1:
+                    attrs.windowAnimations = R.style.PowerMenuBottomAnimation;
+                    attrs.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 2:
+                    attrs.windowAnimations = R.style.PowerMenuTopAnimation;
+                    attrs.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 3:
+                    attrs.windowAnimations = R.style.PowerMenuRotateAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 4:
+                    attrs.windowAnimations = R.style.PowerMenuXylonAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 5:
+                    attrs.windowAnimations = R.style.PowerMenuTranslucentAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 6:
+                    attrs.windowAnimations = R.style.PowerMenuTurnAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 7:
+                    attrs.windowAnimations = R.style.PowerMenuFlyAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 8:
+                    attrs.windowAnimations = R.style.PowerMenuCardAnimation;
+                    attrs.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 9:
+                    attrs.windowAnimations = R.style.PowerMenuTranslucentAnimation;
+                    attrs.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                    break;
+                case 10:
+                    attrs.windowAnimations = R.style.PowerMenuTranslucentAnimation;
+                    attrs.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                    break;
+            }
 
         pd.show();
 
