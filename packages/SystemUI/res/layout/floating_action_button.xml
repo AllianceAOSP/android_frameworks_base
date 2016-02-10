@@ -26,8 +26,8 @@
         android:background="@drawable/fab"
         android:elevation="@dimen/floating_action_button_translation_z">
     <ImageButton
-            android:layout_width="@dimen/floating_action_button_width"
-            android:layout_height="@dimen/floating_action_button_height"
+            android:layout_width="@dimen/floating_action_button_size"
+            android:layout_height="@dimen/floating_action_button_size"
             android:id="@+id/clear_recents"
             android:background="@drawable/floating_action_button"
             android:tint="@color/floating_action_button_icon_color"
