@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project, 2016 AllianceROM
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,6 +112,9 @@ public class RecentsConfiguration {
     /** Task bar size & animations */
     public int taskBarHeight;
     public int taskBarDismissDozeDelaySeconds;
+    public int taskBarEnterAnimDuration;
+    public int taskBarEnterAnimDelay;
+    public int taskBarExitAnimDuration;
 
     /** Nav bar scrim */
     public int navBarScrimEnterDuration;
@@ -259,6 +262,12 @@ public class RecentsConfiguration {
         taskBarHeight = res.getDimensionPixelSize(R.dimen.recents_task_bar_height);
         taskBarDismissDozeDelaySeconds =
                 res.getInteger(R.integer.recents_task_bar_dismiss_delay_seconds);
+        taskBarEnterAnimDuration =
+                res.getInteger(R.integer.recents_animate_task_bar_enter_duration);
+        taskBarEnterAnimDelay =
+                res.getInteger(R.integer.recents_animate_task_bar_enter_delay);
+        taskBarExitAnimDuration =
+                res.getInteger(R.integer.recents_animate_task_bar_exit_duration);
 
         // Nav bar scrim
         navBarScrimEnterDuration =

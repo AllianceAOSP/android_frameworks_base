@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project, 2016 AllianceROM
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,6 +258,7 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
             } else {
                 refreshSearchWidgetView();
             }
+            findViewById(R.id.floating_action_button).setVisibility(View.VISIBLE);
         }
 
         // Animate the SystemUI scrims into view
@@ -502,6 +503,9 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
 
         // Animate the SystemUI scrim views
         mScrimViews.startEnterRecentsAnimation();
+
+        // Animate the clear all FAB
+        mRecentsView.startFABAnimation();
     }
 
     @Override
@@ -562,6 +566,9 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
 
         // Dismiss Recents to the focused Task or Home
         dismissRecentsToFocusedTaskOrHome(true);
+
+        // Stop clear all FAB animation
+        mRecentsView.endFABAnimation();
     }
 
     /** Called when debug mode is triggered */
@@ -611,21 +618,32 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
     public void onExitToHomeAnimationTriggered() {
         // Animate the SystemUI scrim views out
         mScrimViews.startExitRecentsAnimation();
+
+        // Stop clear all FAB animation
+        mRecentsView.endFABAnimation();
     }
 
     @Override
     public void onTaskViewClicked() {
+        // Stop clear all FAB animation
+        mRecentsView.endFABAnimation();
     }
 
     @Override
     public void onTaskLaunchFailed() {
         // Return to Home
         dismissRecentsToHomeRaw(true);
+
+        // Stop clear all FAB animation
+        mRecentsView.endFABAnimation();
     }
 
     @Override
     public void onAllTaskViewsDismissed() {
         mFinishLaunchHomeRunnable.run();
+
+        // Stop clear all FAB animation
+        mRecentsView.endFABAnimation();
     }
 
     @Override

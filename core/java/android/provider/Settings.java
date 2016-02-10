@@ -3213,6 +3213,21 @@ public final class Settings {
         };
 
         /**
+         * Whether to show the clear all button in recents
+         */
+        public static final String RECENTS_SHOW_CLEAR_ALL = "recents_show_clear_all";
+
+        /**
+         * Location of the clear all button in recents
+         */
+        public static final String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
+
+        /**
+         * Whether to dismiss foreground task with other tasks
+         */
+         public static final String RECENTS_CLEAR_ALL_DISMISS_ALL = "recents_clear_all_dismiss_all";
+
+        /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
          * it to PRIVATE_SETTINGS below. Also add a validator that can validate
