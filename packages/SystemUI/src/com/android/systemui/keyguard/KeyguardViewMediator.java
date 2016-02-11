@@ -24,12 +24,15 @@ import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.app.StatusBarManager;
 import android.app.trust.TrustManager;
+import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -67,7 +70,9 @@ import com.android.keyguard.KeyguardSecurityView;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 import com.android.keyguard.ViewMediatorCallback;
+import com.android.systemui.qs.tiles.LockscreenToggleTile;
 import com.android.systemui.SystemUI;
+import com.android.systemui.UserContentObserver;
 import com.android.systemui.statusbar.phone.FingerprintUnlockController;
 import com.android.systemui.statusbar.phone.PhoneStatusBar;
 import com.android.systemui.statusbar.phone.ScrimController;
@@ -134,6 +139,10 @@ public class KeyguardViewMediator extends SystemUI {
 
     private static final String DELAYED_KEYGUARD_ACTION =
         "com.android.internal.policy.impl.PhoneWindowManager.DELAYED_KEYGUARD";
+
+    private static final String KEYGUARD_SERVICE_ACTION_STATE_CHANGE =
+            "com.android.internal.action.KEYGUARD_SERVICE_STATE_CHANGED";
+    private static final String KEYGUARD_SERVICE_EXTRA_ACTIVE = "active";
 
     // used for handler messages
     private static final int SHOW = 2;
@@ -250,6 +259,8 @@ public class KeyguardViewMediator extends SystemUI {
      */
     private IKeyguardExitCallback mExitSecureCallback;
 
+    private boolean mKeyguardBound;
+
     // the properties of the keyguard
 
     private KeyguardUpdateMonitor mUpdateMonitor;
@@ -265,6 +276,8 @@ public class KeyguardViewMediator extends SystemUI {
      * called.
      * */
     private boolean mHiding;
+
+    private boolean mInternallyDisabled = false;
 
     /**
      * we send this intent when the keyguard is dismissed.
@@ -320,6 +333,50 @@ public class KeyguardViewMediator extends SystemUI {
 
     private boolean mWakeAndUnlocking;
     private IKeyguardDrawnCallback mDrawnCallback;
+
+    private LockscreenEnabledSettingsObserver mSettingsObserver;
+    public static class LockscreenEnabledSettingsObserver extends UserContentObserver {
+
+        private static final String KEY_ENABLED = "lockscreen_enabled";
+
+        private boolean mObserving;
+        private SharedPreferences mPrefs;
+        private Context mContext;
+
+        public LockscreenEnabledSettingsObserver(Context context, Handler handler) {
+            super(handler);
+            mContext = context;
+            mPrefs = mContext.getSharedPreferences("quicksettings", Context.MODE_PRIVATE);
+        }
+
+        public boolean getPersistedDefaultOldSetting() {
+            return mPrefs.getBoolean(KEY_ENABLED, true);
+        }
+
+        @Override
+        public void observe() {
+            if (mObserving) {
+                return;
+            }
+            mObserving = true;
+            mContext.getContentResolver().registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.LOCKSCREEN_INTERNALLY_ENABLED), false, this,
+                    UserHandle.USER_ALL);
+            update();
+        }
+
+        @Override
+        public void unobserve() {
+            if (mObserving) {
+                mObserving = false;
+                mContext.getContentResolver().unregisterContentObserver(this);
+            }
+        }
+
+        @Override
+        public void update() {
+        }
+    }
 
     KeyguardUpdateMonitorCallback mUpdateCallback = new KeyguardUpdateMonitorCallback() {
 
@@ -557,6 +614,8 @@ public class KeyguardViewMediator extends SystemUI {
         mShowKeyguardWakeLock.setReferenceCounted(false);
 
         mContext.registerReceiver(mBroadcastReceiver, new IntentFilter(DELAYED_KEYGUARD_ACTION));
+        mContext.registerReceiver(mBroadcastReceiver, new IntentFilter(KEYGUARD_SERVICE_ACTION_STATE_CHANGE),
+                android.Manifest.permission.CONTROL_KEYGUARD, null);
 
         mKeyguardDisplayManager = new KeyguardDisplayManager(mContext);
 
@@ -608,6 +667,24 @@ public class KeyguardViewMediator extends SystemUI {
 
         mHideAnimation = AnimationUtils.loadAnimation(mContext,
                 com.android.internal.R.anim.lock_screen_behind_enter);
+
+        mSettingsObserver = new LockscreenEnabledSettingsObserver(mContext, new Handler()) {
+            @Override
+            public void update() {
+                boolean newDisabledState = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                        Settings.Secure.LOCKSCREEN_INTERNALLY_ENABLED,
+                        getPersistedDefaultOldSetting() ? 1 : 0,
+                        UserHandle.USER_CURRENT) == 0;
+                synchronized (KeyguardViewMediator.this) {
+                    if (mKeyguardBound) {
+                        if (newDisabledState != mInternallyDisabled) {
+                            // it was updated,
+                            setKeyguardEnabledInternal(!newDisabledState);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     @Override
@@ -762,6 +839,10 @@ public class KeyguardViewMediator extends SystemUI {
         mDelayedShowingSequence++;
     }
 
+    public boolean isKeyguardBound() {
+        return mKeyguardBound;
+    }
+
     /**
      * Let's us know when the device is waking up.
      */
@@ -824,6 +905,27 @@ public class KeyguardViewMediator extends SystemUI {
                 cancelDoKeyguardLaterLocked();
             }
         }
+    }
+
+    /**
+     * Set the internal keyguard enabled state. This allows SystemUI to disable the lockscreen,
+     * overriding any apps.
+     * @param enabled
+     */
+    public void setKeyguardEnabledInternal(boolean enabled) {
+        mInternallyDisabled = !enabled;
+        if (!mUpdateMonitor.isSimPinSecure()) {
+            // disable when sim is ready
+            return;
+        }
+        setKeyguardEnabled(enabled);
+        if (mInternallyDisabled) {
+            mNeedToReshowWhenReenabled = false;
+        }
+    }
+
+    public boolean getKeyguardEnabledInternal() {
+        return !mInternallyDisabled;
     }
 
     /**
@@ -1089,6 +1191,23 @@ public class KeyguardViewMediator extends SystemUI {
         return !mUpdateMonitor.isDeviceProvisioned() && !isSecure();
     }
 
+    public boolean lockscreenEnforcedByDevicePolicy() {
+        DevicePolicyManager dpm = (DevicePolicyManager)
+                mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        if (dpm != null) {
+            int passwordQuality = dpm.getPasswordQuality(null);
+            switch (passwordQuality) {
+                case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
+                case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
+                case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
+                case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
+                case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
+                    return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Dismiss the keyguard through the security layers.
      */
@@ -1202,6 +1321,13 @@ public class KeyguardViewMediator extends SystemUI {
                     if (mDelayedShowingSequence == sequence) {
                         doKeyguardLocked(null);
                     }
+                }
+            } else if (KEYGUARD_SERVICE_ACTION_STATE_CHANGE.equals(intent.getAction())) {
+                mKeyguardBound = intent.getBooleanExtra(KEYGUARD_SERVICE_EXTRA_ACTIVE, false);
+                if (mKeyguardBound) {
+                    mSettingsObserver.observe();
+                } else {
+                    mSettingsObserver.unobserve();
                 }
             }
         }
@@ -1368,6 +1494,10 @@ public class KeyguardViewMediator extends SystemUI {
 
     private void playSound(int soundId) {
         if (soundId == 0) return;
+        if (mInternallyDisabled) {
+            Log.d(TAG, "suppressing lock screen sounds because it is disabled");
+            return;
+        }
         final ContentResolver cr = mContext.getContentResolver();
         if (Settings.System.getInt(cr, Settings.System.LOCKSCREEN_SOUNDS_ENABLED, 1) == 1) {
 

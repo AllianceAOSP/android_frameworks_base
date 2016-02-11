@@ -28,6 +28,9 @@ import android.view.View;
 public class MetricsLogger implements MetricsConstants {
     // Temporary constants go here, to await migration to MetricsConstants.
     // next value is 239;
+    private static final int BASE = -Integer.MAX_VALUE;
+    public static final int DONT_LOG = BASE + 1;
+
     public static final int ACTION_ASSIST_LONG_PRESS = 239;
     public static final int FINGERPRINT_ENROLLING = 240;
     public static final int FINGERPRINT_FIND_SENSOR = 241;

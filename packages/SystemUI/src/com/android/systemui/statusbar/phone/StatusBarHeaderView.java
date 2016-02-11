@@ -40,10 +40,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.internal.logging.MetricsConstants;
+import com.android.internal.statusbar.StatusBarPanelCustomTile;
 import com.android.keyguard.KeyguardStatusView;
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.FontSizeUtils;
 import com.android.systemui.R;
+import com.android.systemui.qs.QSDragPanel;
 import com.android.systemui.qs.QSPanel;
 import com.android.systemui.qs.QSTile;
 import com.android.systemui.statusbar.policy.BatteryController;
@@ -85,6 +88,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     private TextView mEmergencyCallsOnly;
     private TextView mBatteryLevel;
     private TextView mAlarmStatus;
+    private TextView mEditTileDoneText;
 
     private boolean mShowEmergencyCallsOnly;
     private boolean mAlarmShowing;
@@ -114,7 +118,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     private ActivityStarter mActivityStarter;
     private BatteryController mBatteryController;
     private NextAlarmController mNextAlarmController;
-    private QSPanel mQSPanel;
+    private QSDragPanel mQSPanel;
 
     private final Rect mClipBounds = new Rect();
 
@@ -127,6 +131,8 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     private float mCurrentT;
     private boolean mShowingDetail;
     private boolean mDetailTransitioning;
+    private boolean mEditing;
+    private QSTile.DetailAdapter mEditingDetailAdapter;
 
     public StatusBarHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -160,6 +166,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         mAlarmStatus.setOnClickListener(this);
         mSignalCluster = findViewById(R.id.signal_cluster);
         mSystemIcons = (LinearLayout) findViewById(R.id.system_icons);
+        mEditTileDoneText = (TextView) findViewById(R.id.done);
         loadDimens();
         updateVisibilities();
         updateClockScale();
@@ -305,6 +312,9 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         boolean changed = expanded != mExpanded;
         mExpanded = expanded;
         if (changed) {
+            if (mShowingDetail && !expanded) {
+                mQsPanelCallback.onShowingDetail(null);
+            }
             updateEverything();
         }
     }
@@ -341,8 +351,6 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         }
         mEmergencyCallsOnly.setVisibility(mExpanded && mShowEmergencyCallsOnly ? VISIBLE : GONE);
         mBatteryLevel.setVisibility(mExpanded ? View.VISIBLE : View.GONE);
-        mSettingsContainer.findViewById(R.id.tuner_icon).setVisibility(
-                TunerService.isTunerEnabled(mContext) ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void updateSignalClusterDetachment() {
@@ -509,20 +517,11 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     public void onClick(View v) {
         if (v == mSettingsButton) {
             if (mSettingsButton.isTunerClick()) {
-                if (TunerService.isTunerEnabled(mContext)) {
-                    TunerService.showResetRequest(mContext, new Runnable() {
-                        @Override
-                        public void run() {
-                            // Relaunch settings so that the tuner disappears.
-                            startSettingsActivity();
-                        }
-                    });
-                } else {
-                    Toast.makeText(getContext(), R.string.tuner_toast, Toast.LENGTH_LONG).show();
-                    TunerService.setTunerEnabled(mContext, true);
-                }
+                mSettingsButton.consumeClick();
+                mQSPanel.getHost().setEditing(!mQSPanel.getHost().isEditing());
+            } else {
+                startSettingsActivity();
             }
-            startSettingsActivity();
         } else if (v == mSystemIconsSuperContainer) {
             startBatteryActivity();
         } else if (v == mAlarmStatus && mNextAlarm != null) {
@@ -543,7 +542,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                 true /* dismissShade */);
     }
 
-    public void setQSPanel(QSPanel qsp) {
+    public void setQSPanel(QSDragPanel qsp) {
         mQSPanel = qsp;
         if (mQSPanel != null) {
             mQSPanel.setCallback(mQsPanelCallback);
@@ -671,6 +670,50 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         updateAmPmTranslation();
     }
 
+    public void setEditing(boolean editing) {
+        mEditing = editing;
+        if (editing && mEditingDetailAdapter == null) {
+            mEditingDetailAdapter = new QSTile.DetailAdapter() {
+                @Override
+                public int getTitle() {
+                    return R.string.quick_settings_edit_label;
+                }
+
+                @Override
+                public Boolean getToggleState() {
+                    return null;
+                }
+
+                @Override
+                public View createDetailView(Context context, View convertView, ViewGroup parent) {
+                    return null;
+                }
+
+                @Override
+                public Intent getSettingsIntent() {
+                    return null;
+                }
+
+                @Override
+                public StatusBarPanelCustomTile getCustomTile() {
+                    return null;
+                }
+
+                @Override
+                public void setToggleState(boolean state) {
+
+                }
+
+                @Override
+                public int getMetricsCategory() {
+                    return 0;
+                }
+            };
+        }
+        mQsPanelCallback.onShowingDetail(mEditing ? mEditingDetailAdapter : null);
+        updateEverything();
+    }
+
     /**
      * Captures all layout values (position, visibility) for a certain state. This is used for
      * animations.
@@ -779,17 +822,29 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
             transition(mClock, !showingDetail);
             transition(mDateGroup, !showingDetail);
             if (mAlarmShowing) {
-                transition(mAlarmStatus, !showingDetail);
+                transition(mAlarmStatus, !showingDetail && !mDetailTransitioning);
             }
             transition(mQsDetailHeader, showingDetail);
             mShowingDetail = showingDetail;
             if (showingDetail) {
                 mQsDetailHeaderTitle.setText(detail.getTitle());
                 final Boolean toggleState = detail.getToggleState();
-                if (toggleState == null) {
+                if (detail.getTitle() == R.string.quick_settings_edit_label) {
+                    mEditTileDoneText.setVisibility(View.VISIBLE);
                     mQsDetailHeaderSwitch.setVisibility(INVISIBLE);
+                    mQsDetailHeader.setClickable(true);
+                    mQsDetailHeader.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mQSPanel.getHost().setEditing(false);
+                        }
+                    });
+                } else if (toggleState == null) {
+                    mQsDetailHeaderSwitch.setVisibility(INVISIBLE);
+                    mEditTileDoneText.setVisibility(View.GONE);
                     mQsDetailHeader.setClickable(false);
                 } else {
+                    mEditTileDoneText.setVisibility(View.GONE);
                     mQsDetailHeaderSwitch.setVisibility(VISIBLE);
                     mQsDetailHeaderSwitch.setChecked(toggleState);
                     mQsDetailHeader.setClickable(true);

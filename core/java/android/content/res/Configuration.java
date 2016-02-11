@@ -82,6 +82,11 @@ public final class Configuration implements Parcelable, Comparable<Configuration
     public Locale locale;
 
     /**
+     * @hide
+     */
+    public ThemeConfig themeConfig;
+
+    /**
      * Locale should persist on setting.  This is hidden because it is really
      * questionable whether this is the right way to expose the functionality.
      * @hide
@@ -441,6 +446,34 @@ public final class Configuration implements Parcelable, Comparable<Configuration
     public static final int ORIENTATION_LANDSCAPE = 2;
     /** @deprecated Not currently supported or used. */
     @Deprecated public static final int ORIENTATION_SQUARE = 3;
+
+    /**
+     * @hide
+     * @deprecated
+     */
+    public static final String THEME_PACKAGE_NAME_PERSISTENCE_PROPERTY
+            = "persist.sys.themePackageName";
+
+    /**
+     * @hide
+     * @deprecated
+     */
+    public static final String THEME_ICONPACK_PACKAGE_NAME_PERSISTENCE_PROPERTY
+            = "themeIconPackPkgName";
+
+    /**
+     * @hide
+     * @deprecated
+     */
+    public static final String THEME_FONT_PACKAGE_NAME_PERSISTENCE_PROPERTY
+            = "themeFontPackPkgName";
+
+    /* If an app does not have a specific theme set then it will use the 'default' theme+
+     * example: 'default' -> overlayPkgName: 'org.blue.theme'
+     *          'com.android.phone' -> 'com.red.theme'
+     *          'com.google.vending' -> 'com.white.theme'
+     */
+    public static final String THEME_PKG_CONFIGURATION_PERSISTENCE_PROPERTY = "themeConfig";
     
     /**
      * Overall orientation of the screen.  May be one of

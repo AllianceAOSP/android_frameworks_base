@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +20,20 @@ package com.android.systemui.qs.tiles;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.settingslib.wifi.AccessPoint;
+
 import com.android.systemui.R;
-import com.android.systemui.qs.QSDetailItems;
 import com.android.systemui.qs.QSDetailItems.Item;
+import com.android.systemui.qs.QSDetailItemsList;
 import com.android.systemui.qs.QSTile;
 import com.android.systemui.qs.QSTileView;
 import com.android.systemui.qs.SignalTileView;
@@ -37,6 +42,9 @@ import com.android.systemui.statusbar.policy.NetworkController.AccessPointContro
 import com.android.systemui.statusbar.policy.NetworkController.IconState;
 import com.android.systemui.statusbar.policy.SignalCallbackAdapter;
 
+import com.android.internal.statusbar.StatusBarPanelCustomTile;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /** Quick settings tile: Wifi **/
@@ -58,7 +66,7 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
     }
 
     @Override
-    public boolean supportsDualTargets() {
+    public boolean hasDualTargetsDetails() {
         return true;
     }
 
@@ -116,19 +124,36 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
     }
 
     @Override
+    protected void handleLongClick() {
+        mHost.startActivityDismissingKeyguard(WIFI_SETTINGS);
+    }
+
+    @Override
     protected void handleUpdateState(SignalState state, Object arg) {
         state.visible = true;
         if (DEBUG) Log.d(TAG, "handleUpdateState arg=" + arg);
-        CallbackInfo cb = (CallbackInfo) arg;
-        if (cb == null) {
+        final CallbackInfo cb;
+        if (arg == null) {
             cb = mSignalCallback.mInfo;
+        } else {
+            cb = (CallbackInfo) arg;
         }
 
         boolean wifiConnected = cb.enabled && (cb.wifiSignalIconId > 0) && (cb.enabledDesc != null);
         boolean wifiNotConnected = (cb.wifiSignalIconId > 0) && (cb.enabledDesc == null);
         boolean enabledChanging = state.enabled != cb.enabled;
         if (enabledChanging) {
-            mDetailAdapter.setItemsVisible(cb.enabled);
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                // on main thread, bypass the handler
+                mDetailAdapter.setItemsVisible(cb.enabled);
+            } else {
+                mUiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDetailAdapter.setItemsVisible(cb.enabled);
+                    }
+                });
+            }
             fireToggleStateChanged(cb.enabled);
         }
         state.enabled = cb.enabled;
@@ -235,10 +260,12 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
     };
 
     private final class WifiDetailAdapter implements DetailAdapter,
-            NetworkController.AccessPointController.AccessPointCallback, QSDetailItems.Callback {
+            AccessPointController.AccessPointCallback, AdapterView.OnItemClickListener {
 
-        private QSDetailItems mItems;
-        private AccessPoint[] mAccessPoints;
+        private QSDetailItemsList mItemsList;
+        private List<AccessPoint> mAccessPoints;
+        private List<Item> mDisplayedAccessPoints = new ArrayList<>();
+        private QSDetailItemsList.QSDetailListAdapter mAdapter;
 
         @Override
         public int getTitle() {
@@ -247,6 +274,11 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
 
         public Intent getSettingsIntent() {
             return WIFI_SETTINGS;
+        }
+
+        @Override
+        public StatusBarPanelCustomTile getCustomTile() {
+            return null;
         }
 
         @Override
@@ -273,19 +305,21 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
             mAccessPoints = null;
             mWifiController.scanForAccessPoints();
             fireScanStateChanged(true);
-            mItems = QSDetailItems.convertOrInflate(context, convertView, parent);
-            mItems.setTagSuffix("Wifi");
-            mItems.setCallback(this);
-            mItems.setEmptyState(R.drawable.ic_qs_wifi_detail_empty,
+            mItemsList = QSDetailItemsList.convertOrInflate(context, convertView, parent);
+            ListView listView = mItemsList.getListView();
+            listView.setDivider(null);
+            listView.setOnItemClickListener(this);
+            listView.setAdapter(mAdapter =
+                    new QSDetailItemsList.QSDetailListAdapter(context, mDisplayedAccessPoints));
+            mItemsList.setEmptyState(R.drawable.ic_qs_wifi_detail_empty,
                     R.string.quick_settings_wifi_detail_empty_text);
             updateItems();
-            setItemsVisible(mState.enabled);
-            return mItems;
+            return mItemsList;
         }
 
         @Override
         public void onAccessPointsChanged(final List<AccessPoint> accessPoints) {
-            mAccessPoints = accessPoints.toArray(new AccessPoint[accessPoints.size()]);
+            mAccessPoints = accessPoints;
             updateItems();
             if (accessPoints != null && accessPoints.size() > 0) {
                 fireScanStateChanged(false);
@@ -297,35 +331,22 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
             mHost.startActivityDismissingKeyguard(settingsIntent);
         }
 
-        @Override
-        public void onDetailItemClick(Item item) {
-            if (item == null || item.tag == null) return;
-            final AccessPoint ap = (AccessPoint) item.tag;
-            if (!ap.isActive()) {
-                if (mWifiController.connect(ap)) {
-                    mHost.collapsePanels();
-                }
-            }
-            showDetail(false);
-        }
-
-        @Override
-        public void onDetailItemDisconnect(Item item) {
-            // noop
-        }
-
         public void setItemsVisible(boolean visible) {
-            if (mItems == null) return;
-            mItems.setItemsVisible(visible);
+            if (mAdapter == null) return;
+            if (visible) {
+                updateItems();
+            } else {
+                mDisplayedAccessPoints.clear();
+            }
+            mAdapter.notifyDataSetChanged();
         }
 
         private void updateItems() {
-            if (mItems == null) return;
-            Item[] items = null;
+            if (mAdapter == null) return;
             if (mAccessPoints != null) {
-                items = new Item[mAccessPoints.length];
-                for (int i = 0; i < mAccessPoints.length; i++) {
-                    final AccessPoint ap = mAccessPoints[i];
+                mDisplayedAccessPoints.clear();
+                for (int i = 0; i < mAccessPoints.size(); i++) {
+                    final AccessPoint ap = mAccessPoints.get(i);
                     final Item item = new Item();
                     item.tag = ap;
                     item.icon = mWifiController.getIcon(ap);
@@ -334,10 +355,23 @@ public class WifiTile extends QSTile<QSTile.SignalState> {
                     item.overlay = ap.getSecurity() != AccessPoint.SECURITY_NONE
                             ? mContext.getDrawable(R.drawable.qs_ic_wifi_lock)
                             : null;
-                    items[i] = item;
+                    mDisplayedAccessPoints.add(item);
                 }
             }
-            mItems.setItems(items);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Item item = (Item) parent.getItemAtPosition(position);
+            if (item == null || item.tag == null) return;
+            final AccessPoint ap = (AccessPoint) item.tag;
+            if (!ap.isActive()) {
+                if (mWifiController.connect(ap)) {
+                    mHost.collapsePanels();
+                }
+            }
+            showDetail(false);
         }
     };
 }

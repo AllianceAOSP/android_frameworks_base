@@ -28,6 +28,7 @@ import android.app.PendingIntent;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -96,8 +97,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.internal.logging.MetricsLogger;
+import com.android.internal.statusbar.CustomTileListenerService;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.statusbar.StatusBarPanelCustomTile;
 import com.android.keyguard.KeyguardHostView.OnDismissAction;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
@@ -112,7 +115,9 @@ import com.android.systemui.assist.AssistManager;
 import com.android.systemui.doze.DozeHost;
 import com.android.systemui.doze.DozeLog;
 import com.android.systemui.keyguard.KeyguardViewMediator;
+import com.android.systemui.qs.QSDragPanel;
 import com.android.systemui.qs.QSPanel;
+import com.android.systemui.qs.QSTile;
 import com.android.systemui.recents.ScreenPinningRequest;
 import com.android.systemui.statusbar.ActivatableNotificationView;
 import com.android.systemui.statusbar.BackDropView;
@@ -302,7 +307,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     TextView mNotificationPanelDebugText;
 
     // settings
-    private QSPanel mQSPanel;
+    private QSDragPanel mQSPanel;
+    private QSTileHost mQSTileHost;
 
     // top bar
     StatusBarHeaderView mHeader;
@@ -882,7 +888,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
 
         // Set up the quick settings tile panel
-        mQSPanel = (QSPanel) mStatusBarWindow.findViewById(R.id.quick_settings_panel);
+        mQSPanel = (QSDragPanel) mStatusBarWindow.findViewById(R.id.quick_settings_panel);
         if (mQSPanel != null) {
             final QSTileHost qsh = new QSTileHost(mContext, this,
                     mBluetoothController, mLocationController, mRotationLockController,
@@ -898,10 +904,86 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             qsh.setCallback(new QSTileHost.Callback() {
                 @Override
                 public void onTilesChanged() {
-                    mQSPanel.setTiles(qsh.getTiles());
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mQSPanel.setTiles(qsh.getTiles());
+                        }
+                    });
+                }
+
+                @Override
+                public void setEditing(final boolean editing) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mQSPanel.setEditing(editing);
+                            mHeader.setEditing(editing);
+                        }
+                    });
+                }
+
+                @Override
+                public boolean isEditing() {
+                    return mQSPanel.isEditing();
+                }
+
+                @Override
+                public void goToSettingsPage() {
+                    setEditing(true);
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mQSPanel.goToSettingsPage();
+                        }
+                    }, 500);
+                }
+
+                @Override
+                public void resetTiles() {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mQSPanel.setEditing(false);
+                            mHeader.setEditing(false);
+
+                            // unregister custom tile service while we reset to not get
+                            // callbacks from custom tiles
+                            try {
+                                mCustomTileListenerService.unregisterAsSystemService();
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "Unable to unregister custom tile listener", e);
+                            }
+
+                            // clear out old tile states and views
+                            mQSPanel.setTiles(new ArrayList<QSTile<?>>());
+
+                            mQSTileHost.resetTiles();
+
+                            // reregister service
+                            try {
+                                mCustomTileListenerService.registerAsSystemService(mContext,
+                                        new ComponentName(mContext.getPackageName(),
+                                                PhoneStatusBar.this.getClass().getCanonicalName()),
+                                        UserHandle.USER_ALL);
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "Unable to register custom tile listener", e);
+                            }
+                        }
+                    });
                 }
             });
         }
+
+        try {
+            mCustomTileListenerService.registerAsSystemService(mContext,
+                    new ComponentName(mContext.getPackageName(), getClass().getCanonicalName()),
+                    UserHandle.USER_ALL);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Unable to register custom tile listener", e);
+        }
+
+        mQSPanel.getHost().setCustomTileListenerService(mCustomTileListenerService);
 
         // User info. Trigger first load.
         mHeader.setUserInfoController(mUserInfoController);
@@ -1061,6 +1143,41 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
         return mNaturalBarHeight;
     }
+
+    private final CustomTileListenerService mCustomTileListenerService =
+            new CustomTileListenerService() {
+                @Override
+                public void onListenerConnected() {
+                    //Connected
+                }
+                @Override
+                public void onCustomTilePosted(final StatusBarPanelCustomTile sbc) {
+                    if (DEBUG) Log.d(TAG, "onCustomTilePosted: " + sbc.getCustomTile());
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean isUpdate = mQSPanel.getHost().getCustomTileData()
+                                    .get(sbc.getKey()) != null;
+                            if (isUpdate) {
+                                mQSPanel.getHost().updateCustomTile(sbc);
+                            } else {
+                                mQSPanel.getHost().addCustomTile(sbc);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onCustomTileRemoved(final StatusBarPanelCustomTile sbc) {
+                    if (DEBUG) Log.d(TAG, "onCustomTileRemoved: " + sbc.getCustomTile());
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mQSPanel.getHost().removeCustomTileSysUi(sbc.getKey());
+                        }
+                    });
+                }
+            };
 
     private View.OnClickListener mRecentsClickListener = new View.OnClickListener() {
         public void onClick(View v) {

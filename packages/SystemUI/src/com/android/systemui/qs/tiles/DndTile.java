@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2015 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +38,7 @@ import com.android.systemui.SysUIToast;
 import com.android.systemui.qs.QSTile;
 import com.android.systemui.statusbar.policy.ZenModeController;
 import com.android.systemui.volume.ZenModePanel;
+import com.android.internal.statusbar.StatusBarPanelCustomTile;
 
 /** Quick settings tile: Do not disturb **/
 public class DndTile extends QSTile<QSTile.BooleanState> {
@@ -112,12 +114,22 @@ public class DndTile extends QSTile<QSTile.BooleanState> {
         mDisableTotalSilence.setAllowAnimation(true);
         MetricsLogger.action(mContext, getMetricsCategory(), !mState.value);
         if (mState.value) {
-            mController.setZen(Global.ZEN_MODE_OFF, null, TAG);
+            showDetail(true);
         } else {
             int zen = Prefs.getInt(mContext, Prefs.Key.DND_FAVORITE_ZEN, Global.ZEN_MODE_ALARMS);
             mController.setZen(zen, null, TAG);
             showDetail(true);
         }
+    }
+
+    @Override
+    protected void handleSecondaryClick() {
+        handleClick();
+    }
+
+    @Override
+    public void handleLongClick() {
+        mHost.startActivityDismissingKeyguard(ZEN_SETTINGS);
     }
 
     @Override
@@ -129,7 +141,7 @@ public class DndTile extends QSTile<QSTile.BooleanState> {
         state.visible = isVisible(mContext);
         switch (zen) {
             case Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS:
-                state.icon = ResourceIcon.get(R.drawable.ic_qs_dnd_on);
+                state.icon = ResourceIcon.get(R.drawable.ic_qs_dnd_on_priority);
                 state.label = mContext.getString(R.string.quick_settings_dnd_priority_label);
                 state.contentDescription = mContext.getString(
                         R.string.accessibility_quick_settings_dnd_priority_on);
@@ -188,6 +200,11 @@ public class DndTile extends QSTile<QSTile.BooleanState> {
         }
     }
 
+    @Override
+    public boolean hasDualTargetsDetails() {
+        return true;
+    }
+
     private final OnSharedPreferenceChangeListener mPrefListener
             = new OnSharedPreferenceChangeListener() {
         @Override
@@ -230,6 +247,11 @@ public class DndTile extends QSTile<QSTile.BooleanState> {
         @Override
         public Intent getSettingsIntent() {
             return ZEN_SETTINGS;
+        }
+
+        @Override
+        public StatusBarPanelCustomTile getCustomTile() {
+            return null;
         }
 
         @Override

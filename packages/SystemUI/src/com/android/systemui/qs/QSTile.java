@@ -20,7 +20,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,6 +32,8 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.RemoteViews;
+import com.android.internal.statusbar.StatusBarPanelCustomTile;
 import com.android.systemui.qs.QSTile.State;
 import com.android.systemui.statusbar.policy.BluetoothController;
 import com.android.systemui.statusbar.policy.CastController;
@@ -85,7 +89,7 @@ public abstract class QSTile<TState extends State> implements Listenable {
         mHandler = new H(host.getLooper());
     }
 
-    public boolean supportsDualTargets() {
+    public boolean hasDualTargetsDetails() {
         return false;
     }
 
@@ -106,6 +110,7 @@ public abstract class QSTile<TState extends State> implements Listenable {
         Boolean getToggleState();
         View createDetailView(Context context, View convertView, ViewGroup parent);
         Intent getSettingsIntent();
+        StatusBarPanelCustomTile getCustomTile();
         void setToggleState(boolean state);
         int getMetricsCategory();
     }
@@ -320,10 +325,12 @@ public abstract class QSTile<TState extends State> implements Listenable {
     }
 
     public interface Host {
+        void removeCustomTile(StatusBarPanelCustomTile customTile);
         void startActivityDismissingKeyguard(Intent intent);
         void startActivityDismissingKeyguard(PendingIntent intent);
         void warn(String message, Throwable t);
         void collapsePanels();
+        RemoteViews.OnClickHandler getOnClickHandler();
         Looper getLooper();
         Context getContext();
         Collection<QSTile<?>> getTiles();
@@ -337,9 +344,17 @@ public abstract class QSTile<TState extends State> implements Listenable {
         CastController getCastController();
         FlashlightController getFlashlightController();
         KeyguardMonitor getKeyguardMonitor();
+        boolean isEditing();
+        void setEditing(boolean editing);
+        void resetTiles();
+        void goToSettingsPage();
 
         public interface Callback {
             void onTilesChanged();
+            void setEditing(boolean editing);
+            boolean isEditing();
+            void goToSettingsPage();
+            void resetTiles();
         }
     }
 
@@ -349,6 +364,42 @@ public abstract class QSTile<TState extends State> implements Listenable {
         @Override
         public int hashCode() {
             return Icon.class.hashCode();
+        }
+    }
+
+    protected class ExternalIcon extends AnimationIcon {
+        private Context mPackageContext;
+        private String mPkg;
+        private int mResId;
+
+        public ExternalIcon(String pkg, int resId) {
+            super(resId);
+            mPkg = pkg;
+            mResId = resId;
+        }
+
+        @Override
+        public Drawable getDrawable(Context context) {
+            // Get the drawable from the package context
+            Drawable d = null;
+            try {
+                d = super.getDrawable(getPackageContext());
+            } catch (Throwable t) {
+                Log.w(TAG, "Error creating package context" + mPkg + " id=" + mResId, t);
+            }
+            return d;
+        }
+
+        private Context getPackageContext() {
+            if (mPackageContext == null) {
+                try {
+                    mPackageContext = mContext.createPackageContext(mPkg, 0);
+                } catch (Throwable t) {
+                    Log.w(TAG, "Error creating package context" + mPkg, t);
+                    return null;
+                }
+            }
+            return mPackageContext;
         }
     }
 
@@ -390,6 +441,21 @@ public abstract class QSTile<TState extends State> implements Listenable {
         }
     }
 
+    protected class ExternalBitmapIcon extends Icon {
+        private Bitmap mBitmap;
+
+        public ExternalBitmapIcon(Bitmap bitmap) {
+            mBitmap = bitmap;
+        }
+
+        @Override
+        public Drawable getDrawable(Context context) {
+            // This is gross
+            BitmapDrawable bitmapDrawable = new BitmapDrawable(context.getResources(), mBitmap);
+            return bitmapDrawable;
+        }
+    }
+
     protected class AnimationIcon extends ResourceIcon {
         private boolean mAllowAnimation;
 
@@ -404,13 +470,14 @@ public abstract class QSTile<TState extends State> implements Listenable {
         @Override
         public Drawable getDrawable(Context context) {
             // workaround: get a clean state for every new AVD
-            final AnimatedVectorDrawable d = (AnimatedVectorDrawable) context.getDrawable(mResId)
-                    .getConstantState().newDrawable();
-            d.start();
-            if (mAllowAnimation) {
-                mAllowAnimation = false;
-            } else {
-                d.stop(); // skip directly to end state
+            final Drawable d = super.getDrawable(context).getConstantState().newDrawable();
+            if (d instanceof AnimatedVectorDrawable) {
+                ((AnimatedVectorDrawable)d).start();
+                if (mAllowAnimation) {
+                    mAllowAnimation = false;
+                } else {
+                    ((AnimatedVectorDrawable)d).stop(); // skip directly to end state
+                }
             }
             return d;
         }
@@ -431,6 +498,7 @@ public abstract class QSTile<TState extends State> implements Listenable {
 
     public static class State {
         public boolean visible;
+        public boolean enabled = true;
         public Icon icon;
         public String label;
         public String contentDescription;
@@ -441,6 +509,7 @@ public abstract class QSTile<TState extends State> implements Listenable {
             if (other == null) throw new IllegalArgumentException();
             if (!other.getClass().equals(getClass())) throw new IllegalArgumentException();
             final boolean changed = other.visible != visible
+                    || !Objects.equals(other.enabled, enabled)
                     || !Objects.equals(other.icon, icon)
                     || !Objects.equals(other.label, label)
                     || !Objects.equals(other.contentDescription, contentDescription)
@@ -448,6 +517,7 @@ public abstract class QSTile<TState extends State> implements Listenable {
                     || !Objects.equals(other.dualLabelContentDescription,
                     dualLabelContentDescription);
             other.visible = visible;
+            other.enabled = enabled;
             other.icon = icon;
             other.label = label;
             other.contentDescription = contentDescription;
@@ -464,6 +534,7 @@ public abstract class QSTile<TState extends State> implements Listenable {
         protected StringBuilder toStringBuilder() {
             final StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append('[');
             sb.append("visible=").append(visible);
+            sb.append(",enabled=").append(enabled);
             sb.append(",icon=").append(icon);
             sb.append(",label=").append(label);
             sb.append(",contentDescription=").append(contentDescription);

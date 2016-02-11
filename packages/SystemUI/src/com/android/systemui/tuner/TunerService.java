@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 
 import com.android.systemui.BatteryMeterView;
@@ -84,6 +85,10 @@ public class TunerService extends SystemUI {
     }
 
     private void addTunable(Tunable tunable, String key) {
+        addTunableByProvider(tunable, key, false);
+    }
+
+    public void addTunableByProvider(Tunable tunable, String key, boolean cm) {
         if (!mTunableLookup.containsKey(key)) {
             mTunableLookup.put(key, new ArrayList<Tunable>());
         }

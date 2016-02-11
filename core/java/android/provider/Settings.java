@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 The Android Open Source Project
+ * Copyright (C) 2006 The Android Open Source Project, 2016 AllianceROM
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3273,6 +3273,9 @@ public final class Settings {
          public static final String ANIMATION_IME_EXIT = "animation_ime_exit";
 
          public static final String ANIMATION_IME_INTERPOLATOR = "animation_ime_interpolator";
+
+         public static final String QS_SHOW_BRIGHTNESS_SLIDER = "qs_show_brightness_slider";
+         
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
@@ -5061,6 +5064,46 @@ public final class Settings {
          * Space delimited list of plugin packages that are enabled.
          */
         public static final String TTS_ENABLED_PLUGINS = "tts_enabled_plugins";
+
+         /**
+         * List of QS tile names
+         * @hide
+         */
+        public static final String QS_TILES = "sysui_qs_tiles";
+
+        public static final String QS_SHOW_BRIGHTNESS_SLIDER = "qs_show_brightness_slider";
+
+         /**
+         * Whether the lock screen is currently enabled/disabled by SystemUI (the QS tile likely).
+         * Boolean settings. 0 = off. 1 = on.
+         * @hide
+         */
+        public static final String LOCKSCREEN_INTERNALLY_ENABLED = "lockscreen_internally_enabled";
+
+        /**
+         * Use "main" tiles on the first row of the quick settings panel
+         * 0 = no, 1 = yes
+         * @hide
+         */
+        public static final String QS_USE_MAIN_TILES = "sysui_qs_main_tiles";
+
+        /**
+         * The TCP/IP port to run ADB on, or -1 for USB
+         * @hide
+         */
+        public static final String ADB_PORT = "adb_port";
+
+        /**
+         * Default theme to use.  If empty, use holo.
+         * @hide
+         */
+        public static final String DEFAULT_THEME_PACKAGE = "default_theme_package";
+
+        /**
+         * Whether detail view for the location tile is enabled
+         * @hide
+         */
+        public static final String QS_LOCATION_ADVANCED = "qs_location_advanced";
 
         /**
          * @deprecated Use {@link android.provider.Settings.Global#WIFI_NETWORKS_AVAILABLE_NOTIFICATION_ON}

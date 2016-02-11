@@ -19,11 +19,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/qs_background_primary"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingBottom="12dp"
         android:elevation="2dp">
 
-    <com.android.systemui.qs.QSPanel
+    <com.android.systemui.qs.QSDragPanel
             android:id="@+id/quick_settings_panel"
             android:background="#0000"
             android:layout_width="match_parent"

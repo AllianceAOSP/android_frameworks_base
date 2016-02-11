@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.android.internal.logging.MetricsLogger;
+import com.android.internal.statusbar.StatusBarPanelCustomTile;
 import com.android.internal.util.UserIcons;
 import com.android.systemui.BitmapHelper;
 import com.android.systemui.GuestResumeSessionReceiver;
@@ -584,6 +585,11 @@ public class UserSwitcherController {
         @Override
         public Intent getSettingsIntent() {
             return USER_SETTINGS_INTENT;
+        }
+
+        @Override
+        public StatusBarPanelCustomTile getCustomTile() {
+            return null;
         }
 
         @Override
