@@ -22,6 +22,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     
     <!-- Default, comma-delimited, quick settings tiles. See QSConstants.java for a list of all available tiles -->
-    <string name="config_defaultQuickSettingsTiles">wifi,bt,cell,airplane,rotation,flashlight,location,cast</string>
+	    <string name="config_defaultQuickSettingsTiles">wifi,bt,cell,airplane,rotation,flashlight,location,edit,cast,hotspot</string>
 
 </resources>

@@ -67,7 +67,7 @@ public class QSUtils {
     @SuppressWarnings("unchecked")
     public static List<String> getAvailableTiles(Context context) {
         filterTiles(context);
-        return (List<String>) QSConstants.TILES_AVAILABLE.clone();
+        return QSConstants.TILES_AVAILABLE;
     }
 
     public static List<String> getDefaultTiles(Context context) {
@@ -131,6 +131,9 @@ public class QSUtils {
                     break;
                 case QSConstants.TILE_BATTERY_SAVER:
                     removeTile = deviceSupportsPowerProfiles(context);
+                    break;
+                case QSConstants.DYNAMIC_TILE_SU:
+                    removeTile = !supportsRootAccess();
                     break;
             }
             if (removeTile) {
@@ -296,7 +299,6 @@ public class QSUtils {
                 com.android.internal.R.string.config_dozeComponent);
         return !TextUtils.isEmpty(name);
     }
-
 
     public static boolean deviceSupportsPowerProfiles(Context context) {
         return false;

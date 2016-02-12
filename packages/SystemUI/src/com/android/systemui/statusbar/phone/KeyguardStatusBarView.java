@@ -41,8 +41,7 @@ import java.text.NumberFormat;
 /**
  * The header group on Keyguard.
  */
-public class KeyguardStatusBarView extends RelativeLayout
-        implements BatteryController.BatteryStateChangeCallback {
+public class KeyguardStatusBarView extends RelativeLayout {
 
     private boolean mBatteryCharging;
     private boolean mKeyguardUserSwitcherShowing;
@@ -122,11 +121,6 @@ public class KeyguardStatusBarView extends RelativeLayout
             return;
         }
         mBatteryListening = listening;
-        if (mBatteryListening) {
-            mBatteryController.addStateChangedCallback(this);
-        } else {
-            mBatteryController.removeStateChangedCallback(this);
-        }
     }
 
     private void updateUserSwitcher() {
@@ -152,22 +146,6 @@ public class KeyguardStatusBarView extends RelativeLayout
                 mMultiUserAvatar.setImageDrawable(picture);
             }
         });
-    }
-
-    @Override
-    public void onBatteryLevelChanged(int level, boolean pluggedIn, boolean charging) {
-        String percentage = NumberFormat.getPercentInstance().format((double) level / 100.0);
-        mBatteryLevel.setText(percentage);
-        boolean changed = mBatteryCharging != charging;
-        mBatteryCharging = charging;
-        if (changed) {
-            updateVisibilities();
-        }
-    }
-
-    @Override
-    public void onPowerSaveChanged() {
-        // could not care less
     }
 
     public void setKeyguardUserSwitcher(KeyguardUserSwitcher keyguardUserSwitcher) {
