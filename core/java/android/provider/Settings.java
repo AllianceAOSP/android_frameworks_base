@@ -3299,8 +3299,17 @@ public final class Settings {
          * 1: Display the battery percentage inside the icon
          * 2: Display the battery percentage next to the icon
          */
-        public static final String STATUS_BAR_SHOW_BATTERY_PERCENT =
-                "status_bar_show_battery_percent";
+        public static final String STATUS_BAR_SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
+
+        /**
+         * Navigation bar height (portrait)
+         */
+        public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
+
+        /**
+         * Navigation bar height (landscape)
+         */
+        public static final String NAVIGATION_BAR_HEIGHT_LANDSCAPE = "navigation_bar_height_landscape";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
