@@ -3227,6 +3227,8 @@ public final class Settings {
          */
         public static final String RECENTS_CLEAR_ALL_DISMISS_ALL = "recents_clear_all_dismiss_all";
 
+        public static final String RECENTS_SHOW_SEARCH_BAR = "recents_show_search_bar";
+
         /**
          * Activity animations
          */
@@ -3310,6 +3312,8 @@ public final class Settings {
          * Navigation bar height (landscape)
          */
         public static final String NAVIGATION_BAR_HEIGHT_LANDSCAPE = "navigation_bar_height_landscape";
+
+        public static final String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to

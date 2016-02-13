@@ -311,6 +311,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mStatusBarHeight;
     WindowState mNavigationBar = null;
     boolean mHasNavigationBar = false;
+    boolean mOverWriteHasNavigationBar = false;
     boolean mCanHideNavigationBar = false;
     boolean mNavigationBarCanMove = false; // can the navigation bar ever move to the side?
     boolean mNavigationBarOnBottom = true; // is the navigation bar on the bottom *right now*?
@@ -319,6 +320,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     int mNavigationBarHeight;
     int mNavigationBarHeightLandscape;
+    int mNavigationBarWidth;
 
     boolean mBootMessageNeedsHiding;
     KeyguardServiceDelegate mKeyguardDelegate;
@@ -747,6 +749,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false, this,
                     UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+            		Settings.System.NAVIGATION_BAR_WIDTH), false, this,
+            		UserHandle.USER_ALL);
             updateSettings();
         }
 
@@ -1704,7 +1709,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void setHasNavigationBar() {
-        mHasNavigationBar = 1;
+        mHasNavigationBar = true;
     }
 
     /**
@@ -1790,8 +1795,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mNavigationBarHeightLandscape = AllianceUtils.dpToPx(mContext, mNavigationBarHeightLandscape);
             }
 
+            mNavigationBarWidth = Settings.System.getIntForUser(mContext.getContentResolver(),
+            		Settings.System.NAVIGATION_BAR_WIDTH, -2, UserHandle.USER_CURRENT);
+            if (mNavigationBarWidth == -2) {
+            	mNavigationBarWidth = mContext.getResources().getDimensionPixelSize(
+            			com.android.internal.R.dimen.navigation_bar_width);
+            } else {
+            	mNavigationBarWidth = AllianceUtils.dpToPx(mContext, mNavigationBarWidth);
+            }
+
             mNavigationBarHeightForRotation[mPortraitRotation] = mNavigationBarHeightForRotation[mUpsideDownRotation] = mNavigationBarHeight;
             mNavigationBarHeightForRotation[mLandscapeRotation] = mNavigationBarHeightForRotation[mSeascapeRotation] = mNavigationBarHeightLandscape;
+            mNavigationBarWidthForRotation[mPortraitRotation] = mNavigationBarWidthForRotation[mUpsideDownRotation] = mNavigationBarWidthForRotation[mLandscapeRotation] = mNavigationBarWidthForRotation[mSeascapeRotation] = mNavigationBarWidth;
 
 
             if (mSystemReady) {

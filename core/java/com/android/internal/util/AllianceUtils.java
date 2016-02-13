@@ -13,6 +13,6 @@ public class AllianceUtils {
     }
 
     public static boolean isNavBarDefault(Context context) {
-        return context.getResources().getBoolean(com.android.internal.R.bool_config_showNavigationBar);
+        return context.getResources().getBoolean(com.android.internal.R.bool.config_showNavigationBar);
     }
 }

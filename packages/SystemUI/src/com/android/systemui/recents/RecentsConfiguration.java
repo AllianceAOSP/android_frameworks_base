@@ -74,6 +74,7 @@ public class RecentsConfiguration {
 
     /** Search bar */
     public int searchBarSpaceHeightPx;
+    public boolean searchBarEnabled = true;
 
     /** Task stack */
     public int taskStackScrollDuration;
@@ -278,6 +279,13 @@ public class RecentsConfiguration {
         altTabKeyDelay = res.getInteger(R.integer.recents_alt_tab_key_delay);
         fakeShadows = res.getBoolean(R.bool.config_recents_fake_shadows);
         svelteLevel = res.getInteger(R.integer.recents_svelte_level);
+    }
+
+    public boolean updateShowSearch(Context context) {
+        boolean wasEnabled = searchBarEnabled;
+        searchBarEnabled = Settings.System.getInt(context.getContentResolver(),
+                Settings.System.RECENTS_SHOW_SEARCH_BAR, 1) == 1;
+        return wasEnabled != searchBarEnabled;
     }
 
     /** Updates the system insets */
