@@ -158,4 +158,17 @@
     <!-- Hotspot dialog message -->
     <string name="hotspot_apm_message">Unable to connect to cellular networks while Airplane mode is enabled. Disable Airplane mode and try again.</string>
 
+    <string name="quick_settings_brightness_label">Brightness</string>
+    <string name="quick_settings_screen_off_label">Screen off</string>
+    <string name="quick_settings_screenshot_label">Screenshot</string>
+
+    <!-- Content description of the brightness tile in quick settings (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_quick_settings_brightness">Brightness.</string>
+
+    <!-- Content description of the screen off tile in quick settings (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_quick_settings_screen_off">Screen off.</string>
+
+    <!-- Content description of the screenshot tile in quick settings (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_quick_settings_screenshot">Screenshot.</string>
+
 </resources>

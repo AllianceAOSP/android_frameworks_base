@@ -103,13 +103,7 @@ public class QSUtils {
             switch (tileKey) {
                 case QSConstants.TILE_CELLULAR:
                 case QSConstants.TILE_HOTSPOT:
-                case QSConstants.TILE_DATA:
-                case QSConstants.TILE_ROAMING:
-                case QSConstants.TILE_APN:
                     removeTile = !deviceSupportsMobile;
-                    break;
-                case QSConstants.TILE_DDS:
-                    removeTile = !deviceSupportsDdsSupported(context);
                     break;
                 case QSConstants.TILE_FLASHLIGHT:
                     removeTile = !deviceSupportsFlashLight(context);
@@ -122,18 +116,6 @@ public class QSUtils {
                     break;
                 case QSConstants.TILE_COMPASS:
                     removeTile = !deviceSupportsCompass(context);
-                    break;
-                case QSConstants.TILE_AMBIENT_DISPLAY:
-                    removeTile = !deviceSupportsDoze(context);
-                    break;
-                case QSConstants.TILE_PERFORMANCE:
-                    removeTile = !deviceSupportsPowerProfiles(context);
-                    break;
-                case QSConstants.TILE_BATTERY_SAVER:
-                    removeTile = deviceSupportsPowerProfiles(context);
-                    break;
-                case QSConstants.DYNAMIC_TILE_SU:
-                    removeTile = !supportsRootAccess();
                     break;
             }
             if (removeTile) {
