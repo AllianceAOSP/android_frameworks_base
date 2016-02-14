@@ -189,6 +189,23 @@ public class NotificationColorUtil {
         return charSequence;
     }
 
+    public CharSequence processCharSequenceColors(int color, CharSequence charSequence) {
+        if (charSequence instanceof Spanned) {
+            Spanned ss = (Spanned) charSequence;
+            Object[] spans = ss.getSpans(0, ss.length(), Object.class);
+            SpannableStringBuilder builder = new SpannableStringBuilder(ss.toString());
+            for (Object span : spans) {
+                Object resultSpan = span;
+                if (span instanceof TextAppearanceSpan) {
+                    resultSpan = processTextAppearanceSpan(color, (TextAppearanceSpan) span);
+                }
+                builder.setSpan(resultSpan, ss.getSpanStart(span), ss.getSpanEnd(span), ss.getSpanFlags(span));
+            }
+            return builder;
+        }
+        return charSequence;
+    }
+
     private TextAppearanceSpan processTextAppearanceSpan(TextAppearanceSpan span) {
         ColorStateList colorStateList = span.getTextColor();
         if (colorStateList != null) {
@@ -216,10 +233,28 @@ public class NotificationColorUtil {
         return span;
     }
 
+    private TextAppearanceSpan processTextAppearanceSpan(int color, TextAppearanceSpan span) {
+        ColorStateList colorStateList = span.getTextColor();
+        if (colorStateList != null) {
+            int[] colors = colorStateList.getColors();
+            boolean changed = false;
+            for (int i = 0; i < colors.length; i++) {
+                if (ImageUtils.isGrayscale(colors[i])) {
+                    if (!changed) {
+                        colors = Arrays.copyOf(colors, colors.length);
+                    }
+                    colors[i] = processColor(color);
+                    changed = true;
+                }
+            }
+            if (changed) {
+                return new TextAppearanceSpan(span.getFamily(), span.getTextStyle(), span.getTextSize(), new ColorStateList(colorStateList.getStates(), colors), span.getLinkTextColor());
+            }
+        }
+        return span;
+    }
+
     private int processColor(int color) {
-        return Color.argb(Color.alpha(color),
-                255 - Color.red(color),
-                255 - Color.green(color),
-                255 - Color.blue(color));
+        return Color.argb(Color.alpha(color), Color.red(color), Color.green(color), Color.blue(color));
     }
 }

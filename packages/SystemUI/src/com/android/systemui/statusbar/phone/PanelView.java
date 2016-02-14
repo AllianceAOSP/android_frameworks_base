@@ -649,7 +649,7 @@ public abstract class PanelView extends FrameLayout {
         flingToHeight(vel, expand, target, collapseSpeedUpFactor, expandBecauseOfFalsing);
     }
 
-    protected void flingToHeight(float vel, boolean expand, float target,
+    protected void flingToHeight(float vel, final boolean expand, float target,
             float collapseSpeedUpFactor, boolean expandBecauseOfFalsing) {
         // Hack to make the expand transition look nice when clear all button is visible - we make
         // the animation only to the last notification, and then jump to the maximum panel height so

@@ -33,6 +33,8 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.PathInterpolator;
 
+import com.android.internal.util.AllianceUtils;
+import com.android.internal.util.NotificationColorHelper;
 import com.android.systemui.R;
 
 /**
@@ -125,8 +127,9 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     private float mAppearAnimationTranslation;
     private boolean mShowingLegacyBackground;
     private final int mLegacyColor;
-    private final int mNormalColor;
-    private final int mLowPriorityColor;
+    private int mNormalColor;
+    private int mLowPriorityColor;
+    private int mMediaColor;
     private boolean mIsBelowSpeedBump;
 
     public ActivatableNotificationView(Context context, AttributeSet attrs) {
@@ -142,9 +145,6 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
         setClipChildren(false);
         setClipToPadding(false);
         mLegacyColor = context.getColor(R.color.notification_legacy_background_color);
-        mNormalColor = context.getColor(R.color.notification_material_background_color);
-        mLowPriorityColor = context.getColor(
-                R.color.notification_material_background_low_priority_color);
         mTintedRippleColor = context.getColor(
                 R.color.notification_ripple_tinted_color);
         mLowPriorityRippleColor = context.getColor(
@@ -161,7 +161,7 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
         mBackgroundNormal.setCustomBackground(R.drawable.notification_material_bg);
         mBackgroundDimmed.setCustomBackground(R.drawable.notification_material_bg_dim);
         updateBackground();
-        updateBackgroundTint();
+        updateSettings();
     }
 
     private final Runnable mTapTimeoutRunnable = new Runnable() {
@@ -372,16 +372,12 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
      */
     public void setTintColor(int color) {
         mBgTint = color;
-        updateBackgroundTint();
+        updateSettings();
     }
 
     private void updateBackgroundTint() {
         int color = getBgColor();
         int rippleColor = getRippleColor();
-        if (color == mNormalColor) {
-            // We don't need to tint a normal notification
-            color = 0;
-        }
         mBackgroundDimmed.setTint(color);
         mBackgroundNormal.setTint(color);
         mBackgroundDimmed.setRippleColor(rippleColor);
@@ -673,7 +669,7 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
 
     private int getBgColor() {
         if (mBgTint != 0) {
-            return mBgTint;
+            return mMediaColor;
         } else if (mShowingLegacyBackground) {
             return mLegacyColor;
         } else if (mIsBelowSpeedBump) {
@@ -737,5 +733,12 @@ public abstract class ActivatableNotificationView extends ExpandableOutlineView 
     public interface OnActivatedListener {
         void onActivated(ActivatableNotificationView view);
         void onActivationReset(ActivatableNotificationView view);
+    }
+
+    private void updateSettings() {
+        mNormalColor = NotificationColorHelper.getCustomNotificationBgColor(mContext);
+        mMediaColor = NotificationColorHelper.getNotificationMediaBgColor(mContext, mBgTint);
+        mLowPriorityColor = AllianceUtils.getLightenOrDarkenColor(mNormalColor);
+        updateBackgroundTint();
     }
 }

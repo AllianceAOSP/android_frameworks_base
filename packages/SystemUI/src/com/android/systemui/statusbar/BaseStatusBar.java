@@ -88,6 +88,8 @@ import com.android.internal.logging.MetricsLogger;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
+import com.android.internal.util.AllianceUtils;
+import com.android.internal.util.NotificationColorHelper;
 import com.android.internal.util.NotificationColorUtil;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.keyguard.KeyguardUpdateMonitor;

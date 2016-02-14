@@ -32,6 +32,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -62,6 +63,8 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.android.internal.util.AllianceUtils;
 
 /**
  * A class that describes a view hierarchy that can be displayed in
@@ -1667,7 +1670,7 @@ public class RemoteViews implements Parcelable, Filter {
             Drawable d = drawables[index];
             if (d != null) {
                 d.mutate();
-                d.setColorFilter(color, mode);
+                d.setColorFilter(AllianceUtils.getColorFilter(color));
             }
         }
 
