@@ -3366,6 +3366,8 @@ public final class Settings {
          * Color of notification icon
          */
         public static final String NOTIFICATION_ICON_COLOR = "notification_icon_color";
+
+        public static final String POWER_MENU_ICON_COLOR = "power_menu_icon_color";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to

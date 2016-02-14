@@ -13,6 +13,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.provider.Settings;
 
 public class AllianceUtils {
 
@@ -128,7 +129,13 @@ public class AllianceUtils {
     	paint.setColorFilter(cf);
     	canvas.drawBitmap(bitmap, 0, 0, paint);
 
-    	
     	return grayBitmap;
     }
+
+    private void colorizeIcon(Context context, ImageView imageView String key, int default) {
+            if (imageView.getDrawable() != null) {
+                final int color = Settings.System.getInt(context.getContentResolver(), key, default);
+                icon.setColorFilter((color > 0) ? (color, Mode.MULTIPLY) : null);
+            }
+        }
 }
