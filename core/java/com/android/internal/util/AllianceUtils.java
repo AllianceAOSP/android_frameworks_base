@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.android.internal.util.ImageUtils;
 
 import java.lang.CharSequence;
+import java.util.Arrays;
 
 public class AllianceUtils {
 
@@ -178,12 +179,11 @@ public class AllianceUtils {
 
         if (resultCharSequence != null) {
             textView.setText(resultCharSequence);
-        } else {
-            textView.setTextColor(color);
         }
+        textView.setTextColor(color);
     }
 
-    private TextAppearanceSpan processTextAppearanceSpan(TextAppearanceSpan span) {
+    private static TextAppearanceSpan processTextAppearanceSpan(TextAppearanceSpan span) {
         ColorStateList colorStateList = span.getTextColor();
         if (colorStateList != null) {
             int[] colors = colorStateList.getColors();
@@ -207,7 +207,7 @@ public class AllianceUtils {
         return span;
     }
 
-    private TextAppearanceSpan processTextAppearanceSpan(int color, TextAppearanceSpan span) {
+    private static TextAppearanceSpan processTextAppearanceSpan(int color, TextAppearanceSpan span) {
         ColorStateList colorStateList = span.getTextColor();
         if (colorStateList != null) {
             int[] colors = colorStateList.getColors();
@@ -228,7 +228,7 @@ public class AllianceUtils {
         return span;
     }
 
-    private int processColor(int color) {
+    private static int processColor(int color) {
         return Color.argb(Color.alpha(color), Color.red(color), Color.green(color), Color.blue(color));
     }
 }
