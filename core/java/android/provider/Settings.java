@@ -3372,6 +3372,21 @@ public final class Settings {
         public static final String POWER_MENU_PRIMARY_TEXT_COLOR = "power_menu_primary_text_color";
 
         public static final String POWER_MENU_SECONDARY_TEXT_COLOR = "power_menu_secondary_text_color";
+
+        /**
+         * Whether to show 4 QS tiles per row instead of the default 3.
+         * @hide
+         */
+        public static final String QS_USE_FOUR_COLUMNS = "qs_use_four_columns";
+
+        /**
+         * Number of columns to display on the quick settings panel
+         * Default is 3
+         * @hide
+         */
+        public static final String QS_NUMBER_OF_COLUMNS = "qs_number_of_columns";
+
+
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
