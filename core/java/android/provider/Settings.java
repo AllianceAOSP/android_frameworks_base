@@ -3392,6 +3392,12 @@ public final class Settings {
         */
         public static final String POWER_MENU_ITEMS = "power_menu_items";
 
+        /**
+        * Whether all file types can be accepted over Bluetooth OBEX
+        * @hide
+        */
+        public static final String BLUETOOTH_ACCEPT_ALL_FILES = "bluetooth_accept_all_files";
+
 
          
         /**
