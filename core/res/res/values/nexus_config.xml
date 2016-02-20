@@ -29,4 +29,7 @@
     <!-- Package name providing alternate WebView implementation.
          Fall back to config_webViewPackageName if not available. -->
     <string name="config_alternateWebViewPackageName" translatable="false">com.google.android.webview</string>
+
+    <!-- Wether doze feature is enabled by default in settings. -->
+    <bool name="config_doze_enabled_by_default">true</bool>
 </resources>
