@@ -30,22 +30,28 @@ import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.content.ServiceConnection;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuff.Mode;
+import android.Manifest;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.IPowerManager;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -85,6 +91,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.android.internal.util.PowerMenuConstants.*;
+
 /**
  * Helper to show the global actions dialog.  Each item is an {@link Action} that
  * may show depending on whether the keyguard is showing, and whether the device
@@ -95,19 +103,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private static final String TAG = "GlobalActions";
 
     private static final boolean SHOW_SILENT_TOGGLE = true;
-
-    /* Valid settings for global actions keys.
-     * see config.xml config_globalActionList */
-    private static final String GLOBAL_ACTION_KEY_POWER = "power";
-    private static final String GLOBAL_ACTION_KEY_REBOOT = "reboot";
-    private static final String GLOBAL_ACTION_KEY_AIRPLANE = "airplane";
-    private static final String GLOBAL_ACTION_KEY_BUGREPORT = "bugreport";
-    private static final String GLOBAL_ACTION_KEY_SILENT = "silent";
-    private static final String GLOBAL_ACTION_KEY_USERS = "users";
-    private static final String GLOBAL_ACTION_KEY_SETTINGS = "settings";
-    private static final String GLOBAL_ACTION_KEY_LOCKDOWN = "lockdown";
-    private static final String GLOBAL_ACTION_KEY_VOICEASSIST = "voiceassist";
-    private static final String GLOBAL_ACTION_KEY_ASSIST = "assist";
 
     private final Context mContext;
     private final WindowManagerFuncs mWindowManagerFuncs;
@@ -129,6 +124,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mHasTelephony;
     private boolean mHasVibrator;
     private final boolean mShowSilentToggle;
+    private String mActions;
 
     /**
      * @param context everything needs a context :(
@@ -144,7 +140,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(TelephonyIntents.ACTION_EMERGENCY_CALLBACK_MODE_CHANGED);
+        filter.addAction(Intent.ACTION_UPDATE_POWER_MENU);
         context.registerReceiver(mBroadcastReceiver, filter);
 
         ConnectivityManager cm = (ConnectivityManager)
@@ -163,6 +159,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
         mShowSilentToggle = SHOW_SILENT_TOGGLE && !mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_useFixedVolume);
+
+        updatePowerMenuActions();
     }
 
     /**
@@ -178,6 +176,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             // Show delayed, so that the dismiss of the previous dialog completes
             mHandler.sendEmptyMessage(MESSAGE_SHOW);
         } else {
+        	mDialog = createDialog();
             handleShow();
         }
     }
@@ -196,7 +195,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private void handleShow() {
         awakenIfNecessary();
-        mDialog = createDialog();
         prepareDialog();
 
         // If we only have 1 item and it's a simple press action, just do this action.
@@ -322,12 +320,17 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         onAirplaneModeChanged();
 
         mItems = new ArrayList<Action>();
-        String[] defaultActions = mContext.getResources().getStringArray(
-                com.android.internal.R.array.config_globalActionsList);
+        String[] actionsArray;
+        if (mActions == null) {
+        	actionsArray = mContext.getResources().getStringArray(
+        			com.android.internal.R.array.config_globalActionsList);
+        } else {
+        	actionsArray = mActions.split("\\|");
+        }
 
         ArraySet<String> addedKeys = new ArraySet<String>();
-        for (int i = 0; i < defaultActions.length; i++) {
-            String actionKey = defaultActions[i];
+        for (int i = 0; i < actionsArray.length; i++) {
+        	String actionKey = actionsArray[i];
             if (addedKeys.contains(actionKey)) {
                 // If we already have added this, don't add it again.
                 continue;
@@ -336,6 +339,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 mItems.add(new PowerAction());
             } else if (GLOBAL_ACTION_KEY_REBOOT.equals(actionKey)) {
                 mItems.add(new RebootAction());
+            } else if (GLOBAL_ACTION_KEY_SCREENSHOT.equals(actionKey)) {
+            	mItems.add(getScreenshotAction());
             } else if (GLOBAL_ACTION_KEY_AIRPLANE.equals(actionKey)) {
                 mItems.add(mAirplaneModeOn);
             } else if (GLOBAL_ACTION_KEY_BUGREPORT.equals(actionKey)) {
@@ -348,7 +353,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     mItems.add(mSilentModeAction);
                 }
             } else if (GLOBAL_ACTION_KEY_USERS.equals(actionKey)) {
-                if (SystemProperties.getBoolean("fw.power_user_switcher", false)) {
+                List<UserInfo> users = ((UserManager) mContext.getSystemService(
+                		Context.USER_SERVICE)).getUsers();
+                if (users.size() > 1) {
                     addUsersToMenu(mItems);
                 }
             } else if (GLOBAL_ACTION_KEY_SETTINGS.equals(actionKey)) {
@@ -459,6 +466,24 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
     }
 
+    private Action getScreenshotAction() {
+    	return new SinglePressAction(com.android.internal.R.drawable.ic_lock_screenshot,
+    			R.string.global_action_screenshot) {
+    		
+    		public void onPress() {
+    			takeScreenshot();
+    		}
+
+    		public boolean showDuringKeyguard() {
+    			return true;
+    		}
+
+    		public boolean showBeforeProvisioning() {
+    			return true;
+    		}
+    	};
+    }
+
     private Action getBugReportAction() {
         return new SinglePressAction(com.android.internal.R.drawable.ic_lock_bugreport,
                 R.string.bugreport_title) {
@@ -515,7 +540,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     }
 
     private Action getSettingsAction() {
-        return new SinglePressAction(com.android.internal.R.drawable.ic_settings,
+        return new SinglePressAction(com.android.internal.R.drawable.ic_lock_settings,
                 R.string.global_action_settings) {
 
             @Override
@@ -538,8 +563,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     }
 
     private Action getAssistAction() {
-        return new SinglePressAction(com.android.internal.R.drawable.ic_action_assist_focused,
-                R.string.global_action_assist) {
+        return new SinglePressAction(com.android.internal.R.drawable.ic_lock_assist, R.string.global_action_search) {
             @Override
             public void onPress() {
                 Intent intent = new Intent(Intent.ACTION_ASSIST);
@@ -560,8 +584,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     }
 
     private Action getVoiceAssistAction() {
-        return new SinglePressAction(com.android.internal.R.drawable.ic_voice_search,
-                R.string.global_action_voice_assist) {
+        return new SinglePressAction(com.android.internal.R.drawable.ic_lock_voice,
+                R.string.global_action_voice_search) {
             @Override
             public void onPress() {
                 Intent intent = new Intent(Intent.ACTION_VOICE_ASSIST);
@@ -632,7 +656,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     Drawable icon = user.iconPath != null ? Drawable.createFromPath(user.iconPath)
                             : null;
                     SinglePressAction switchToUser = new SinglePressAction(
-                            com.android.internal.R.drawable.ic_menu_cc, icon,
+                            com.android.internal.R.drawable.ic_lock_user, icon,
                             (user.name != null ? user.name : "Primary")
                             + (isCurrentUser ? " \u2714" : "")) {
                         public void onPress() {
@@ -655,6 +679,80 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }
             }
         }
+    }
+
+    final Object mScreenshotLock = new Object();
+    ServiceConnection mScreenshotConnection = null;
+
+    final Runnable mScreenshotTimeout = new Runnable() {
+    	@Override
+    	public void run() {
+    		synchronized (mScreenshotLock) {
+    			if (mScreenshotConnection != null) {
+    				mContext.unbindService(mScreenshotConnection);
+    				mScreenshotConnection = null;
+    			}
+    		}
+    	}
+    };
+
+    private void takeScreenshot() {
+    	synchronized (mScreenshotLock) {
+    		if (mScreenshotConnection != null) {
+    			return;
+    		}
+    		ComponentName cn = new ComponentName("com.android.systemui",
+    				"com.android.systemui.screenshot.TakeScreenshotService");
+    		Intent intent = new Intent();
+    		intent.setComponent(cn);
+    		ServiceConnection conn = new ServiceConnection() {
+    			@Override
+    			public void onServiceConnected(ComponentName name, IBinder service) {
+    				synchronized (mScreenshotLock) {
+    					if (mScreenshotConnection != this) {
+    						return;
+    					}
+    					Messenger messenger = new Messenger(service);
+    					Message msg = Message.obtain(null, 1);
+    					final ServiceConnection myConn = this;
+    					Handler h = new Handler(mHandler.getLooper()) {
+    						@Override
+    						public void handleMessage(Message msg) {
+    							synchronized (mScreenshotLock) {
+    								if (mScreenshotConnection == myConn) {
+    									mContext.unbindService(mScreenshotConnection);
+    									mScreenshotConnection = null;
+    									mHandler.removeCallbacks(mScreenshotTimeout);
+    								}
+    							}
+    						}
+    					};
+    					msg.replyTo = new Messenger(h);
+    					msg.arg1 = msg.arg2 = 0;
+
+    					try {
+    						Thread.sleep(1000);
+    					} catch (InterruptedException e) {
+    						e.printStackTrace();
+    					}
+
+    					try {
+    						messenger.send(msg);
+    					} catch (RemoteException e) {
+    						e.printStackTrace();
+    					}
+    				}
+    			}
+
+    			@Override
+    			public void onServiceDisconnected(ComponentName name) {}
+    		};
+
+    		if (mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
+    			mScreenshotConnection = conn;
+    			mHandler.postDelayed(mScreenshotTimeout, 10000);
+    		}
+    	}
     }
 
     private void prepareDialog() {
@@ -1140,9 +1238,16 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     mIsWaitingForEcmExit = false;
                     changeAirplaneModeSystemSetting(true);
                 }
+            } else if (Intent.ACTION_UPDATE_POWER_MENU.equals(action)) {
+            	updatePowerMenuActions();
             }
         }
     };
+
+    protected void updatePowerMenuActions() {
+    	ContentResolver resolver = mContext.getContentResolver();
+    	mActions = Settings.Global.getStringForUser(resolver, Settings.Global.POWER_MENU_ACTIONS, UserHandle.USER_CURRENT);
+    }
 
     PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override

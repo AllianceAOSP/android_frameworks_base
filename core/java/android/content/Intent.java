@@ -1799,6 +1799,8 @@ public class Intent implements Parcelable, Cloneable {
      * dialogs are the notification window-shade and the recent tasks dialog.
      */
     public static final String ACTION_CLOSE_SYSTEM_DIALOGS = "android.intent.action.CLOSE_SYSTEM_DIALOGS";
+
+    public static final String ACTION_UPDATE_POWER_MENU = "android.intent.action.UPDATE_POWER_MENU";
     /**
      * Broadcast Action: Trigger the download and eventual installation
      * of a package.

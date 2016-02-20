@@ -3386,6 +3386,12 @@ public final class Settings {
          */
         public static final String QS_NUMBER_OF_COLUMNS = "qs_number_of_columns";
 
+        /**
+        * Power menu items
+        * @hide
+        */
+        public static final String POWER_MENU_ITEMS = "power_menu_items";
+
 
          
         /**
@@ -5701,6 +5707,14 @@ public final class Settings {
         public static final String UI_NIGHT_MODE = "ui_night_mode";
 
         /**
+         * The current alliance mode that has been selected by the user.  Owned
+         * and controlled by UiModeManagerService.  Constants are as per
+         * UiModeManager.
+         * @hide
+         */
+        public static final String UI_ALLIANCE_MODE = "ui_alliance_mode";
+
+        /**
          * Whether screensavers are enabled.
          * @hide
          */
@@ -7525,6 +7539,12 @@ public final class Settings {
          * @see com.android.server.AlarmManagerService.Constants
          */
         public static final String ALARM_MANAGER_CONSTANTS = "alarm_manager_constants";
+
+        /**
+         * String to contain power menu actions
+         * @hide
+         */
+        public static final String POWER_MENU_ACTIONS = "power_menu_actions";
 
         /**
          * Get the key that retrieves a bluetooth headset's priority.

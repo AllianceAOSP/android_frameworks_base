@@ -94,9 +94,22 @@
   <java-symbol type="string" name="config_defaultQuickSettingsTiles" />
 
   <!-- ADB custom tile -->
-    <java-symbol type="string" name="adb_active_custom_tile" />
-    <java-symbol type="string" name="adb_active_custom_tile_both" />
-    <java-symbol type="string" name="adb_active_custom_tile_usb" />
-    <java-symbol type="string" name="adb_active_custom_tile_net" />
+  <java-symbol type="string" name="adb_active_custom_tile" />
+  <java-symbol type="string" name="adb_active_custom_tile_both" />
+  <java-symbol type="string" name="adb_active_custom_tile_usb" />
+  <java-symbol type="string" name="adb_active_custom_tile_net" />
+
+  <!-- Alliance mode -->
+  <java-symbol type="integer" name="config_defaultAllianceMode" />
+
+  <!-- Power menu items -->
+  <java-symbol type="drawable" name="ic_lock_assist" />
+  <java-symbol type="drawable" name="ic_lock_screenshot" />
+  <java-symbol type="drawable" name="ic_lock_settings" />
+  <java-symbol type="drawable" name="ic_lock_user" />
+  <java-symbol type="drawable" name="ic_lock_voice" />
+  <java-symbol type="string" name="global_action_screenshot" />
+  <java-symbol type="string" name="global_action_search" />
+  <java-symbol type="string" name="global_action_voice_search" />
 
 </resources>
