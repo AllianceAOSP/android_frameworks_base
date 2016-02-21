@@ -105,7 +105,7 @@ import com.android.internal.logging.MetricsLogger;
 import com.android.internal.policy.PhoneWindow;
 import com.android.internal.util.AllianceUtils;
 import com.android.internal.util.gesture.EdgeGesturePosition;
-import com.android.internal.util.gesture.EdgeGestureServiceConstants;
+import com.android.internal.util.gesture.EdgeServiceConstants;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -866,7 +866,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (mNavigationBarOnBottom) {
                     flags |= EdgeGesturePosition.BOTTOM.FLAG;
                 } else if (mNavigationBarLeftInLandscape) {
-                    flags |= EdgeGesturePosition.LEFT_FLAG;
+                    flags |= EdgeGesturePosition.LEFT.FLAG;
                 } else {
                     flags |= EdgeGesturePosition.RIGHT.FLAG;
                 }
