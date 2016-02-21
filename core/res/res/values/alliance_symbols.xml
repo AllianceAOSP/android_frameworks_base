@@ -112,4 +112,9 @@
   <java-symbol type="string" name="global_action_search" />
   <java-symbol type="string" name="global_action_voice_search" />
 
+  <!-- EdgeGesture service -->
+  <java-symbol type="dimen" name="edge_gesture_trigger_distance" />
+  <java-symbol type="dimen" name="edge_gesture_perpendicular_distance" />
+  <java-symbol type="dimen" name="edge_gesture_trigger_thickness" />
+
 </resources>

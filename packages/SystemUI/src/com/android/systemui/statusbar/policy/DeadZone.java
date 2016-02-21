@@ -47,6 +47,7 @@ public class DeadZone extends View {
     private int mHold, mDecay;
     private boolean mVertical;
     private long mLastPokeTime;
+    private boolean mStartFromRight;
 
     private final Runnable mDebugFlash = new Runnable() {
         @Override
@@ -73,6 +74,7 @@ public class DeadZone extends View {
 
         int index = a.getInt(R.styleable.DeadZone_orientation, -1);
         mVertical = (index == VERTICAL);
+        mStartFromRight = false;
 
         if (DEBUG)
             Slog.v(TAG, this + " size=[" + mSizeMin + "-" + mSizeMax + "] hold=" + mHold
@@ -100,6 +102,7 @@ public class DeadZone extends View {
         mShouldFlash = dbg;
         mFlashFrac = 0f;
         postInvalidate();
+        mFlashFrac = dbg ? 1f : 0f;
     }
 
     // I made you a touch event...
@@ -117,7 +120,16 @@ public class DeadZone extends View {
                 Slog.v(TAG, this + " ACTION_DOWN: " + event.getX() + "," + event.getY());
             }
             int size = (int) getSize(event.getEventTime());
-            if ((mVertical && event.getX() < size) || event.getY() < size) {
+            boolean isCaptured;
+            if (mVertical && mStartFromRight) {
+                float pixelsFromRight = getWidth() - event.getX();
+                isCaptured = 0 <= pixelsFromRight && pixelsFromRight < size;
+            } else if (mVertical) {
+                isCaptured = event.getX() < size;
+            } else {
+                isCaptured = event.getY() < size;
+            }
+            if (isCaptured) {
                 if (CHATTY) {
                     Slog.v(TAG, "consuming errant click: (" + event.getX() + "," + event.getY() + ")");
                 }
@@ -147,6 +159,13 @@ public class DeadZone extends View {
         return mFlashFrac;
     }
 
+    public void setStartFromRight(boolean startFromRight) {
+        mStartFromRight = startFromRight;
+        if (mShouldFlash) {
+            postInvalidate();
+        }
+    }
+
     @Override
     public void onDraw(Canvas can) {
         if (!mShouldFlash || mFlashFrac <= 0f) {
@@ -154,7 +173,13 @@ public class DeadZone extends View {
         }
 
         final int size = (int) getSize(SystemClock.uptimeMillis());
-        can.clipRect(0, 0, mVertical ? size : can.getWidth(), mVertical ? can.getHeight() : size);
+        if (mVertical && mStartFromRight) {
+            can.clipRect(can.getWidth() - size, 0, can.getWidth(), can.getHeight());
+        } else if (mVertical) {
+            can.clipRect(0, 0, size, can.getHeight());
+        } else {
+            can.clipRect(0, 0, can.getWidth(), size);
+        }
         final float frac = DEBUG ? (mFlashFrac - 0.5f) + 0.5f : mFlashFrac;
         can.drawARGB((int) (frac * 0xFF), 0xDD, 0xEE, 0xAA);
 
