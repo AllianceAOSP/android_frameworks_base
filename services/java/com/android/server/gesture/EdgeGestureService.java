@@ -20,7 +20,7 @@ import static com.android.internal.util.gesture.EdgeServiceConstants.SENSITIVITY
 import static com.android.internal.util.gesture.EdgeServiceConstants.SENSITIVITY_MASK;
 import static com.android.internal.util.gesture.EdgeServiceConstants.SENSITIVITY_NONE;
 import static com.android.internal.util.gesture.EdgeServiceConstants.SENSITIVITY_SHIFT;
-import static com.android.internal.util.gesture.EdgeGestureServiceConstants.LONG_LIVING;
+import static com.android.internal.util.gesture.EdgeServiceConstants.LONG_LIVING;
 
 import android.Manifest;
 import android.content.Context;

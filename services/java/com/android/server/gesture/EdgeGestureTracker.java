@@ -138,7 +138,7 @@ public class EdgeGestureTracker {
             }
         }
         if ((positions & EdgeGesturePosition.TOP.FLAG) != 0) {
-            if (y < mThickness && (unrestricted || (fx > 0.1f && fx < 0.9f)) {
+            if (y < mThickness && (unrestricted || (fx > 0.1f && fx < 0.9f))) {
                 startWithPosition(motionEvent, EdgeGesturePosition.TOP);
                 return true;
             }
