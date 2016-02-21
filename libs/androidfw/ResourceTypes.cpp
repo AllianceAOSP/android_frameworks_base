@@ -2107,6 +2107,10 @@ bool ResTable_config::isMoreSpecificThan(const ResTable_config& o) const {
             if (!(uiMode & MASK_UI_MODE_NIGHT)) return false;
             if (!(o.uiMode & MASK_UI_MODE_NIGHT)) return true;
         }
+        if (((uiMode^o.uiMode) & MASK_UI_MODE_ALLIANCE) != 0) {
+            if (!(uiMode & MASK_UI_MODE_ALLIANCE)) return false;
+            if (!(o.uiMode & MASK_UI_MODE_ALLIANCE)) return true;
+        }
     }
 
     // density is never 'more specific'
@@ -2300,6 +2304,10 @@ bool ResTable_config::isBetterThan(const ResTable_config& o,
                     && (requested->uiMode & MASK_UI_MODE_NIGHT)) {
                 return (uiMode & MASK_UI_MODE_NIGHT);
             }
+            if (((uiMode^o.uiMode) & MASK_UI_MODE_ALLIANCE) != 0
+                    && (requested->uiMode & MASK_UI_MODE_ALLIANCE)) {
+                return (uiMode & MASK_UI_MODE_ALLIANCE);
+            }
         }
 
         if (screenType || o.screenType) {
@@ -2492,6 +2500,12 @@ bool ResTable_config::match(const ResTable_config& settings) const {
         const int uiModeNight = uiMode&MASK_UI_MODE_NIGHT;
         const int setUiModeNight = settings.uiMode&MASK_UI_MODE_NIGHT;
         if (uiModeNight != 0 && uiModeNight != setUiModeNight) {
+            return false;
+        }
+
+        const int uiModeAlliance = uiMode&MASK_UI_MODE_ALLIANCE;
+        const int setUiModeAlliance = settings.uiMode&MASK_UI_MODE_ALLIANCE;
+        if (uiModeAlliance != 0 && uiModeAlliance != setUiModeAlliance) {
             return false;
         }
 
@@ -2866,6 +2880,21 @@ String8 ResTable_config::toString() const {
             default:
                 res.appendFormat("uiModeNight=%d",
                         dtohs(uiMode&MASK_UI_MODE_NIGHT));
+                break;
+        }
+    }
+    if ((uiMode&MASK_UI_MODE_ALLIANCE) != 0) {
+        if (res.size() > 0) res.append("-");
+        switch (uiMode&ResTable_config::MASK_UI_MODE_ALLIANCE) {
+            case ResTable_config::UI_MODE_ALLIANCE_NO:
+                res.append("notalliance");
+                break;
+            case ResTable_config::UI_MODE_ALLIANCE_YES:
+                res.append("alliance");
+                break;
+            default:
+                res.appendFormat("uiModeAlliance=%d",
+                        dtohs(uiMode&MASK_UI_MODE_ALLIANCE));
                 break;
         }
     }

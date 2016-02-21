@@ -17,6 +17,7 @@
 package com.android.layoutlib.bridge.intensive.setup;
 
 import com.android.ide.common.rendering.api.HardwareConfig;
+import com.android.ide.common.resources.configuration.AllianceModeQualifier;
 import com.android.ide.common.resources.configuration.CountryCodeQualifier;
 import com.android.ide.common.resources.configuration.DensityQualifier;
 import com.android.ide.common.resources.configuration.FolderConfiguration;
@@ -34,6 +35,7 @@ import com.android.ide.common.resources.configuration.TextInputMethodQualifier;
 import com.android.ide.common.resources.configuration.TouchScreenQualifier;
 import com.android.ide.common.resources.configuration.UiModeQualifier;
 import com.android.ide.common.resources.configuration.VersionQualifier;
+import com.android.resources.AllianceMode;
 import com.android.resources.Density;
 import com.android.resources.Keyboard;
 import com.android.resources.KeyboardState;
@@ -171,6 +173,7 @@ public class ConfigGenerator {
         // some default qualifiers.
         config.setUiModeQualifier(new UiModeQualifier(UiMode.NORMAL));
         config.setNightModeQualifier(new NightModeQualifier(NightMode.NOTNIGHT));
+        config.setAllianceModeQualifier(new AllianceModeQualifier(AllianceMode.NOTALLIANCE));
         config.setCountryCodeQualifier(new CountryCodeQualifier());
         config.setLayoutDirectionQualifier(new LayoutDirectionQualifier());
         config.setNetworkCodeQualifier(new NetworkCodeQualifier());

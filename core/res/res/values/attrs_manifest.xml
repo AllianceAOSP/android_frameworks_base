@@ -771,7 +771,7 @@
              different display being activated. -->
         <flag name="screenLayout" value="0x0100" />
         <!-- The global user interface mode has changed.  For example,
-             going in or out of car mode, night mode changing, etc. -->
+             going in or out of car mode, night mode changing, alliance mode changing, etc. -->
         <flag name="uiMode" value="0x0200" />
         <!-- The current available screen size has changed.  If applications don't
              target at least {@link android.os.Build.VERSION_CODES#HONEYCOMB_MR2}

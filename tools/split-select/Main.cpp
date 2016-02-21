@@ -111,6 +111,7 @@ static void removeRuntimeQualifiers(ConfigDescription* outConfig) {
     outConfig->screenWidth = ResTable_config::SCREENWIDTH_ANY;
     outConfig->screenHeight = ResTable_config::SCREENHEIGHT_ANY;
     outConfig->uiMode &= ResTable_config::UI_MODE_NIGHT_ANY;
+    outConfig->uiMode &= ResTable_config::UI_MODE_ALLIANCE_ANY;
 }
 
 struct AppInfo {

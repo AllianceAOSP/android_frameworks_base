@@ -64,6 +64,7 @@ bool parseScreenRound(const char* name, android::ResTable_config* out = NULL);
 bool parseOrientation(const char* str, android::ResTable_config* out = NULL);
 bool parseUiModeType(const char* str, android::ResTable_config* out = NULL);
 bool parseUiModeNight(const char* str, android::ResTable_config* out = NULL);
+bool parseUiModeAlliance(const char* str, android::ResTable_config* out = NULL);
 bool parseDensity(const char* str, android::ResTable_config* out = NULL);
 bool parseTouchscreen(const char* str, android::ResTable_config* out = NULL);
 bool parseKeysHidden(const char* str, android::ResTable_config* out = NULL);

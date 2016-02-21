@@ -22,6 +22,13 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     
     <!-- Default, comma-delimited, quick settings tiles. See QSConstants.java for a list of all available tiles -->
-	    <string name="config_defaultQuickSettingsTiles">wifi,bt,cell,airplane,rotation,flashlight,location,edit,cast,hotspot</string>
+	<string name="config_defaultQuickSettingsTiles">wifi,bt,cell,airplane,rotation,flashlight,location,edit,cast,hotspot</string>
+
+	<!-- Control the default alliance mode to use when there is no other mode override set.
+         One of the following values (see UiModeManager.java):
+             0 - MODE_ALLIANCE_AUTO
+             1 - MODE_ALLIANCE_NO
+             2 - MODE_ALLIANCE_YES -->
+    <integer name="config_defaultAllianceMode">1</integer>
 
 </resources>

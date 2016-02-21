@@ -533,6 +533,22 @@ public final class Configuration implements Parcelable, Comparable<Configuration
      * resource qualifier. */
     public static final int UI_MODE_NIGHT_YES = 0x20;
 
+    /** Constant for {@link #uiMode}: bits that encode the alliance mode. */
+    public static final int UI_MODE_ALLIANCE_MASK = 0x30;
+    /** Constant for {@link #uiMode}: a {@link #UI_MODE_ALLIANCE_MASK}
+     * value indicating that no mode type has been set. */
+    public static final int UI_MODE_ALLIANCE_UNDEFINED = 0x00;
+    /** Constant for {@link #uiMode}: a {@link #UI_MODE_ALLIANCE_MASK}
+     * value that corresponds to the
+     * <a href="{@docRoot}guide/topics/resources/providing-resources.html#AllianceQualifier">notalliance</a>
+     * resource qualifier. */
+    public static final int UI_MODE_ALLIANCE_NO = 0x10;
+    /** Constant for {@link #uiMode}: a {@link #UI_MODE_ALLIANCE_MASK}
+     * value that corresponds to the
+     * <a href="{@docRoot}guide/topics/resources/providing-resources.html#AllianceQualifier">alliance</a>
+     * resource qualifier. */
+    public static final int UI_MODE_ALLIANCE_YES = 0x20;
+
     /**
      * Bit mask of the ui mode.  Currently there are two fields:
      * <p>The {@link #UI_MODE_TYPE_MASK} bits define the overall ui mode of the
@@ -544,6 +560,10 @@ public final class Configuration implements Parcelable, Comparable<Configuration
      * <p>The {@link #UI_MODE_NIGHT_MASK} defines whether the screen
      * is in a special mode. They may be one of {@link #UI_MODE_NIGHT_UNDEFINED},
      * {@link #UI_MODE_NIGHT_NO} or {@link #UI_MODE_NIGHT_YES}.
+     *
+     * <p>The {@link #UI_MODE_ALLIANCE_MASK} defines whether the screen
+     * is in a special mode. They may be one of {@link #UI_MODE_ALLIANCE_UNDEFINED},
+     * {@link #UI_MODE_ALLIANCE_NO} or {@link #UI_MODE_ALLIANCE_YES}.
      */
     public int uiMode;
 
@@ -797,6 +817,12 @@ public final class Configuration implements Parcelable, Comparable<Configuration
             case UI_MODE_NIGHT_YES: sb.append(" night"); break;
             default: sb.append(" night="); sb.append(uiMode&UI_MODE_NIGHT_MASK); break;
         }
+        switch ((uiMode&UI_MODE_ALLIANCE_MASK)) {
+            case UI_MODE_ALLIANCE_UNDEFINED: sb.append(" ?alliance"); break;
+            case UI_MODE_ALLIANCE_NO: /* not-alliance is not interesting to print */ break;
+            case UI_MODE_ALLIANCE_YES: sb.append(" alliance"); break;
+            default: sb.append(" alliance="); sb.append(uiMode&UI_MODE_ALLIANCE_MASK); break;
+        }
         switch (touchscreen) {
             case TOUCHSCREEN_UNDEFINED: sb.append(" ?touch"); break;
             case TOUCHSCREEN_NOTOUCH: sb.append(" -touch"); break;
@@ -966,7 +992,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
                 screenLayout = delta.screenLayout;
             }
         }
-        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED)
+        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED|UI_MODE_ALLIANCE_UNDEFINED)
                 && uiMode != delta.uiMode) {
             changed |= ActivityInfo.CONFIG_UI_MODE;
             if ((delta.uiMode&UI_MODE_TYPE_MASK) != UI_MODE_TYPE_UNDEFINED) {
@@ -976,6 +1002,10 @@ public final class Configuration implements Parcelable, Comparable<Configuration
             if ((delta.uiMode&UI_MODE_NIGHT_MASK) != UI_MODE_NIGHT_UNDEFINED) {
                 uiMode = (uiMode&~UI_MODE_NIGHT_MASK)
                         | (delta.uiMode&UI_MODE_NIGHT_MASK);
+            }
+            if ((delta.uiMode&UI_MODE_ALLIANCE_MASK) != UI_MODE_ALLIANCE_UNDEFINED) {
+                uiMode = (uiMode&~UI_MODE_ALLIANCE_MASK)
+                        | (delta.uiMode&UI_MODE_ALLIANCE_MASK);
             }
         }
         if (delta.screenWidthDp != SCREEN_WIDTH_DP_UNDEFINED
@@ -1100,7 +1130,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
                     getScreenLayoutNoDirection(delta.screenLayout)) {
             changed |= ActivityInfo.CONFIG_SCREEN_LAYOUT;
         }
-        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED)
+        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED|UI_MODE_ALLIANCE_UNDEFINED)
                 && uiMode != delta.uiMode) {
             changed |= ActivityInfo.CONFIG_UI_MODE;
         }
@@ -1550,6 +1580,17 @@ public final class Configuration implements Parcelable, Comparable<Configuration
                 break;
         }
 
+        switch (config.uiMode & Configuration.UI_MODE_ALLIANCE_MASK) {
+            case Configuration.UI_MODE_ALLIANCE_YES:
+                parts.add("alliance");
+                break;
+            case Configuration.UI_MODE_ALLIANCE_NO:
+                parts.add("notalliance");
+                break;
+            default:
+                break;
+        }
+
         switch (config.densityDpi) {
             case DENSITY_DPI_UNDEFINED:
                 break;
@@ -1734,6 +1775,10 @@ public final class Configuration implements Parcelable, Comparable<Configuration
 
         if ((base.uiMode & UI_MODE_NIGHT_MASK) != (change.uiMode & UI_MODE_NIGHT_MASK)) {
             delta.uiMode |= change.uiMode & UI_MODE_NIGHT_MASK;
+        }
+
+        if ((base.uiMode & UI_MODE_ALLIANCE_MASK) != (change.uiMode & UI_MODE_ALLIANCE_MASK)) {
+            delta.uiMode |= change.uiMode & UI_MODE_ALLIANCE_MASK;
         }
 
         if (base.screenWidthDp != change.screenWidthDp) {

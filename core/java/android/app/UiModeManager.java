@@ -26,7 +26,7 @@ import android.util.Log;
  * This class provides access to the system uimode services.  These services
  * allow applications to control UI modes of the device.
  * It provides functionality to disable the car mode and it gives access to the
- * night mode settings.
+ * night mode and alliance mode settings.
  * 
  * <p>These facilities are built on top of the underlying
  * {@link android.content.Intent#ACTION_DOCK_EVENT} broadcasts that are sent when the user
@@ -107,6 +107,21 @@ public class UiModeManager {
      * always run in night mode.
      */
     public static final int MODE_NIGHT_YES = Configuration.UI_MODE_NIGHT_YES >> 4;
+
+    /** Constant for {@link #setAllianceMode(int)} and {@link #getAllianceMode()}:
+     * automatically switch alliance mode on and off based on the time.
+     */
+    public static final int MODE_ALLIANCE_AUTO = Configuration.UI_MODE_ALLIANCE_UNDEFINED >> 4;
+    
+    /** Constant for {@link #setAllianceMode(int)} and {@link #getAllianceMode()}:
+     * never run in alliance mode.
+     */
+    public static final int MODE_ALLIANCE_NO = Configuration.UI_MODE_ALLIANCE_NO >> 4;
+    
+    /** Constant for {@link #setAllianceMode(int)} and {@link #getAllianceMode()}:
+     * always run in alliance mode.
+     */
+    public static final int MODE_ALLIANCE_YES = Configuration.UI_MODE_ALLIANCE_YES >> 4;
 
     private IUiModeManager mService;
 
@@ -219,6 +234,30 @@ public class UiModeManager {
     }
 
     /**
+     * Sets the alliance mode.  Changes to the alliance mode are only effective when
+     * the car or desk mode is enabled on a device.
+     *
+     * <p>The mode can be one of:
+     * <ul>
+     *   <li><em>{@link #MODE_ALLIANCE_NO}<em> - sets the device into notalliance
+     *       mode.</li>
+     *   <li><em>{@link #MODE_ALLIANCE_YES}</em> - sets the device into alliance mode.
+     *   </li>
+     *   <li><em>{@link #MODE_ALLIANCE_AUTO}</em> - automatic alliance/notalliance switching
+     *       depending on the location and certain other sensors.</li>
+     * </ul>
+     */
+    public void setAllianceMode(int mode) {
+        if (mService != null) {
+            try {
+                mService.setAllianceMode(mode);
+            } catch (RemoteException e) {
+                Log.e(TAG, "setAllianceMode: RemoteException", e);
+            }
+        }
+    }
+
+    /**
      * @return the currently configured night mode. May be one of
      *         {@link #MODE_NIGHT_NO}, {@link #MODE_NIGHT_YES},
      *         {@link #MODE_NIGHT_AUTO}, or -1 on error.
@@ -229,6 +268,22 @@ public class UiModeManager {
                 return mService.getNightMode();
             } catch (RemoteException e) {
                 Log.e(TAG, "getNightMode: RemoteException", e);
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * @return the currently configured alliance mode. May be one of
+     *         {@link #MODE_ALLIANCE_NO}, {@link #MODE_ALLIANCE_YES},
+     *         {@link #MODE_ALLIANCE_AUTO}, or -1 on error.
+     */
+    public int getAllianceMode() {
+        if (mService != null) {
+            try {
+                return mService.getAllianceMode();
+            } catch (RemoteException e) {
+                Log.e(TAG, "getAllianceMode: RemoteException", e);
             }
         }
         return -1;
