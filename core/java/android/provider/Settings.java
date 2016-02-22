@@ -3404,6 +3404,12 @@ public final class Settings {
         */
         public static final String BLUETOOTH_ACCEPT_ALL_FILES = "bluetooth_accept_all_files";
 
+        /**
+        * Navigation bar customization
+        * @hide
+        */
+        public static final String NAV_BUTTONS = "nav_buttons";
+
 
          
         /**
