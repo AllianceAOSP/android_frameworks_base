@@ -32,4 +32,5 @@ public interface RecentsComponent {
     void showNextAffiliatedTask();
     void showPrevAffiliatedTask();
     void setCallback(Callbacks cb);
+    void clearRecents();
 }
