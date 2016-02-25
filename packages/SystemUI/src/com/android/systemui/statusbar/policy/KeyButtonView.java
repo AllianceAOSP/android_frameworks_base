@@ -47,7 +47,7 @@ import static android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK
 
 public class KeyButtonView extends ImageView {
 
-    public static final int CURSOR_REPEAT_FFLAGS = KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE;
+    public static final int CURSOR_REPEAT_FLAGS = KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE;
 
     private int mContentDescriptionRes;
     private long mDownTime;
@@ -58,6 +58,7 @@ public class KeyButtonView extends ImageView {
     private boolean mInEditMode;
     private AudioManager mAudioManager;
     private boolean mGestureAborted;
+    private boolean mPerformedLongClick;
 
     private final Runnable mCheckLongPress = new Runnable() {
         public void run() {
@@ -74,6 +75,7 @@ public class KeyButtonView extends ImageView {
                     sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
                 } else if (isLongClickable()) {
                     // Just an old-fashioned ImageView
+                    mPerformedLongClick = true;
                     performLongClick();
                 }
             }
@@ -161,6 +163,11 @@ public class KeyButtonView extends ImageView {
 
     public void setInfo(NavbarEditor.ButtonInfo item, boolean isVertical, boolean isSmall) {
         final Resources res = getResources();
+        setInfo(item, isVertical, isSmall, res);
+    }
+
+    public void setInfo(NavbarEditor.ButtonInfo item, boolean isVertical, boolean isSmall,
+            Resources res) {
         final int keyDrawableResId;
 
         setTag(item);
@@ -263,11 +270,12 @@ public class KeyButtonView extends ImageView {
                     }
                 } else {
                     // no key code, just a regular ImageView
-                    if (doIt) {
+                    if (doIt && !mPerformedLongClick) {
                         performClick();
                     }
                 }
                 removeCallbacks(mCheckLongPress);
+                mPerformedLongClick = false;
                 if (supportsLongPress()) {
                     removeCallbacks(mCheckLongPress);
                 }

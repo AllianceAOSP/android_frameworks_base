@@ -82,6 +82,7 @@ public class StatusBarManager {
 
     public static final int NAVIGATION_HINT_BACK_ALT      = 1 << 0;
     public static final int NAVIGATION_HINT_IME_SHOWN     = 1 << 1;
+    public static final int NAVIGATION_HINT_RECENT_ALT = 1 << 2;
 
     public static final int WINDOW_STATUS_BAR = 1;
     public static final int WINDOW_NAVIGATION_BAR = 2;
@@ -92,6 +93,7 @@ public class StatusBarManager {
 
     public static final int CAMERA_LAUNCH_SOURCE_WIGGLE = 0;
     public static final int CAMERA_LAUNCH_SOURCE_POWER_DOUBLE_TAP = 1;
+    public static final int CAMERA_LAUNCH_SOURCE_SCREEN_GESTURE = 2;
 
     private Context mContext;
     private IStatusBarService mService;

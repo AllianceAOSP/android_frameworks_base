@@ -100,6 +100,7 @@ import com.android.systemui.SwipeHelper;
 import com.android.systemui.SystemUI;
 import com.android.systemui.assist.AssistManager;
 import com.android.systemui.recents.Recents;
+import com.android.systemui.recents.RecentsActivity;
 import com.android.systemui.statusbar.NotificationData.Entry;
 import com.android.systemui.statusbar.phone.NavigationBarView;
 import com.android.systemui.statusbar.phone.NotificationGroupManager;
@@ -135,6 +136,11 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected static final int MSG_CANCEL_PRELOAD_RECENT_APPS = 1023;
     protected static final int MSG_SHOW_NEXT_AFFILIATED_TASK = 1024;
     protected static final int MSG_SHOW_PREV_AFFILIATED_TASK = 1025;
+    //protected static final int MSG_TOGGLE_LAST_APP = 1026;
+    //protected static final int MSG_TOGGLE_KILL_APP = 1027;
+    //protected static final int MSG_TOGGLE_SCREENSHOT = 1028;
+    protected static final int MSG_CLEAR_RECENT_APPS = 1029;
+
 
     protected static final boolean ENABLE_HEADS_UP = true;
     // scores above this threshold should be displayed in heads up mode.
@@ -1061,6 +1067,13 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     @Override
+    public void clearRecentApps() {
+        int msg = MSG_CLEAR_RECENT_APPS;
+        mHandler.removeMessages(msg);
+        mHandler.sendEmptyMessage(msg);
+    }
+
+    @Override
     public void preloadRecentApps() {
         int msg = MSG_PRELOAD_RECENT_APPS;
         mHandler.removeMessages(msg);
@@ -1103,26 +1116,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected abstract View getStatusBarView();
 
-    protected View.OnTouchListener mRecentsPreloadOnTouchListener = new View.OnTouchListener() {
-        // additional optimization when we have software system buttons - start loading the recent
-        // tasks on touch down
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            int action = event.getAction() & MotionEvent.ACTION_MASK;
-            if (action == MotionEvent.ACTION_DOWN) {
-                preloadRecents();
-            } else if (action == MotionEvent.ACTION_CANCEL) {
-                cancelPreloadingRecents();
-            } else if (action == MotionEvent.ACTION_UP) {
-                if (!v.isPressed()) {
-                    cancelPreloadingRecents();
-                }
-
-            }
-            return false;
-        }
-    };
-
     /** Proxy for RecentsComponent */
 
     protected void showRecents(boolean triggeredFromAltTab) {
@@ -1138,10 +1131,24 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
     }
 
+    protected boolean isRecentAppsVisible() {
+        return RecentsActivity.isActivityShowing();
+    }
+
+    protected boolean hasRecentApps() {
+        return RecentsActivity.hasTaskStacks();
+    }
+
     protected void toggleRecents() {
         if (mRecents != null) {
             sendCloseSystemWindows(mContext, SYSTEM_DIALOG_REASON_RECENT_APPS);
             mRecents.toggleRecents(mDisplay, mLayoutDirection, getStatusBarView());
+        }
+    }
+
+    protected void clearRecents() {
+        if (mRecents != null) {
+            mRecents.clearRecents();
         }
     }
 
@@ -1260,6 +1267,9 @@ public abstract class BaseStatusBar extends SystemUI implements
                   break;
              case MSG_SHOW_PREV_AFFILIATED_TASK:
                   showRecentsPreviousAffiliatedTask();
+                  break;
+             case MSG_CLEAR_RECENT_APPS:
+                  clearRecents();
                   break;
             }
         }

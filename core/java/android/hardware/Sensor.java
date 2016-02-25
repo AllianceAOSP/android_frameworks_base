@@ -939,6 +939,9 @@ public final class Sensor {
             case TYPE_TEMPERATURE:
                 mStringType = STRING_TYPE_TEMPERATURE;
                 return true;
+            case TYPE_WRIST_TILT_GESTURE:
+                mStringType = STRING_TYPE_WRIST_TILT_GESTURE;
+                return true;
             default:
                 return false;
         }

@@ -39,7 +39,6 @@ import android.view.KeyEvent;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.server.statusbar.StatusBarManagerInternal;
-
 /**
  * The service that listens for gestures detected in sensor firmware and starts the intent
  * accordingly.
