@@ -30,6 +30,11 @@ interface IWallpaperManager {
      * Set the wallpaper.
      */
     ParcelFileDescriptor setWallpaper(String name, in String callingPackage);
+
+    /**
+     * Set the keyguard wallpaper
+     */
+    ParcelFileDescriptor setKeyguardWallpaper(String name, in String callingPackage);
     
     /**
      * Set the live wallpaper.
@@ -46,6 +51,12 @@ interface IWallpaperManager {
      */
     ParcelFileDescriptor getWallpaper(IWallpaperManagerCallback cb,
             out Bundle outParams);
+
+    /**
+     * Get the keyguard wallpaper
+     */
+     ParcelFileDescriptor getKeyguardWallpaper(IWallpaperManagerCallback cb,
+            out Bundle outParams);
     
     /**
      * Get information about a live wallpaper.
@@ -56,6 +67,11 @@ interface IWallpaperManager {
      * Clear the wallpaper.
      */
     void clearWallpaper(in String callingPackage);
+
+    /**
+     * Clear the keyguard wallpaper
+     */
+     void clearKeyguardWallpaper();
 
     /**
      * Return whether there is a wallpaper set with the given name.
