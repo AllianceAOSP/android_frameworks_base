@@ -61,7 +61,7 @@ public class VolumeUI extends SystemUI {
     private MediaSessionManager mMediaSessionManager;
     private ServiceMonitor mVolumeControllerService;
 
-    private VolumeDialogComponent mVolumeComponent;
+    public static VolumeDialogComponent mVolumeComponent;
 
     @Override
     public void start() {
@@ -82,15 +82,22 @@ public class VolumeUI extends SystemUI {
         mVolumeControllerService.start();
     }
 
-    private VolumeComponent getVolumeComponent() {
+    public static VolumeComponent getVolumeComponent() {
         return mVolumeComponent;
     }
+
+    public static VolumeDialogComponent getVolumeDialogComponent() {
+        return mVolumeComponent;
+    }
+
+
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (!mEnabled) return;
         getVolumeComponent().onConfigurationChanged(newConfig);
+        recreateDialog();
     }
 
     @Override
@@ -99,6 +106,10 @@ public class VolumeUI extends SystemUI {
         if (!mEnabled) return;
         pw.print("mVolumeControllerService="); pw.println(mVolumeControllerService.getComponent());
         getVolumeComponent().dump(fd, pw, args);
+    }
+
+    public void recreateDialog() {
+        mVolumeComponent.recreateDialog();
     }
 
     private void setDefaultVolumeController(boolean register) {

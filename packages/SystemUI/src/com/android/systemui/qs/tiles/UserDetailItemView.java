@@ -25,8 +25,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -128,5 +130,13 @@ public class UserDetailItemView extends LinearLayout {
     @Override
     public boolean hasOverlappingRendering() {
         return false;
+    }
+
+    public void setTextColor(boolean active) {
+        int normalColor = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        int activeColor = getContext().getResources().getColor(R.color.system_accent_color);
+        int disabledColor = (102 << 24) | (normalColor & 0x00ffff);
+        mName.setTextColor(active ? activeColor : disabledColor);
     }
 }

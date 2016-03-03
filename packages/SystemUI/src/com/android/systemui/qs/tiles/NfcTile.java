@@ -102,7 +102,7 @@ public class NfcTile extends QSTile<QSTile.BooleanState> {
 
     @Override
     public int getMetricsCategory() {
-        return 0;
+        return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
     }
 
     @Override

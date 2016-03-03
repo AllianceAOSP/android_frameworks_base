@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.ThemeConfig;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Process;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -23,6 +25,7 @@ import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.android.internal.logging.MetricsLogger;
+import com.android.internal.util.AllianceUtils;
 
 import com.android.systemui.qs.QSDetailItemsGrid;
 import com.android.systemui.qs.QSDetailItemsList;
@@ -145,7 +148,7 @@ public class CustomQSTile extends QSTile<QSTile.State> {
 
     @Override
     public int getMetricsCategory() {
-        return 0;
+        return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
     }
 
     private boolean isDynamicTile() {
@@ -190,7 +193,7 @@ public class CustomQSTile extends QSTile<QSTile.State> {
 
         @Override
         public int getMetricsCategory() {
-            return 0;
+            return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
         }
 
         @Override
@@ -210,6 +213,8 @@ public class CustomQSTile extends QSTile<QSTile.State> {
                 // icon is cached in state, fetch it
                 imageView.setImageDrawable(getState().icon.getDrawable(mContext));
                 customTileTitle.setText(mTile.getCustomTile().label);
+                AllianceUtils.colorizeIcon(context, imageView, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
+                AllianceUtils.colorizeText(mContext, customTileTitle, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
                 if (isDynamicTile()) {
                     customTilePkg.setText(R.string.quick_settings_dynamic_tile_detail_title);
                 } else {

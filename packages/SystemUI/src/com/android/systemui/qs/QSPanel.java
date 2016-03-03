@@ -19,10 +19,15 @@ package com.android.systemui.qs;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.os.UserHandle;
@@ -40,6 +45,7 @@ import com.android.internal.statusbar.StatusBarPanelCustomTile;
 import com.android.systemui.FontSizeUtils;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSTile.DetailAdapter;
+import com.android.systemui.qs.QSTileView;
 import com.android.systemui.settings.BrightnessController;
 import com.android.systemui.settings.ToggleSlider;
 import com.android.systemui.statusbar.phone.QSTileHost;
@@ -81,6 +87,10 @@ public class QSPanel extends ViewGroup {
 
     protected QSFooter mFooter;
     protected boolean mGridContentVisible = true;
+    private SettingsObserver mSettingsObserver;
+    private int brightnessIconColor;
+    private int textColor;
+    public QSTileView mTileView;
 
     public QSPanel(Context context) {
         this(context, null);
@@ -110,7 +120,10 @@ public class QSPanel extends ViewGroup {
         addView(mBrightnessView);
         addView(mFooter.getView());
         mClipper = new QSDetailClipper(mDetail);
+        mSettingsObserver = new SettingsObserver(mHandler);
         updateResources();
+
+        mTileView = new QSTileView(mContext);
 
         mBrightnessController = new BrightnessController(getContext(),
                 (ImageView) findViewById(R.id.brightness_icon),
@@ -141,13 +154,18 @@ public class QSPanel extends ViewGroup {
             mBrightnessView.setVisibility(GONE);
             brightnessSlider.setVisibility(GONE);
         }
+        updateColors();
         updateResources();
         return brightnessSliderEnabled;
     }
 
     protected void updateDetailText() {
+        textColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
         mDetailDoneButton.setText(R.string.quick_settings_done);
         mDetailSettingsButton.setText(R.string.quick_settings_more_settings);
+        mDetailDoneButton.setTextColor(textColor);
+        mDetailSettingsButton.setTextColor(textColor);
     }
 
     public void setBrightnessMirror(BrightnessMirrorController c) {
@@ -190,8 +208,14 @@ public class QSPanel extends ViewGroup {
         }
         if (mListening) {
             refreshAllTiles();
+            mSettingsObserver.observe();
         }
         updateDetailText();
+    }
+
+    public void updateColors() {
+        ImageView brightnessIcon = (ImageView) findViewById(R.id.brightness_icon);
+        brightnessIcon.setColorFilter(brightnessIconColor, Mode.MULTIPLY);
     }
 
     @Override
@@ -232,6 +256,9 @@ public class QSPanel extends ViewGroup {
         mFooter.setListening(mListening);
         if (mListening) {
             refreshAllTiles();
+            mSettingsObserver.observe();
+        } else {
+            mSettingsObserver.unobserve();
         }
         if (listening && showBrightnessSlider()) {
             mBrightnessController.registerCallbacks();
@@ -242,6 +269,8 @@ public class QSPanel extends ViewGroup {
 
     public void refreshAllTiles() {
         for (TileRecord r : mRecords) {
+            r.tileView.setLabelColor();
+            r.tileView.setIconColor();
             r.tile.refreshState();
         }
         mFooter.refreshState();
@@ -610,6 +639,12 @@ public class QSPanel extends ViewGroup {
         fireScanStateChanged(scanState);
     }
 
+    public void setDetailBackgroundColor(int color) {
+        if (mDetail != null) {
+            mDetail.getBackground().setColorFilter(color, Mode.SRC_OVER);
+        }
+    }
+
     private class H extends Handler {
         private static final int SHOW_DETAIL = 1;
         private static final int SET_TILE_VISIBILITY = 2;
@@ -680,5 +715,43 @@ public class QSPanel extends ViewGroup {
         void onShowingDetail(QSTile.DetailAdapter detail);
         void onToggleStateChanged(boolean state);
         void onScanStateChanged(boolean state);
+    }
+
+    class SettingsObserver extends ContentObserver {
+
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_BRIGHTNESS_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        public void update() {
+            ContentResolver resolver = mContext.getContentResolver();
+            brightnessIconColor = Settings.System.getInt(resolver, Settings.System.QUICK_SETTINGS_BRIGHTNESS_ICON_COLOR, Color.WHITE);
+            textColor = Settings.System.getInt(resolver, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        }
     }
 }

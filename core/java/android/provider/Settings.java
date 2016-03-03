@@ -3489,6 +3489,79 @@ public final class Settings {
          */
         public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
 
+        /**
+         * Quick settings icon color
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_ICON_COLOR = "quick_settings_icon_color";
+
+        /**
+         * Quick settings background color
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_BACKGROUND_COLOR = "quick_settings_background_color";
+
+        /**
+         * Quick setting header background color
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_HEADER_BACKGROUND_COLOR = "quick_settings_header_background_color";
+
+        /**
+         * Quick settings tile text color
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_TILE_TEXT_COLOR = "quick_settings_tile_text_color";
+
+        /**
+         * Quick settings header text color
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_HEADER_TEXT_COLOR = "quick_settings_header_text_color";
+
+        /**
+         * Quick settings brightness slider icon color
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_BRIGHTNESS_ICON_COLOR = "quick_settings_brightness_icon_color";
+
+        /**
+         * Expand quick settings panel with one finger (right side)
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_QUICK_PULLDOWN = "quick_settings_quick_pulldown";
+
+        /**
+         * Color for the volume panel icons
+         * @hide
+         */
+        public static final String VOLUME_PANEL_ICON_COLOR = "volume_panel_icon_color";
+
+        /**
+         * Color of the volume panel SeekBars
+         * @hide
+         */
+        public static final String VOLUME_PANEL_SLIDER_COLOR = "volume_panel_slider_color";
+
+        /**
+         * Color of the volume panel slider thumb thingy
+         * @hide
+         */
+        public static final String VOLUME_PANEL_SLIDER_THUMB_COLOR = "volume_panel_slider_thumb_color";
+
+        /**
+         * Option to disable showing of safe volume dialog
+         * @hide
+         */
+        public static final String SHOW_SAFE_VOLUME_MESSAGE = "show_safe_volume_message";
+
+        /**
+         * Expand the volume panel automatically
+         * @hide
+         */
+        public static final String VOLUME_PANEL_AUTO_EXPAND = "volume_panel_auto_expand";
+
+
 
          
         /**

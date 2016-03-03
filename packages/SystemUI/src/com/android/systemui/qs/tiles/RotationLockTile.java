@@ -90,18 +90,21 @@ public class RotationLockTile extends QSTile<QSTile.BooleanState> {
         }
         state.value = rotationLocked;
         final boolean portrait = isCurrentOrientationLockPortrait();
-        final AnimationIcon icon;
+        //final AnimationIcon icon;
         if (rotationLocked) {
             final int label = portrait ? R.string.quick_settings_rotation_locked_portrait_label
                     : R.string.quick_settings_rotation_locked_landscape_label;
             state.label = mContext.getString(label);
-            icon = portrait ? mAutoToPortrait : mAutoToLandscape;
+            state.icon = ResourceIcon.get(portrait ? R.drawable.ic_qs_rotation_portrait
+                    : R.drawable.ic_qs_rotation_landscape);
+            //icon = portrait ? mAutoToPortrait : mAutoToLandscape;
         } else {
             state.label = mContext.getString(R.string.quick_settings_rotation_unlocked_label);
-            icon = portrait ? mPortraitToAuto : mLandscapeToAuto;
+            state.icon = ResourceIcon.get(portrait ? R.drawable.ic_qs_rotation_portrait
+                    : R.drawable.ic_qs_rotation_landscape);
         }
-        icon.setAllowAnimation(userInitiated);
-        state.icon = icon;
+        //icon.setAllowAnimation(userInitiated);
+        //state.icon = icon;
         state.contentDescription = getAccessibilityString(rotationLocked,
                 R.string.accessibility_rotation_lock_on_portrait,
                 R.string.accessibility_rotation_lock_on_landscape,

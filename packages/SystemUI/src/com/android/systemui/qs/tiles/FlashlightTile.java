@@ -88,9 +88,10 @@ public class FlashlightTile extends QSTile<QSTile.BooleanState> implements
         } else {
             state.value = mFlashlightController.isEnabled();
         }
-        final AnimationIcon icon = state.value ? mEnable : mDisable;
-        icon.setAllowAnimation(arg instanceof UserBoolean && ((UserBoolean) arg).userInitiated);
-        state.icon = icon;
+        state.icon = ResourceIcon.get(state.value ? R.drawable.ic_qs_flashlight_on
+                : R.drawable.ic_qs_flashlight_off);
+        //icon.setAllowAnimation(arg instanceof UserBoolean && ((UserBoolean) arg).userInitiated);
+        //state.icon = icon;
         int onOrOffId = state.value
                 ? R.string.accessibility_quick_settings_flashlight_on
                 : R.string.accessibility_quick_settings_flashlight_off;

@@ -49,6 +49,7 @@ import android.content.ServiceConnection;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
@@ -139,9 +140,12 @@ import com.android.systemui.assist.AssistManager;
 import com.android.systemui.doze.DozeHost;
 import com.android.systemui.doze.DozeLog;
 import com.android.systemui.keyguard.KeyguardViewMediator;
+import com.android.systemui.qs.QSDetailItems;
 import com.android.systemui.qs.QSDragPanel;
 import com.android.systemui.qs.QSPanel;
 import com.android.systemui.qs.QSTile;
+import com.android.systemui.qs.QSTileView;
+import com.android.systemui.qs.SignalTileView;
 import com.android.systemui.recents.RecentsActivity;
 import com.android.systemui.recents.ScreenPinningRequest;
 import com.android.systemui.screenrecord.TakeScreenrecordService;
@@ -416,6 +420,12 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     // - The custom Recents Long Press, if selected.  When null, use default (switch last app).
     private ComponentName mCustomRecentsLongPressHandler = null;
 
+    public QSTileView mTileView;
+    private View mIcon;
+    public QSDetailItems mQsDetail;
+    public SignalTileView mSignalView;
+    private QSPanel mQsPanel;
+
     class SettingsObserver extends UserContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -429,6 +439,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.QS_NUMBER_OF_COLUMNS), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_ICON_COLOR), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -441,20 +455,23 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+            updateQsColors();
             update();
         }
 
         @Override
         public void update() {
             ContentResolver resolver = mContext.getContentResolver();  
-
             if (mNavigationBarView != null) {
                 boolean navLeftInLandscape = Settings.System.getInt(resolver,
                         Settings.System.NAVBAR_LEFT_IN_LANDSCAPE, 0) == 1;
                 mNavigationBarView.setLeftInLandscape(navLeftInLandscape);
             }
-
             updateCustomRecentsLongPressHandler(false);
+            int mQSBackgroundColor = Settings.System.getInt(
+                    resolver, Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR, 0xff263238);
+            int signalColor = Settings.System.getInt(resolver,
+                    Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
         }
     }
 
@@ -927,6 +944,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mIconController = new StatusBarIconController(
                 mContext, mStatusBarView, mKeyguardStatusBar, this);
+
+        mTileView = new QSTileView(mContext);
+        mQsDetail = new QSDetailItems(mContext);
+        mSignalView = new SignalTileView(mContext);
+        mQsPanel = new QSPanel(mContext);
 
         // Background thread for any controllers that need it.
         mHandlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
@@ -2011,6 +2033,17 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private boolean packageHasVisibilityOverride(String key) {
         return mNotificationData.getVisibilityOverride(key)
                 != NotificationListenerService.Ranking.VISIBILITY_NO_OVERRIDE;
+    }
+
+    public void updateQsColors() {
+        mHeader.setHeaderColor();
+        mQSPanel.updateIcons();
+        mNotificationPanel.setQSBackgroundColor();
+        mNotificationPanel.setQSColors();
+        mQsPanel.updateColors();
+        mSignalView.setIconColor();
+        mTileView.setIconColor();
+        mTileView.updateColors();
     }
 
     private void updateClearAll() {
