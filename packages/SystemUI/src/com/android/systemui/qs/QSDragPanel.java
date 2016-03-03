@@ -32,6 +32,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -59,6 +60,7 @@ import com.android.internal.logging.MetricsLogger;
 import com.android.systemui.FontSizeUtils;
 import com.android.systemui.R;
 import com.android.systemui.UserContentObserver;
+import com.android.systemui.qs.QSTileView;
 import com.android.systemui.qs.tiles.EditTile;
 import com.android.systemui.qs.tiles.IntentTile;
 import com.android.systemui.settings.BrightnessController;
@@ -69,6 +71,7 @@ import com.android.systemui.statusbar.policy.BrightnessMirrorController;
 import com.android.systemui.tuner.QsTuner;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.android.internal.statusbar.StatusBarPanelCustomTile;
+import com.android.internal.util.AllianceUtils;
 import com.android.internal.util.QSUtils;
 
 import java.util.ArrayList;
@@ -109,6 +112,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
     private int moreSlots;
     private boolean mRestored;
     private boolean mRestoring;
+
     // whether the current view we are dragging in has shifted tiles
     private boolean mMovedByLocation = false;
 
@@ -120,6 +124,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
 
     private Point mDisplaySize;
     private int[] mTmpLoc;
+    public QSTileView mTileView;
 
     public QSDragPanel(Context context) {
         this(context, null);
@@ -141,6 +146,10 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
         updateDetailText();
         mDetail.setVisibility(GONE);
         mDetail.setClickable(true);
+
+        AllianceUtils.colorizeText(mContext, mDetailRemoveButton, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        AllianceUtils.colorizeText(mContext, mDetailSettingsButton, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        AllianceUtils.colorizeText(mContext, mDetailDoneButton, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
 
         mQsPanelTop = (QSPanelTopView) LayoutInflater.from(mContext).inflate(R.layout.qs_tile_top,
                 this, false);
@@ -167,6 +176,9 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
         addView(mViewPager);
         addView(mPageIndicator);
         addView(mFooter.getView());
+
+        mTileView = new QSTileView(mContext);
+        updateIcons();
 
         mClipper = new QSDetailClipper(mDetail);
 
@@ -345,6 +357,13 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
     @Override
     public boolean hasOverlappingRendering() {
         return mClipper.isAnimating() || mEditing;
+    }
+
+    public void setDetailBackgroundColor(int color) {
+        final Resources res = mContext.getResources();
+        if (mDetail != null) {
+            mDetail.getBackground().setColorFilter(color, Mode.SRC_OVER);
+        }
     }
 
     @Override
@@ -721,7 +740,11 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
         };
         r.tileView.init(click, clickSecondary, longClick);
         r.tile.setListening(mListening);
+        updateIcons();
+        r.tileView.setLabelColor();
+        r.tileView.setIconColor();
         r.tile.refreshState();
+        updateIcons();
         r.tileView.setVisibility(mEditing ? View.VISIBLE : View.GONE);
         callback.onStateChanged(r.tile.getState());
 
@@ -729,6 +752,13 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
             Log.d(TAG, "--- makeRecord() called with " + "tile = [" + tile + "]");
         }
         return r;
+    }
+
+    public void updateIcons() {
+        int mQsText = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        int mQsIcon = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
     }
 
     private void removeDraggingRecord() {
@@ -1926,6 +1956,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
 
             expansionIndicator.setImageResource(isExpanded ? R.drawable.ic_qs_tile_contract
                     : R.drawable.ic_qs_tile_expand);
+
             // hide indicator when there's only 1 group
             final boolean singleGroupMode = getGroupCount() == 1;
             expansionIndicator.setVisibility(singleGroupMode ? View.GONE : View.VISIBLE);
@@ -1938,17 +1969,23 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
             } else {
                 systemOrAppIcon.setImageResource(R.drawable.ic_qs_tile_category_other);
             }
+            AllianceUtils.colorizeIcon(mContext, systemOrAppIcon, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
             title.setText(group);
 
             if (isExpanded) {
-                expansionIndicator.setColorFilter(
-                        mContext.getColor(
-                    R.color.qs_detailed_expansion_indicator_color), PorterDuff.Mode.SRC_ATOP);
-                systemOrAppIcon.setColorFilter(
-                        mContext.getColor(R.color.qs_detailed_icon_tint_color), PorterDuff.Mode.SRC_ATOP);
-                title.setTextColor(mContext.getColor(R.color.qs_detailed_title_text_color));
+                int expansionIndicatorColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, mContext.getColor(R.color.qs_detailed_expansion_indicator_color));
+                expansionIndicator.setColorFilter(expansionIndicatorColor, PorterDuff.Mode.SRC_ATOP);
+                int systemOrAppIconColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QUICK_SETTINGS_ICON_COLOR, mContext.getColor(R.color.qs_detailed_icon_tint_color));
+                systemOrAppIcon.setColorFilter(systemOrAppIconColor, PorterDuff.Mode.SRC_ATOP);
+                int titleTextColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, mContext.getColor(R.color.qs_detailed_title_text_color));
+                title.setTextColor(titleTextColor);
             } else {
-                title.setTextColor(mContext.getColor(R.color.qs_detailed_default_text_color));
+                int titleTextColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+                title.setTextColor(titleTextColor);
                 systemOrAppIcon.setColorFilter(null);
                 expansionIndicator.setColorFilter(null);
             }
@@ -1970,6 +2007,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
 
             ImageView icon = (ImageView) child.findViewById(android.R.id.icon);
             icon.setImageDrawable(getQSTileIcon(spec));
+            AllianceUtils.colorizeIcon(mContext, icon, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
 
             return child;
         }
@@ -2101,7 +2139,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
 
         @Override
         public int getMetricsCategory() {
-            return 0;
+            return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
         }
 
         private boolean isValid(String action) {
@@ -2152,6 +2190,8 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.QS_USE_MAIN_TILES), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR), false, this, UserHandle.USER_ALL);
             update();
         }
 

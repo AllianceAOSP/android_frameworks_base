@@ -247,7 +247,7 @@ public class ScreenTimeoutTile extends QSTile<ScreenTimeoutTile.TimeoutState> {
 
     @Override
     public int getMetricsCategory() {
-        return 0;
+        return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
     }
 
     @Override
@@ -309,7 +309,7 @@ public class ScreenTimeoutTile extends QSTile<ScreenTimeoutTile.TimeoutState> {
 
         @Override
         public int getMetricsCategory() {
-            return 0;
+            return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
         }
 
         @Override

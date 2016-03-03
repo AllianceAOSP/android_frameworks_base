@@ -26,13 +26,20 @@ import android.app.StatusBarManager;
 import android.content.Context;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.content.ContentResolver;
+import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.MathUtils;
@@ -221,6 +228,11 @@ public class NotificationPanelView extends PanelView implements
     private final Interpolator mTouchResponseInterpolator =
             new PathInterpolator(0.3f, 0f, 0.1f, 1f);
 
+    private int mQSBackgroundColor;
+    private Handler mHandler = new Handler();
+    private SettingsObserver mSettingsObserver;
+    private boolean oneFingerQuickPulldown;
+
     public NotificationPanelView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setWillNotDraw(!DEBUG);
@@ -285,6 +297,8 @@ public class NotificationPanelView extends PanelView implements
                 }
             }
         });
+        mSettingsObserver = new SettingsObserver(mHandler);
+        setQSBackgroundColor();
     }
 
     @Override
@@ -373,6 +387,16 @@ public class NotificationPanelView extends PanelView implements
             mQsContainer.setHeightOverride(mQsContainer.getDesiredHeight());
         }
         updateMaxHeadsUpTranslation();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        mSettingsObserver.observe();
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        mSettingsObserver.unobserve();
     }
 
     private void startQsSizeChangeAnimation(int oldHeight, final int newHeight) {
@@ -791,7 +815,11 @@ public class NotificationPanelView extends PanelView implements
                 && mQsExpansionEnabled) {
             mTwoFingerQsExpandPossible = true;
         }
-        if (mTwoFingerQsExpandPossible && isOpenQsEvent(event)
+        boolean twoFingerQSEvent = mTwoFingerQsExpandPossible && (event.getActionMasked() ==
+                MotionEvent.ACTION_POINTER_DOWN && event.getPointerCount() == 2);
+        boolean oneFingerQSOverride = oneFingerQuickPulldown && event.getActionMasked() ==
+                MotionEvent.ACTION_DOWN && shouldQuickSettingsIntercept(event.getX(), event.getY(), -1, false);
+        if ((twoFingerQSEvent || oneFingerQSOverride) && isOpenQsEvent(event)
                 && event.getY(event.getActionIndex()) < mStatusBarMinHeight) {
             MetricsLogger.count(mContext, COUNTER_PANEL_OPEN_QS, 1);
             mQsExpandImmediate = true;
@@ -1486,16 +1514,24 @@ public class NotificationPanelView extends PanelView implements
      * @return Whether we should intercept a gesture to open Quick Settings.
      */
     private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff) {
+        return shouldQuickSettingsIntercept(x, y, yDiff, true);
+    }
+
+    private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff, boolean useHeader) {
         if (!mQsExpansionEnabled || mCollapsedOnDown) {
             return false;
         }
         View header = mKeyguardShowing ? mKeyguardStatusBar : mHeader;
-        boolean onHeader = x >= header.getX() && x <= header.getX() + header.getWidth()
+        boolean onHeader = useHeader && x >= header.getX() && x <= header.getX() + header.getWidth()
                 && y >= header.getTop() && y <= header.getBottom();
+        final float w = getMeasuredWidth();
+        float region = (w * (1.f/3.f));
+        final boolean showQSOverride = isLayoutRtl() ? (x < region) : (w - region < x)
+                && mStatusBarState == StatusBarState.SHADE;
         if (mQsExpanded) {
             return onHeader || (mScrollView.isScrolledToBottom() && yDiff < 0) && isInQsArea(x, y);
         } else {
-            return onHeader;
+            return onHeader || showQSOverride;
         }
     }
 
@@ -2473,5 +2509,76 @@ public class NotificationPanelView extends PanelView implements
         ActivityManager am = getContext().getSystemService(ActivityManager.class);
         List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
         return !tasks.isEmpty() && pkgName.equals(tasks.get(0).topActivity.getPackageName());
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_QUICK_PULLDOWN), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_HEADER_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR), false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+            ContentResolver resolver = mContext.getContentResolver();
+            setQSBackgroundColor();
+            setQSColors();
+            update();
+        }
+
+        public void update() {
+            ContentResolver resolver = mContext.getContentResolver();
+            oneFingerQuickPulldown = Settings.System.getInt(resolver,
+                    Settings.System.QUICK_SETTINGS_QUICK_PULLDOWN, 1) == 1;
+            int mQSBackgroundColor = Settings.System.getInt(resolver,
+                    Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR, 0xff263238);
+            setQSBackgroundColor();
+            setQSColors();
+        }
+    }
+
+    public void setQSBackgroundColor() {
+        final Resources res = mContext.getResources();
+        ContentResolver resolver = mContext.getContentResolver();
+        int mQSBackgroundColor = Settings.System.getInt(resolver,
+                Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR, 0xff263238);
+        if (mQsContainer != null) {
+            mQsContainer.getBackground().setColorFilter(mQSBackgroundColor, Mode.SRC_OVER);
+            if (mQsPanel != null) {
+                mQsPanel.setDetailBackgroundColor(mQSBackgroundColor);
+            }
+        }
+    }
+
+    public void setQSColors() {
+        if (mQsPanel != null) {
+            mQsPanel.refreshAllTiles();
+        }
     }
 }

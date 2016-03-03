@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.android.internal.logging.MetricsConstants;
+import com.android.internal.logging.MetricsLogger;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSTile;
 
@@ -56,7 +57,7 @@ public class ScreenOffTile extends QSTile<QSTile.BooleanState> {
 
     @Override
     public int getMetricsCategory() {
-        return 0;
+        return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
     }
 
     @Override

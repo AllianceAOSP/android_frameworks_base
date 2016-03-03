@@ -17,19 +17,24 @@
 package com.android.systemui.qs;
 
 import android.annotation.Nullable;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.database.ContentObserver;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.MathUtils;
@@ -56,7 +61,7 @@ public class QSTileView extends ViewGroup {
     protected final Context mContext;
     private final View mIcon;
     private final View mDivider;
-    private final H mHandler = new H();
+    public final H mHandler = new H();
     private int mIconSizePx;
     private float mSizeScale = 1.0f;
     private final int mTileSpacingPx;
@@ -74,6 +79,9 @@ public class QSTileView extends ViewGroup {
     private OnLongClickListener mLongClick;
     private Drawable mTileBackground;
     private RippleDrawable mRipple;
+    private int mTextColor;
+    private int mIconColor;
+    private SettingsObserver mSettingsObserver;
 
     public QSTileView(Context context) {
         super(context);
@@ -86,6 +94,9 @@ public class QSTileView extends ViewGroup {
         mTileBackground = newTileBackground();
         recreateLabel();
         setClipChildren(false);
+        mSettingsObserver = new SettingsObserver(mHandler);
+        mTextColor = Settings.System.getInt(context.getContentResolver(), Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        mIconColor = Settings.System.getInt(context.getContentResolver(), Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
 
         mTopBackgroundView = new View(context);
         mTopBackgroundView.setId(View.generateViewId());
@@ -150,6 +161,7 @@ public class QSTileView extends ViewGroup {
             mDualLabel = null;
         }
         final Resources res = mContext.getResources();
+        updateColors();
         if (mDual) {
             if (mDualLabel == null) {
                 mDualLabel = new QSDualTileLabel(mContext);
@@ -158,7 +170,7 @@ public class QSTileView extends ViewGroup {
                 if (mDualDetails) {
                     mDualLabel.setFirstLineCaret(mContext.getDrawable(R.drawable.qs_dual_tile_caret));
                 }
-                mDualLabel.setTextColor(mContext.getColor(R.color.qs_tile_text));
+                mDualLabel.setTextColor(mTextColor);
                 mDualLabel.setPadding(0, mDualTileVerticalPaddingPx, 0, mDualTileVerticalPaddingPx);
                 mDualLabel.setTypeface(CONDENSED);
                 mDualLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX,
@@ -179,7 +191,7 @@ public class QSTileView extends ViewGroup {
         } else {
             if (mLabel == null) {
                 mLabel = new TextView(mContext);
-                mLabel.setTextColor(mContext.getColor(R.color.qs_tile_text));
+                mLabel.setTextColor(mTextColor);
                 mLabel.setGravity(Gravity.CENTER_HORIZONTAL);
                 mLabel.setMinLines(2);
                 mLabel.setPadding(0, 0, 0, 0);
@@ -258,10 +270,12 @@ public class QSTileView extends ViewGroup {
         mLongClick = longClick;
     }
 
-    protected View createIcon() {
+    public View createIcon() {
+        updateColors();
         final ImageView icon = new ImageView(mContext);
         icon.setId(android.R.id.icon);
         icon.setScaleType(ScaleType.CENTER_INSIDE);
+        icon.setColorFilter(mIconColor, Mode.MULTIPLY);
         return icon;
     }
 
@@ -382,9 +396,9 @@ public class QSTileView extends ViewGroup {
         if (!Objects.equals(state.enabled, iv.isEnabled())) {
             iv.setEnabled(state.enabled);
             if (state.enabled) {
-                iv.setColorFilter(null);
+                iv.setColorFilter(mIconColor, Mode.MULTIPLY);
             } else {
-                iv.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+                iv.setColorFilter(Color.GRAY, Mode.MULTIPLY);
             }
         }
     }
@@ -443,6 +457,30 @@ public class QSTileView extends ViewGroup {
         }
     }
 
+    public void updateColors() {
+        final ContentResolver resolver = mContext.getContentResolver();
+        mTextColor = Settings.System.getInt(resolver, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
+        mIconColor = Settings.System.getInt(resolver, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
+    }
+
+    public void setLabelColor() {
+        updateColors();
+        if (mLabel != null) {
+            mLabel.setTextColor(mTextColor);
+        }
+        if (mDualLabel != null) {
+            mDualLabel.setTextColor(mTextColor);
+        }
+    }
+
+    public void setIconColor() {
+        if (mIcon instanceof ImageView) {
+            updateColors();
+            ImageView image = (ImageView) mIcon;
+            image.setColorFilter(mIconColor, Mode.MULTIPLY);
+        }
+    }
+
     private class H extends Handler {
         private static final int STATE_CHANGED = 1;
         public H() {
@@ -453,6 +491,46 @@ public class QSTileView extends ViewGroup {
             if (msg.what == STATE_CHANGED) {
                 handleStateChanged((State) msg.obj);
             }
+        }
+    }
+
+    class SettingsObserver extends ContentObserver {
+
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_USE_FOUR_COLUMNS), false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+            updateColors();
+            setIconColor();
+        }
+
+        public void update() {
+            updateColors();
+            setIconColor();
         }
     }
 }

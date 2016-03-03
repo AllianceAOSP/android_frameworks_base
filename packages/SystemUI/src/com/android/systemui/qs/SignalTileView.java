@@ -17,8 +17,17 @@
 package com.android.systemui.qs;
 
 import android.animation.ValueAnimator;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -38,6 +47,8 @@ public final class SignalTileView extends QSTileView {
     private ImageView mOut;
 
     private int mWideOverlayIconStartPadding;
+    private int mIconColor;
+    private SettingsObserver mSettingsObserver;
 
     public SignalTileView(Context context) {
         super(context);
@@ -47,22 +58,30 @@ public final class SignalTileView extends QSTileView {
 
         mWideOverlayIconStartPadding = context.getResources().getDimensionPixelSize(
                 R.dimen.wide_type_icon_start_padding_qs);
+        mSettingsObserver = new SettingsObserver(new Handler());
+
+        mIconColor = Settings.System.getInt(context.getContentResolver(), Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
     }
 
     private ImageView addTrafficView(int icon) {
+        updateIconColor();
         final ImageView traffic = new ImageView(mContext);
         traffic.setImageResource(icon);
+        traffic.setColorFilter(mIconColor, Mode.MULTIPLY);
         traffic.setAlpha(0f);
         addView(traffic);
         return traffic;
     }
 
     @Override
-    protected View createIcon() {
+    public View createIcon() {
+        updateIconColor();
         mIconFrame = new FrameLayout(mContext);
         mSignal = new ImageView(mContext);
+        mSignal.setColorFilter(mIconColor, Mode.MULTIPLY);
         mIconFrame.addView(mSignal);
         mOverlay = new ImageView(mContext);
+        mOverlay.setColorFilter(mIconColor, Mode.MULTIPLY);
         mIconFrame.addView(mOverlay, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         return mIconFrame;
     }
@@ -108,6 +127,7 @@ public final class SignalTileView extends QSTileView {
         if (s.overlayIconId > 0) {
             mOverlay.setVisibility(VISIBLE);
             mOverlay.setImageResource(s.overlayIconId);
+            mOverlay.setColorFilter(mIconColor, Mode.MULTIPLY);
         } else {
             mOverlay.setVisibility(GONE);
         }
@@ -135,6 +155,52 @@ public final class SignalTileView extends QSTileView {
                 .start();
         } else {
             view.setAlpha(newAlpha);
+        }
+    }
+
+    public void setIconColor() {
+        updateIconColor();
+        mSignal.setColorFilter(mIconColor, Mode.MULTIPLY);
+        mOverlay.setColorFilter(mIconColor, Mode.MULTIPLY);
+        mIn.setColorFilter(mIconColor, Mode.MULTIPLY);
+        mOut.setColorFilter(mIconColor, Mode.MULTIPLY);
+    }
+
+    private void updateIconColor() {
+        mIconColor = Settings.System.getInt(mContext.getContentResolver(), Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
+    }
+
+    class SettingsObserver extends ContentObserver {
+
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            setIconColor();
+            update();
+        }
+
+        public void update() {
+            setIconColor();
         }
     }
 }

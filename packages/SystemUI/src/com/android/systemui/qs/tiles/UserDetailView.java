@@ -78,6 +78,7 @@ public class UserDetailView extends PseudoGridView {
             }
             v.setActivated(item.isCurrent);
             v.setTag(item);
+            v.setTextColor(item.isCurrent);
             return v;
         }
 

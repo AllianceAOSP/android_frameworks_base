@@ -17,8 +17,10 @@
 package com.android.systemui.qs;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -36,6 +38,7 @@ import android.widget.TextView;
 import com.android.systemui.R;
 
 import com.android.internal.statusbar.CustomTile;
+import com.android.internal.util.AllianceUtils;
 
 import java.util.List;
 
@@ -76,6 +79,8 @@ public class QSDetailItemsList extends LinearLayout {
     public void setEmptyState(int icon, int text) {
         mEmptyIcon.setImageResource(icon);
         mEmptyText.setText(text);
+        AllianceUtils.colorizeIcon(getContext(), mEmptyIcon, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
+        AllianceUtils.colorizeText(getContext(), mEmptyText, Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
     }
 
     @Override
@@ -129,6 +134,7 @@ public class QSDetailItemsList extends LinearLayout {
             final ImageView iv = (ImageView) view.findViewById(android.R.id.icon);
             iv.setImageDrawable(d);
             iv.getOverlay().clear();
+            AllianceUtils.colorizeIcon(getContext(), iv, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
             //TODO: hide icon for the time being until the API supports granular item manipulation
             final ImageView iv2 = (ImageView) view.findViewById(android.R.id.icon2);
             iv2.setVisibility(View.GONE);
@@ -186,6 +192,7 @@ public class QSDetailItemsList extends LinearLayout {
                         item.overlay.getIntrinsicHeight());
                 iv.getOverlay().add(item.overlay);
             }
+            AllianceUtils.colorizeIcon(getContext(), iv, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
             final TextView title = (TextView) view.findViewById(android.R.id.title);
             title.setText(item.line1);
             final TextView summary = (TextView) view.findViewById(android.R.id.summary);
@@ -198,6 +205,7 @@ public class QSDetailItemsList extends LinearLayout {
 
             final ImageView disconnect = (ImageView) view.findViewById(android.R.id.icon2);
             disconnect.setVisibility(item.canDisconnect ? VISIBLE : GONE);
+            AllianceUtils.colorizeIcon(getContext(), disconnect, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
             disconnect.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {

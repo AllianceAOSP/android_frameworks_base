@@ -17,8 +17,10 @@
 package com.android.systemui.qs;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
@@ -27,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.internal.util.AllianceUtils;
 import com.android.systemui.R;
 
 import java.util.Objects;
@@ -102,6 +105,7 @@ public class QSDualTileLabel extends LinearLayout {
             final int h = d.getIntrinsicHeight();
             mFirstLine.setMinHeight(h);
             mFirstLine.setPadding(mHorizontalPaddingPx, 0, 0, 0);
+            AllianceUtils.colorizeIcon(getContext(), mFirstLineCaret, Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.GRAY);
         }
     }
 

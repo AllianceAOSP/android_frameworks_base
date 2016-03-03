@@ -20,12 +20,14 @@ import android.provider.Settings;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.TextAppearanceSpan;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.internal.util.ImageUtils;
 
 import java.lang.CharSequence;
+import java.lang.Math;
 import java.util.Arrays;
 
 public class AllianceUtils {
@@ -146,12 +148,30 @@ public class AllianceUtils {
     }
 
     public static void colorizeIcon(Context context, ImageView imageView, String key, int defaultColor) {
+        final int color = Settings.System.getInt(context.getContentResolver(), key, defaultColor);
         if (imageView.getDrawable() != null) {
-            final int color = Settings.System.getInt(context.getContentResolver(), key, defaultColor);
             if (color == 0) {
                 imageView.setColorFilter(null);
             } else {
                 imageView.setColorFilter(color, Mode.MULTIPLY);
+            }
+        }
+    }
+
+    public static void colorizeIcon(Context context, ImageButton imageButton, String key, int defaultColor) {
+        final int color = Settings.System.getInt(context.getContentResolver(), key, defaultColor);
+        if (imageButton.getDrawable() != null) {
+            if (color == 0) {
+                imageButton.getDrawable().setColorFilter(null);
+            } else {
+                imageButton.getDrawable().setColorFilter(color, Mode.MULTIPLY);
+            }
+        }
+        if (imageButton.getBackground() != null) {
+            if (color == 0) {
+                imageButton.getBackground().setColorFilter(null);
+            } else {
+                imageButton.getBackground().setColorFilter(color, Mode.MULTIPLY);
             }
         }
     }
@@ -230,5 +250,13 @@ public class AllianceUtils {
 
     private static int processColor(int color) {
         return Color.argb(Color.alpha(color), Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    public static int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
     }
 }

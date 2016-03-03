@@ -106,8 +106,8 @@ public class LocationTile extends QSTile<QSTile.BooleanState> {
             refreshState();
         }
 
-        mEnable.setAllowAnimation(true);
-        mDisable.setAllowAnimation(true);
+        mEnable.setAllowAnimation(false);
+        mDisable.setAllowAnimation(false);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class LocationTile extends QSTile<QSTile.BooleanState> {
             case Settings.Secure.LOCATION_MODE_OFF:
                 state.contentDescription = mContext.getString(
                         R.string.accessibility_quick_settings_location_off);
-                state.icon = mDisable;
+                state.icon = ResourceIcon.get(R.drawable.ic_qs_location_off);
                 break;
             case Settings.Secure.LOCATION_MODE_BATTERY_SAVING:
                 state.contentDescription = mContext.getString(
@@ -139,17 +139,17 @@ public class LocationTile extends QSTile<QSTile.BooleanState> {
             case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
                 state.contentDescription = mContext.getString(
                         R.string.accessibility_quick_settings_location_gps_only);
-                state.icon = mEnable;
+                state.icon = ResourceIcon.get(R.drawable.ic_qs_location_on);
                 break;
             case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
                 state.contentDescription = mContext.getString(
                         R.string.accessibility_quick_settings_location_high_accuracy);
-                state.icon = mEnable;
+                state.icon = ResourceIcon.get(R.drawable.ic_qs_location_on);
                 break;
             default:
                 state.contentDescription = mContext.getString(
                         R.string.accessibility_quick_settings_location_on);
-                state.icon = mEnable;
+                state.icon = ResourceIcon.get(R.drawable.ic_qs_location_on);
         }
     }
 

@@ -70,7 +70,7 @@ public class EditTile extends QSTile<QSTile.BooleanState> implements KeyguardMon
 
     @Override
     public int getMetricsCategory() {
-        return 0;
+        return MetricsLogger.WE_DONT_NEED_NO_STINKIN_METRICS;
     }
 
     @Override

@@ -18,15 +18,24 @@ package com.android.systemui.statusbar.phone;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
+import android.graphics.Color;
 import android.graphics.Outline;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.MathUtils;
 import android.util.TypedValue;
@@ -42,6 +51,7 @@ import android.widget.Toast;
 
 import com.android.internal.logging.MetricsConstants;
 import com.android.internal.statusbar.StatusBarPanelCustomTile;
+import com.android.internal.util.AllianceUtils;
 import com.android.keyguard.KeyguardStatusView;
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.FontSizeUtils;
@@ -54,6 +64,7 @@ import com.android.systemui.statusbar.policy.NetworkControllerImpl.EmergencyList
 import com.android.systemui.statusbar.policy.NextAlarmController;
 import com.android.systemui.statusbar.policy.UserInfoController;
 import com.android.systemui.tuner.TunerService;
+import com.android.systemui.UserContentObserver;
 
 import java.text.NumberFormat;
 
@@ -133,6 +144,11 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     private boolean mEditing;
     private QSTile.DetailAdapter mEditingDetailAdapter;
 
+    private int mHeaderColor;
+    private View mHeaderView;
+    private SettingsObserver mSettingsObserver;
+    private int mHeaderTextColor;
+
     public StatusBarHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -140,6 +156,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        mHeaderView = findViewById(R.id.header);
         mSystemIconsSuperContainer = findViewById(R.id.system_icons_super_container);
         mSystemIconsContainer = (ViewGroup) findViewById(R.id.system_icons_container);
         mSystemIconsSuperContainer.setOnClickListener(this);
@@ -166,10 +183,12 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         mSignalCluster = findViewById(R.id.signal_cluster);
         mSystemIcons = (LinearLayout) findViewById(R.id.system_icons);
         mEditTileDoneText = (TextView) findViewById(R.id.done);
+        mSettingsObserver = new SettingsObserver(new Handler());
         loadDimens();
         updateVisibilities();
         updateClockScale();
         updateAvatarScale();
+        setHeaderColor();
         addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right,
@@ -236,6 +255,22 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
 
         updateClockScale();
         updateClockCollapsedMargin();
+    }
+
+    public void setHeaderColor() {
+        final Resources res = getContext().getResources();
+        mHeaderView = findViewById(R.id.header);
+        mQsDetailHeaderTitle = (TextView) mQsDetailHeader.findViewById(android.R.id.title);
+        mHeaderColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.QUICK_SETTINGS_HEADER_BACKGROUND_COLOR, 0xff384248);
+        if (mHeaderView != null) {
+            mHeaderView.getBackground().setColorFilter(mHeaderColor, Mode.SRC_OVER);
+        }
+        if (mQsDetailHeaderTitle != null) {
+            mHeaderTextColor = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR, Color.WHITE);
+            mQsDetailHeaderTitle.setTextColor(mHeaderTextColor);
+        }
     }
 
     private void updateClockCollapsedMargin() {
@@ -382,8 +417,10 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
 
     private void updateListeners() {
         if (mListening) {
+            mSettingsObserver.observe();
             mNextAlarmController.addStateChangedCallback(this);
         } else {
+            mSettingsObserver.unobserve();
             mNextAlarmController.removeStateChangedCallback(this);
         }
     }
@@ -814,6 +851,9 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
             mShowingDetail = showingDetail;
             if (showingDetail) {
                 mQsDetailHeaderTitle.setText(detail.getTitle());
+                mHeaderTextColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR, Color.WHITE);
+                mQsDetailHeaderTitle.setTextColor(mHeaderTextColor);
                 final Boolean toggleState = detail.getToggleState();
                 if (detail.getTitle() == R.string.quick_settings_edit_label) {
                     mEditTileDoneText.setVisibility(View.VISIBLE);
@@ -870,4 +910,45 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                     .start();
         }
     };
+
+    class SettingsObserver extends UserContentObserver {
+
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void observe() {
+            super.observe();
+
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_HEADER_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        @Override
+        protected void unobserve() {
+            super.unobserve();
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        @Override
+        public void update() {
+            ContentResolver resolver = mContext.getContentResolver();
+            mHeaderColor = Settings.System.getInt(resolver, Settings.System.QUICK_SETTINGS_HEADER_BACKGROUND_COLOR, 0xff384248);
+            mHeaderTextColor = Settings.System.getInt(resolver, Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR, Color.WHITE);
+            updateVisibilities();
+            requestCaptureValues();
+            setHeaderColor();
+        }
+    }
 }
