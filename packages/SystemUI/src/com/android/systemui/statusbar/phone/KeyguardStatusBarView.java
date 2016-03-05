@@ -16,9 +16,15 @@
 
 package com.android.systemui.statusbar.phone;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -36,6 +42,7 @@ import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
 import com.android.systemui.statusbar.policy.UserInfoController;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
 
+import java.lang.Runnable;
 import java.text.NumberFormat;
 
 /**
@@ -59,6 +66,10 @@ public class KeyguardStatusBarView extends RelativeLayout {
     private int mSystemIconsSwitcherHiddenExpandedMargin;
     private Interpolator mFastOutSlowInInterpolator;
 
+    private BatteryMeterView mBatteryView;
+    private Handler mHandler = new Handler();
+    private SettingsObserver mSettingsObserver;
+
     public KeyguardStatusBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -71,6 +82,8 @@ public class KeyguardStatusBarView extends RelativeLayout {
         mMultiUserAvatar = (ImageView) findViewById(R.id.multi_user_avatar);
         mBatteryLevel = (TextView) findViewById(R.id.battery_level);
         mCarrierLabel = (TextView) findViewById(R.id.keyguard_carrier_text);
+        mBatteryView = (BatteryMeterView) findViewById(R.id.battery);
+        mSettingsObserver = new SettingsObserver(mHandler);
         loadDimens();
         mFastOutSlowInInterpolator = AnimationUtils.loadInterpolator(getContext(),
                 android.R.interpolator.fast_out_slow_in);
@@ -117,6 +130,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
     }
 
     public void setListening(boolean listening) {
+        mSettingsObserver.observe();
         if (listening == mBatteryListening) {
             return;
         }
@@ -132,7 +146,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
 
     public void setBatteryController(BatteryController batteryController) {
         mBatteryController = batteryController;
-        ((BatteryMeterView) findViewById(R.id.battery)).setBatteryController(batteryController);
+        mBatteryView.setBatteryController(batteryController);
     }
 
     public void setUserSwitcherController(UserSwitcherController controller) {
@@ -222,5 +236,53 @@ public class KeyguardStatusBarView extends RelativeLayout {
     @Override
     public boolean hasOverlappingRendering() {
         return false;
+    }
+
+    public void setBatteryColors() {
+        mBatteryView.post(new Runnable() {
+            @Override
+            public void run() {
+                mBatteryView.invalidate();
+            }
+        });
+    }
+
+    class SettingsObserver extends ContentObserver {
+
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = getContext().getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_CHARGE_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_BOLT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        void unobserve() {
+            ContentResolver resolver = getContext().getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        public void update() {
+            setBatteryColors();
+        }
     }
 }

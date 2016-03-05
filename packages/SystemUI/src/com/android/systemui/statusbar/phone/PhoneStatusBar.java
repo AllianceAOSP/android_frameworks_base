@@ -199,6 +199,7 @@ import com.android.systemui.volume.VolumeComponent;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.Runnable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -443,6 +444,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QUICK_SETTINGS_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_CHARGE_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_BOLT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -454,8 +463,22 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 
         @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        @Override
         public void onChange(boolean selfChange, Uri uri) {
-            updateQsColors();
+            if (uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_ICON_COLOR)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_CHARGE_COLOR)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_BOLT_COLOR)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR))) {
+                setBatteryColors();
+            }
+            if (uri.equals(Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_ICON_COLOR)) ||
+                uri.equals(Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR))) {
+                updateQsColors();
+            }
             update();
         }
 
@@ -613,6 +636,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private int mLastCameraLaunchSource;
     private PowerManager.WakeLock mGestureWakeLock;
     private Vibrator mVibrator;
+
+    private BatteryMeterView mBatteryView;
 
     // Fingerprint (as computed by getLoggingFingerprint() of the last logged state.
     private int mLastLoggedStateFingerprint;
@@ -1174,10 +1199,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mUserInfoController.reloadUserInfo();
 
         mHeader.setBatteryController(mBatteryController);
-        BatteryMeterView batteryMeterView =
-                ((BatteryMeterView) mStatusBarView.findViewById(R.id.battery));
-        batteryMeterView.setBatteryController(mBatteryController);
-        batteryMeterView.setAnimationsEnabled(false);
+        mBatteryView = ((BatteryMeterView) mStatusBarView.findViewById(R.id.battery));
+        mBatteryView.setBatteryController(mBatteryController);
+        mBatteryView.setAnimationsEnabled(false);
         mKeyguardStatusBar.setBatteryController(mBatteryController);
         mHeader.setNextAlarmController(mNextAlarmController);
 
@@ -2033,6 +2057,15 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private boolean packageHasVisibilityOverride(String key) {
         return mNotificationData.getVisibilityOverride(key)
                 != NotificationListenerService.Ranking.VISIBILITY_NO_OVERRIDE;
+    }
+
+    public void setBatteryColors() {
+        mBatteryView.post(new Runnable() {
+            @Override
+            public void run() {
+                mBatteryView.invalidate();
+            }
+        });
     }
 
     public void updateQsColors() {
