@@ -66,6 +66,7 @@ import com.android.systemui.statusbar.policy.UserInfoController;
 import com.android.systemui.tuner.TunerService;
 import com.android.systemui.UserContentObserver;
 
+import java.lang.Runnable;
 import java.text.NumberFormat;
 
 /**
@@ -149,6 +150,8 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     private SettingsObserver mSettingsObserver;
     private int mHeaderTextColor;
 
+    private BatteryMeterView mBatteryView;
+
     public StatusBarHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -184,6 +187,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         mSystemIcons = (LinearLayout) findViewById(R.id.system_icons);
         mEditTileDoneText = (TextView) findViewById(R.id.done);
         mSettingsObserver = new SettingsObserver(new Handler());
+        mBatteryView = (BatteryMeterView) findViewById(R.id.battery);
         loadDimens();
         updateVisibilities();
         updateClockScale();
@@ -319,7 +323,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
 
     public void setBatteryController(BatteryController batteryController) {
         mBatteryController = batteryController;
-        ((BatteryMeterView) findViewById(R.id.battery)).setBatteryController(batteryController);
+        mBatteryView.setBatteryController(batteryController);
     }
 
     public void setNextAlarmController(NextAlarmController nextAlarmController) {
@@ -911,6 +915,15 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         }
     };
 
+    private void updateBatteryColors() {
+        mBatteryView.post(new Runnable() {
+            @Override
+            public void run() {
+                mBatteryView.invalidate();
+            }
+        });
+    }
+
     class SettingsObserver extends UserContentObserver {
 
         SettingsObserver(Handler handler) {
@@ -926,6 +939,14 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                     Settings.System.QUICK_SETTINGS_HEADER_TEXT_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QUICK_SETTINGS_HEADER_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_CHARGE_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_BOLT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -938,6 +959,11 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+            if (uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_ICON_COLOR)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_CHARGE_COLOR)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_BOLT_COLOR))) {
+                updateBatteryColors();
+            }
             update();
         }
 

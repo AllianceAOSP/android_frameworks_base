@@ -3561,6 +3561,29 @@ public final class Settings {
          */
         public static final String VOLUME_PANEL_AUTO_EXPAND = "volume_panel_auto_expand";
 
+        /**
+         * Normal battery meter icon color
+         * @hide
+         */
+        public static final String BATTERY_METER_ICON_COLOR = "battery_meter_icon_color";
+
+        /**
+         * Battery meter charging color
+         * @hide
+         */
+        public static final String BATTERY_METER_CHARGE_COLOR = "battery_meter_charge_color";
+
+        /**
+         * Battery meter bolt color
+         * @hide
+         */
+        public static final String BATTERY_METER_BOLT_COLOR = "battery_meter_bolt_color";
+
+        /**
+         * Link battery meter frame color with main battery icon color
+         * @hide
+         */
+        public static final String BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR = "battery_meter_link_frame_with_icon_color";
 
 
          
