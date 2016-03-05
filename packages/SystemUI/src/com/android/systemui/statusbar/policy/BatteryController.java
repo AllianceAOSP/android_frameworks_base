@@ -24,7 +24,8 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.BatteryManager;
-import android.os.Handler;import android.provider.Settings;
+import android.os.Handler;
+import android.provider.Settings;
 import android.os.PowerManager;
 
 import android.util.Log;
@@ -170,7 +171,7 @@ public class BatteryController extends BroadcastReceiver {
         private final Uri STYLE_URI =
                 Settings.System.getUriFor(Settings.System.STATUS_BAR_BATTERY_STYLE);
         private final Uri PERCENT_URI =
-                Settings.System.getUriFor(Settings.System.STATUS_BAR_SHOW_BATTERY_PERCENT);
+                Settings.System.getUriFor(Settings.System.SHOW_BATTERY_PERCENT);
 
         public SettingsObserver(Context context, Handler handler) {
             super(handler);
@@ -197,7 +198,7 @@ public class BatteryController extends BroadcastReceiver {
             mStyle = Settings.System.getIntForUser(mResolver,
                     Settings.System.STATUS_BAR_BATTERY_STYLE, 0, mUserId);
             mPercentMode = Settings.System.getIntForUser(mResolver,
-                    Settings.System.STATUS_BAR_SHOW_BATTERY_PERCENT, 0, mUserId);
+                    Settings.System.SHOW_BATTERY_PERCENT, 0, mUserId);
 
             fireSettingsChanged();
         }

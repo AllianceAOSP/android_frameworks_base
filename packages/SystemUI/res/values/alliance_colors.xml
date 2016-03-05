@@ -42,4 +42,6 @@
     <color name="qs_detailed_icon_tint_color">@color/qs_title_text_color</color>
     <color name="qs_tile_text_disabled">#ff747474</color>
 
+    <color name="white">#ffffffff</color>
+
 </resources>

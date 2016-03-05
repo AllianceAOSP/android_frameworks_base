@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
@@ -35,12 +36,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.systemui.BatteryLevelTextView;
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.policy.BatteryController;
 import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
 import com.android.systemui.statusbar.policy.UserInfoController;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
+import com.android.systemui.statusbar.SignalClusterView;
 
 import java.lang.Runnable;
 import java.text.NumberFormat;
@@ -58,7 +61,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
     private View mSystemIconsSuperContainer;
     private MultiUserSwitch mMultiUserSwitch;
     private ImageView mMultiUserAvatar;
-    private TextView mBatteryLevel;
+    private BatteryLevelTextView mBatteryLevel;
 
     private BatteryController mBatteryController;
     private KeyguardUserSwitcher mKeyguardUserSwitcher;
@@ -69,6 +72,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
     private BatteryMeterView mBatteryView;
     private Handler mHandler = new Handler();
     private SettingsObserver mSettingsObserver;
+    private SignalClusterView mSignalCluster;
 
     public KeyguardStatusBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -80,10 +84,11 @@ public class KeyguardStatusBarView extends RelativeLayout {
         mSystemIconsSuperContainer = findViewById(R.id.system_icons_super_container);
         mMultiUserSwitch = (MultiUserSwitch) findViewById(R.id.multi_user_switch);
         mMultiUserAvatar = (ImageView) findViewById(R.id.multi_user_avatar);
-        mBatteryLevel = (TextView) findViewById(R.id.battery_level);
+        mBatteryLevel = (BatteryLevelTextView) findViewById(R.id.battery_level_text);
         mCarrierLabel = (TextView) findViewById(R.id.keyguard_carrier_text);
         mBatteryView = (BatteryMeterView) findViewById(R.id.battery);
         mSettingsObserver = new SettingsObserver(mHandler);
+        mSignalCluster = (SignalClusterView) findViewById(R.id.signal_cluster);
         loadDimens();
         mFastOutSlowInInterpolator = AnimationUtils.loadInterpolator(getContext(),
                 android.R.interpolator.fast_out_slow_in);
@@ -98,8 +103,6 @@ public class KeyguardStatusBarView extends RelativeLayout {
         mCarrierLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                 getResources().getDimensionPixelSize(
                         com.android.internal.R.dimen.text_size_small_material));
-        mBatteryLevel.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                getResources().getDimensionPixelSize(R.dimen.battery_level_text_size));
     }
 
     private void loadDimens() {
@@ -108,6 +111,8 @@ public class KeyguardStatusBarView extends RelativeLayout {
     }
 
     private void updateVisibilities() {
+    	int batteryTextColor = Settings.System.getInt(getContext().getContentResolver(),
+    			Settings.System.BATTERY_PERCENT_TEXT_COLOR, Color.WHITE);
         if (mMultiUserSwitch.getParent() != this && !mKeyguardUserSwitcherShowing) {
             if (mMultiUserSwitch.getParent() != null) {
                 getOverlay().remove(mMultiUserSwitch);
@@ -116,7 +121,8 @@ public class KeyguardStatusBarView extends RelativeLayout {
         } else if (mMultiUserSwitch.getParent() == this && mKeyguardUserSwitcherShowing) {
             removeView(mMultiUserSwitch);
         }
-        mBatteryLevel.setVisibility(mBatteryCharging ? View.VISIBLE : View.GONE);
+        mBatteryLevel.setTextColor(batteryTextColor);
+        mBatteryLevel.setVisibility(View.VISIBLE);
     }
 
     private void updateSystemIconsLayoutParams() {
@@ -131,10 +137,6 @@ public class KeyguardStatusBarView extends RelativeLayout {
 
     public void setListening(boolean listening) {
         mSettingsObserver.observe();
-        if (listening == mBatteryListening) {
-            return;
-        }
-        mBatteryListening = listening;
     }
 
     private void updateUserSwitcher() {
@@ -147,6 +149,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
     public void setBatteryController(BatteryController batteryController) {
         mBatteryController = batteryController;
         mBatteryView.setBatteryController(batteryController);
+        mBatteryLevel.setBatteryController(batteryController);
     }
 
     public void setUserSwitcherController(UserSwitcherController controller) {
@@ -238,13 +241,24 @@ public class KeyguardStatusBarView extends RelativeLayout {
         return false;
     }
 
-    public void setBatteryColors() {
+    public void updateBatteryColors() {
         mBatteryView.post(new Runnable() {
             @Override
             public void run() {
                 mBatteryView.invalidate();
             }
         });
+    }
+
+    public void updateNetworkIconColors() {
+    	ContentResolver resolver = getContext().getContentResolver();
+    	mSignalCluster.setIconTint(Settings.System.getInt(resolver, Settings.System.SIGNAL_ICONS_COLOR, Color.WHITE),
+    			Settings.System.getInt(resolver, Settings.System.STATUS_BAR_ICONS_COLOR, Color.WHITE), 0f);
+    }
+
+    public void updateSignalIconColors() {
+    	mSignalCluster.applySignalIconTint(Settings.System.getInt(getContext().getContentResolver(),
+    			Settings.System.SIGNAL_ICONS_COLOR, Color.WHITE));
     }
 
     class SettingsObserver extends ContentObserver {
@@ -263,6 +277,8 @@ public class KeyguardStatusBarView extends RelativeLayout {
                     Settings.System.BATTERY_METER_BOLT_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+            		Settings.System.BATTERY_PERCENT_TEXT_COLOR), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -282,7 +298,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
         }
 
         public void update() {
-            setBatteryColors();
+            updateBatteryColors();
         }
     }
 }

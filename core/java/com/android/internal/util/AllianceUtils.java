@@ -259,4 +259,9 @@ public class AllianceUtils {
         int blue = Color.blue(color);
         return Color.argb(alpha, red, green, blue);
     }
+
+    public static int getIconColorDark(Context context, String key) {
+        final int color = Settings.System.getInt(context.getContentResolver(), key, 0x7a000000);
+        return (153 << 24) | (color & 0x00ffffff);
+    }
 }

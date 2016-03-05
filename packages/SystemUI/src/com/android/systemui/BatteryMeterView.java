@@ -270,7 +270,7 @@ public class BatteryMeterView extends View implements DemoMode,
     	ContentResolver resolver = getContext().getContentResolver();
     	Resources res = getContext().getResources();
         //boolean linkFrameWithIcon = Settings.System.getInt(resolver,
-                Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR, 0) == 1;
+                //Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR, 0) == 1;
     	mIconTint = Settings.System.getInt(resolver,
         		Settings.System.BATTERY_METER_ICON_COLOR, Color.WHITE);
         //if (linkFrameWithIcon) {

@@ -3302,14 +3302,6 @@ public final class Settings {
         public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
 
         /**
-         * Status bar battery %
-         * 0: Hide the battery percentage
-         * 1: Display the battery percentage inside the icon
-         * 2: Display the battery percentage next to the icon
-         */
-        public static final String STATUS_BAR_SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
-
-        /**
          * Navigation bar height (portrait)
          */
         public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
@@ -3584,6 +3576,39 @@ public final class Settings {
          * @hide
          */
         public static final String BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR = "battery_meter_link_frame_with_icon_color";
+
+        /**
+         * Show the battery percentage
+         * 0: Hide the battery percentage
+         * 1: Display the battery percentage inside the icon
+         * 2: Display the battery percentage next to the icon
+         * @hide
+         */
+        public static final String SHOW_BATTERY_PERCENT = "show_battery_percent";
+
+        /**
+         * Battery percent text color
+         * @hide
+         */
+        public static final String BATTERY_PERCENT_TEXT_COLOR = "battery_percent_text_color";
+
+        /**
+         * Signal icons color
+         * @hide
+         */
+        public static final String SIGNAL_ICONS_COLOR = "signal_icons_color";
+
+        /**
+         * Status bar icons color
+         * @hide
+         */
+        public static final String STATUS_BAR_ICONS_COLOR = "status_bar_icons_color";
+
+        /**
+         * Status bar notifications icon color
+         * @hide
+         */
+        public static final String STATUS_BAR_NOTIFICATIONS_ICONS_COLOR = "status_bar_notification_icons_color";
 
 
          
