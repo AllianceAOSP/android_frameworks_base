@@ -96,6 +96,8 @@ public class SignalClusterView
     private boolean mBlockWifi;
     private boolean mBlockEthernet;
 
+    private int mSignalIconTint;
+
     public SignalClusterView(Context context) {
         this(context, null);
     }
@@ -453,23 +455,41 @@ public class SignalClusterView
         setPaddingRelative(0, 0, anythingVisible ? mEndPadding : mEndPaddingNothingVisible, 0);
     }
 
-    public void setIconTint(int tint, float darkIntensity) {
-        boolean changed = tint != mIconTint || darkIntensity != mDarkIntensity;
-        mIconTint = tint;
+    public void setIconTint(int signalIconTint, int otherIconTint, float darkIntensity) {
+        mSignalIconTint = signalIconTint;
+        mIconTint = otherIconTint;
         mDarkIntensity = darkIntensity;
-        if (changed && isAttachedToWindow()) {
+        if (isAttachedToWindow()) {
             applyIconTint();
         }
     }
 
     private void applyIconTint() {
-        setTint(mVpn, mIconTint);
+        setTint(mNoSims, mIconTint);
+        setTint(mNoSimsDark, mIconTint);
         setTint(mAirplane, mIconTint);
+        setTint(mVpn, mSignalIconTint);
+        setTint(mWifi, mSignalIconTint);
+        setTint(mWifiDark, mSignalIconTint);
+        setTint(mEthernet, mSignalIconTint);
+        setTint(mEthernetDark, mSignalIconTint);
         applyDarkIntensity(mDarkIntensity, mNoSims, mNoSimsDark);
         applyDarkIntensity(mDarkIntensity, mWifi, mWifiDark);
         applyDarkIntensity(mDarkIntensity, mEthernet, mEthernetDark);
         for (int i = 0; i < mPhoneStates.size(); i++) {
-            mPhoneStates.get(i).setIconTint(mIconTint, mDarkIntensity);
+            mPhoneStates.get(i).setIconTint(mSignalIconTint, mDarkIntensity);
+        }
+    }
+
+    public void applySignalIconTint(int tint) {
+        mSignalIconTint = tint;
+        if (isAttachedToWindow()) {
+            setTint(mVpn, tint);
+            setTint(mWifi, tint);
+            setTint(mEthernet, tint);
+            for (int i = 0; i < mPhoneStates.size(); i++) {
+                mPhoneStates.get(i).setIconTint(tint, 0f);
+            }
         }
     }
 
@@ -560,6 +580,8 @@ public class SignalClusterView
         public void setIconTint(int tint, float darkIntensity) {
             applyDarkIntensity(darkIntensity, mMobile, mMobileDark);
             setTint(mMobileType, tint);
+            setTint(mMobile, tint);
+            setTint(mMobileDark, tint);
         }
     }
 }

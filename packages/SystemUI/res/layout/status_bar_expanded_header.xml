@@ -29,19 +29,20 @@
     android:elevation="4dp"
     android:background="@drawable/notification_header_bg"
     android:clickable="true"
-    android:focusable="true"
-    >
+    android:focusable="true">
 
     <com.android.systemui.statusbar.phone.MultiUserSwitch android:id="@+id/multi_user_switch"
         android:layout_width="@dimen/multi_user_switch_width_collapsed"
         android:layout_height="@dimen/status_bar_header_height"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/ripple_drawable" >
+        android:background="@drawable/ripple_drawable">
+
         <ImageView android:id="@+id/multi_user_avatar"
             android:layout_width="@dimen/multi_user_avatar_expanded_size"
             android:layout_height="@dimen/multi_user_avatar_expanded_size"
             android:layout_gravity="center"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside" />
+
     </com.android.systemui.statusbar.phone.MultiUserSwitch>
 
     <com.android.systemui.statusbar.AlphaOptimizedFrameLayout
@@ -59,6 +60,7 @@
             android:background="@drawable/ripple_drawable"
             android:src="@drawable/ic_settings"
             android:contentDescription="@string/accessibility_desc_settings" />
+
         <com.android.systemui.statusbar.AlphaOptimizedImageView android:id="@+id/tuner_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -77,15 +79,18 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginStart="16dp"
         android:background="@drawable/ripple_drawable"
-        android:paddingEnd="4dp" >
+        android:paddingEnd="4dp">
+
         <FrameLayout android:id="@+id/system_icons_container"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/status_bar_height"
-            android:layout_gravity="center_vertical"
-            >
+            android:layout_gravity="center_vertical">
+
             <include layout="@layout/system_icons" />
+
         </FrameLayout>
-        <TextView android:id="@+id/battery_level"
+
+        <com.android.systemui.BatteryLevelTextView android:id="@+id/battery_level_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -93,7 +98,8 @@
             android:paddingEnd="@dimen/battery_level_padding_end"
             android:textColor="#ffffff"
             android:textSize="@dimen/battery_level_text_size"
-            android:importantForAccessibility="noHideDescendants"/>
+            android:importantForAccessibility="noHideDescendants" />
+
     </LinearLayout>
 
     <TextView
@@ -116,6 +122,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/clock_collapsed_bottom_margin"
         android:layout_alignParentBottom="true">
+
         <com.android.systemui.statusbar.policy.DateView android:id="@+id/date_collapsed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -123,8 +130,7 @@
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.StatusBar.Expanded.Date"
             android:layout_below="@id/clock"
-            systemui:datePattern="@string/abbrev_wday_month_day_no_year_alarm"
-            />
+            systemui:datePattern="@string/abbrev_wday_month_day_no_year_alarm" />
 
         <com.android.systemui.statusbar.policy.DateView android:id="@+id/date_expanded"
             android:layout_width="wrap_content"
@@ -133,8 +139,7 @@
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.StatusBar.Expanded.Date"
             android:layout_below="@id/clock"
-            systemui:datePattern="eeeeMMMMd"
-            />
+            systemui:datePattern="eeeeMMMMd" />
     </FrameLayout>
 
     <include layout="@layout/split_clock_view"
@@ -142,8 +147,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_above="@id/date_group"
-        android:id="@+id/clock"
-        />
+        android:id="@+id/clock" />
 
     <com.android.systemui.statusbar.AlphaOptimizedButton android:id="@+id/alarm_status"
         android:layout_width="wrap_content"
@@ -160,16 +164,14 @@
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:background="?android:attr/selectableItemBackground"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
     <include
         android:id="@+id/qs_detail_header"
         layout="@layout/qs_detail_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        />
+        android:layout_alignParentBottom="true" />
 
     <com.android.systemui.statusbar.AlphaOptimizedImageView
         android:id="@+id/qs_detail_header_progress"
@@ -179,8 +181,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        systemui:hasOverlappingRendering="false"
-        />
+        systemui:hasOverlappingRendering="false" />
 
     <TextView
         android:id="@+id/header_debug_info"
@@ -192,7 +193,6 @@
         android:textSize="11dp"
         android:textStyle="bold"
         android:textColor="#00A040"
-        android:padding="2dp"
-        />
+        android:padding="2dp" />
 
 </com.android.systemui.statusbar.phone.StatusBarHeaderView>

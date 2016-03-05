@@ -129,6 +129,7 @@ import com.android.keyguard.KeyguardHostView.OnDismissAction;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 import com.android.keyguard.ViewMediatorCallback;
+import com.android.systemui.BatteryLevelTextView;
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.DemoMode;
 import com.android.systemui.EventLogConstants;
@@ -454,6 +455,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_NUMBER_OF_ROWS), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.BATTERY_PERCENT_TEXT_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SIGNAL_ICONS_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_ICONS_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_NOTIFICATIONS_ICONS_COLOR), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -474,12 +483,18 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             if (uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_ICON_COLOR)) ||
                     uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_CHARGE_COLOR)) ||
                     uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_BOLT_COLOR)) ||
-                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR))) {
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.BATTERY_PERCENT_TEXT_COLOR))) {
                 setBatteryColors();
-            }
-            if (uri.equals(Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_ICON_COLOR)) ||
+            } else if (uri.equals(Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_ICON_COLOR)) ||
                 uri.equals(Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR))) {
                 updateQsColors();
+            } else if (uri.equals(Settings.System.getUriFor(Settings.System.SIGNAL_ICONS_COLOR))) {
+                updateSignalIconColors();
+            } else if (uri.equals(Settings.System.getUriFor(Settings.System.STATUS_BAR_ICONS_COLOR))) {
+                updateStatusBarIconColors();
+            } else if (uri.equals(Settings.System.getUriFor(Settings.System.STATUS_BAR_NOTIFICATIONS_ICONS_COLOR))) {
+                updateNotificationIconColors();
             }
             update();
         }
@@ -640,6 +655,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private Vibrator mVibrator;
 
     private BatteryMeterView mBatteryView;
+    private BatteryLevelTextView mBatteryLevelText;
 
     // Fingerprint (as computed by getLoggingFingerprint() of the last logged state.
     private int mLastLoggedStateFingerprint;
@@ -1204,6 +1220,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mBatteryView = ((BatteryMeterView) mStatusBarView.findViewById(R.id.battery));
         mBatteryView.setBatteryController(mBatteryController);
         mBatteryView.setAnimationsEnabled(false);
+        ((BatteryLevelTextView) mStatusBarView.findViewById(R.id.battery_level_text))
+                .setBatteryController(mBatteryController);
         mKeyguardStatusBar.setBatteryController(mBatteryController);
         mHeader.setNextAlarmController(mNextAlarmController);
 
@@ -3429,6 +3447,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mSecurityController != null) {
             mSecurityController.dump(fd, pw, args);
         }
+        if (mBatteryController != null) {
+            mBatteryController.setUserId(mCurrentUserId);
+        }
         if (mHeadsUpManager != null) {
             mHeadsUpManager.dump(fd, pw, args);
         } else {
@@ -5405,6 +5426,36 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                         break;
                 }
             }
+        }
+    }
+
+    private void updateNetworkIconColors() {
+        if (mIconController != null) {
+            mIconController.updateStatusBarIconColors();
+        }
+        if (mKeyguardStatusBar != null) {
+            mKeyguardStatusBar.updateNetworkIconColors();
+        }
+    }
+
+    private void updateSignalIconColors() {
+        if (mIconController != null) {
+            mIconController.updateSignalIconsColor();
+        }
+        if (mKeyguardStatusBar != null) {
+            mKeyguardStatusBar.updateSignalIconColors();
+        }
+    }
+
+    private void updateStatusBarIconColors() {
+        if (mIconController != null) {
+            mIconController.updateStatusBarIconColors();
+        }
+    }
+
+    private void updateNotificationIconColors() {
+        if (mIconController != null) {
+            mIconController.updateNotificationIcons();
         }
     }
 }
