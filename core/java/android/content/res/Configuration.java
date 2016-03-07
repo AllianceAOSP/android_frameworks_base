@@ -534,7 +534,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
     public static final int UI_MODE_NIGHT_YES = 0x20;
 
     /** Constant for {@link #uiMode}: bits that encode the alliance mode. */
-    public static final int UI_MODE_ALLIANCE_MASK = 0x30;
+    public static final int UI_MODE_ALLIANCE_MASK = 0x31;
     /** Constant for {@link #uiMode}: a {@link #UI_MODE_ALLIANCE_MASK}
      * value indicating that no mode type has been set. */
     public static final int UI_MODE_ALLIANCE_UNDEFINED = 0x00;
@@ -542,12 +542,12 @@ public final class Configuration implements Parcelable, Comparable<Configuration
      * value that corresponds to the
      * <a href="{@docRoot}guide/topics/resources/providing-resources.html#AllianceQualifier">notalliance</a>
      * resource qualifier. */
-    public static final int UI_MODE_ALLIANCE_NO = 0x10;
+    public static final int UI_MODE_ALLIANCE_NO = 0x11;
     /** Constant for {@link #uiMode}: a {@link #UI_MODE_ALLIANCE_MASK}
      * value that corresponds to the
      * <a href="{@docRoot}guide/topics/resources/providing-resources.html#AllianceQualifier">alliance</a>
      * resource qualifier. */
-    public static final int UI_MODE_ALLIANCE_YES = 0x20;
+    public static final int UI_MODE_ALLIANCE_YES = 0x21;
 
     /**
      * Bit mask of the ui mode.  Currently there are two fields:
