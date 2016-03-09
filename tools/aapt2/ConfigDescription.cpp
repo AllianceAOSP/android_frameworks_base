@@ -552,6 +552,27 @@ static bool parseVersion(const char* name, ResTable_config* out) {
     return true;
 }
 
+static bool parseUiModeAlliance(const char* name, ResTable_config* out) {
+    if (strcmp(name, kWildcardName) == 0) {
+        if (out) out->uiMode =
+                (out->uiMode&~ResTable_config::MASK_UI_MODE_ALLIANCE)
+                | ResTable_config::UI_MODE_ALLIANCE_ANY;
+        return true;
+    } else if (strcmp(name, "alliance") == 0) {
+        if (out) out->uiMode =
+                (out->uiMode&~ResTable_config::MASK_UI_MODE_ALLIANCE)
+                | ResTable_config::UI_MODE_ALLIANCE_YES;
+        return true;
+    } else if (strcmp(name, "notalliance") == 0) {
+        if (out) out->uiMode =
+                (out->uiMode&~ResTable_config::MASK_UI_MODE_ALLIANCE)
+                | ResTable_config::UI_MODE_ALLIANCE_NO;
+        return true;
+    }
+
+    return false;
+}
+
 bool ConfigDescription::parse(const StringPiece& str, ConfigDescription* out) {
     std::vector<std::string> parts = util::splitAndLowercase(str, '-');
 
@@ -734,7 +755,9 @@ void ConfigDescription::applyVersionForCompatibility(ConfigDescription* config) 
     } else if ((config->uiMode & ResTable_config::MASK_UI_MODE_TYPE)
                 != ResTable_config::UI_MODE_TYPE_ANY
             ||  (config->uiMode & ResTable_config::MASK_UI_MODE_NIGHT)
-                != ResTable_config::UI_MODE_NIGHT_ANY) {
+                != ResTable_config::UI_MODE_NIGHT_ANY
+            || (config->uiMode & ResTable_config::MASK_UI_MODE_ALLIANCE)
+                != ResTable_config::UI_MODE_ALLIANCE_ANY) {
         minSdk = SDK_FROYO;
     } else if ((config->screenLayout & ResTable_config::MASK_SCREENSIZE)
                 != ResTable_config::SCREENSIZE_ANY

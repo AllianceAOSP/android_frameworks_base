@@ -2162,6 +2162,11 @@ bool ResTable_config::isMoreSpecificThan(const ResTable_config& o) const {
             if (!o.minorVersion) return true;
         }
     }
+
+    if (((uiMode^o.uiMode) & MASK_UI_MODE_ALLIANCE) != 0) {
+    	if (!(uiMode & MASK_UI_MODE_ALLIANCE)) return false;
+    	if (!(o.uiMode & MASK_UI_MODE_ALLIANCE)) return true;
+    }
     return false;
 }
 
@@ -2430,6 +2435,11 @@ bool ResTable_config::isBetterThan(const ResTable_config& o,
             }
         }
 
+        if (((uiMode^o.uiMode) & MASK_UI_MODE_ALLIANCE) != 0
+        		&& (requested->uiMode & MASK_UI_MODE_ALLIANCE)) {
+        	return (uiMode & MASK_UI_MODE_ALLIANCE);
+        }
+
         return false;
     }
     return isMoreSpecificThan(o);
@@ -2493,6 +2503,12 @@ bool ResTable_config::match(const ResTable_config& settings) const {
         const int setUiModeNight = settings.uiMode&MASK_UI_MODE_NIGHT;
         if (uiModeNight != 0 && uiModeNight != setUiModeNight) {
             return false;
+        }
+
+        const int uiModeAlliance = uiMode&MASK_UI_MODE_ALLIANCE;
+        const int setUiModeAlliance = settings.uiMode&MASK_UI_MODE_ALLIANCE;
+        if (uiModeAlliance != 0 && uiModeAlliance != setUiModeAlliance) {
+        	return false;
         }
 
         if (smallestScreenWidthDp != 0
@@ -2997,6 +3013,21 @@ String8 ResTable_config::toString() const {
         if (minorVersion != 0) {
             res.appendFormat(".%d", dtohs(minorVersion));
         }
+    }
+    if ((uiMode&MASK_UI_MODE_ALLIANCE) != 0) {
+    	if (res.size() > 0) res.append("-");
+    	switch (uiMode&ResTable_config::MASK_UI_MODE_ALLIANCE) {
+    		case ResTable_config::UI_MODE_ALLIANCE_NO:
+    			res.append("notalliance");
+    			break;
+    		case ResTable_config::UI_MODE_ALLIANCE_YES:
+    			res.append("alliance");
+    			break;
+    		default:
+    			res.appendFormat("uiModeAlliance=%d",
+    					dtohs(uiMode&MASK_UI_MODE_ALLIANCE));
+    			break;
+    	}
     }
 
     return res;

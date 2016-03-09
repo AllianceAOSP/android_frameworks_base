@@ -91,6 +91,8 @@ final class UiModeManagerService extends SystemService {
 
     private PowerManager.WakeLock mWakeLock;
 
+    private int mAllianceMode = UiModeManager.MODE_ALLIANCE_NO;
+
     public UiModeManagerService(Context context) {
         super(context);
     }
@@ -186,6 +188,11 @@ final class UiModeManagerService extends SystemService {
                 com.android.internal.R.integer.config_defaultNightMode);
         mNightMode = Settings.Secure.getInt(context.getContentResolver(),
                 Settings.Secure.UI_NIGHT_MODE, defaultNightMode);
+
+        final int defaultAllianceMode = res.getInteger(
+        		com.android.internal.R.integer.config_defaultAllianceMode);
+        mAllianceMode = Settings.Secure.getInt(context.getContentResolver(),
+        		Settings.Secure.UI_ALLIANCE_MODE, defaultAllianceMode);
 
         // Update the initial, static configurations.
         synchronized (this) {
@@ -285,6 +292,39 @@ final class UiModeManagerService extends SystemService {
 
             dumpImpl(pw);
         }
+
+        @Override
+        public void setAllianceMode(int mode) {
+        	switch (mode) {
+        		case UiModeManager.MODE_ALLIANCE_NO:
+        		case UiModeManager.MODE_ALLIANCE_YES:
+                case UiModeManager.MODE_ALLIANCE_OTHER:
+        			break;
+        		default:
+        			throw new IllegalArgumentException("Unknown Alliance mode: " + mode);
+        	}
+
+        	final long ident = Binder.clearCallingIdentity();
+        	try {
+        		synchronized(mLock) {
+        			if (mAllianceMode != mode) {
+        				Settings.Secure.putInt(getContext().getContentResolver(),
+        						Settings.Secure.UI_ALLIANCE_MODE, mode);
+        				mAllianceMode = mode;
+        				updateLocked(0, 0);
+        			}
+        		}
+        	} finally {
+        		Binder.restoreCallingIdentity(ident);
+        	}
+        }
+
+        @Override
+        public int getAllianceMode() {
+        	synchronized (mLock) {
+        		return mAllianceMode;
+        	}
+        }
     };
 
     void dumpImpl(PrintWriter pw) {
@@ -300,6 +340,7 @@ final class UiModeManagerService extends SystemService {
                     pw.print(" mSetUiMode=0x"); pw.println(Integer.toHexString(mSetUiMode));
             pw.print("  mHoldingConfiguration="); pw.print(mHoldingConfiguration);
                     pw.print(" mSystemReady="); pw.println(mSystemReady);
+            pw.print("  mAllianceMode="); pw.print(mAllianceMode);
             if (mTwilightManager != null) {
                 // We may not have a TwilightManager.
                 pw.print("  mTwilightService.getCurrentState()=");
@@ -374,12 +415,19 @@ final class UiModeManagerService extends SystemService {
             uiMode |= mNightMode << 4;
         }
 
+        if (mAllianceMode == UiModeManager.MODE_ALLIANCE_OTHER) {
+        	// Not currently used
+        } else {
+        	uiMode |= mAllianceMode << 4;
+        }
+
         if (LOG) {
             Slog.d(TAG,
                 "updateConfigurationLocked: mDockState=" + mDockState
                 + "; mCarMode=" + mCarModeEnabled
                 + "; mNightMode=" + mNightMode
-                + "; uiMode=" + uiMode);
+                + "; uiMode=" + uiMode
+            	+ "; mAllianceMode=" + mAllianceMode);
         }
 
         mCurUiMode = uiMode;

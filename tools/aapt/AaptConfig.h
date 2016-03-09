@@ -72,6 +72,7 @@ bool parseNavHidden(const char* str, android::ResTable_config* out = NULL);
 bool parseNavigation(const char* str, android::ResTable_config* out = NULL);
 bool parseScreenSize(const char* str, android::ResTable_config* out = NULL);
 bool parseVersion(const char* str, android::ResTable_config* out = NULL);
+bool parseUiModeAlliance(const char* str, android::ResTable_config* out = NULL);
 
 android::String8 getVersion(const android::ResTable_config& config);
 

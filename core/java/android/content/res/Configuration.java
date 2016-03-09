@@ -666,6 +666,15 @@ public final class Configuration implements Parcelable, Comparable<Configuration
     /** @hide Native-specific bit mask for LAYOUTDIR config ; DO NOT USE UNLESS YOU ARE SURE.*/
     public static final int NATIVE_CONFIG_LAYOUTDIR = 0x4000;
 
+    /** Constant of {@link #uiMode}: bits that encode the Alliance mode. */
+    public static final int UI_MODE_ALLIANCE_MASK = 0x31;
+    /** Value indicating that no Alliance mode type has been set. */
+    public static final int UI_MODE_ALLIANCE_UNDEFINED = 0x00;
+    /** Value that corresponds to the 'notalliance' resource qualifier. */
+    public static final int UI_MODE_ALLIANCE_NO = 0x11;
+    /** Value that corresponds to the 'alliance' resource qualifier. */
+    public static final int UI_MODE_ALLIANCE_YES = 0x21;
+
     /**
      * Construct an invalid Configuration.  You must call {@link #setToDefaults}
      * for this object to be valid.  {@more}
@@ -838,6 +847,12 @@ public final class Configuration implements Parcelable, Comparable<Configuration
             case NAVIGATIONHIDDEN_YES: sb.append("/h"); break;
             default: sb.append("/"); sb.append(navigationHidden); break;
         }
+        switch ((uiMode&UI_MODE_ALLIANCE_MASK)) {
+        	case UI_MODE_ALLIANCE_UNDEFINED: sb.append(" ?alliance"); break;
+        	case UI_MODE_ALLIANCE_NO: sb.append(" notalliance"); break;
+        	case UI_MODE_ALLIANCE_YES: sb.append(" alliance"); break;
+        	default: sb.append(" alliance="); sb.append(uiMode&UI_MODE_ALLIANCE_MASK); break;
+        }
         if (seq != 0) {
             sb.append(" s.");
             sb.append(seq);
@@ -966,7 +981,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
                 screenLayout = delta.screenLayout;
             }
         }
-        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED)
+        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED|UI_MODE_ALLIANCE_UNDEFINED)
                 && uiMode != delta.uiMode) {
             changed |= ActivityInfo.CONFIG_UI_MODE;
             if ((delta.uiMode&UI_MODE_TYPE_MASK) != UI_MODE_TYPE_UNDEFINED) {
@@ -976,6 +991,10 @@ public final class Configuration implements Parcelable, Comparable<Configuration
             if ((delta.uiMode&UI_MODE_NIGHT_MASK) != UI_MODE_NIGHT_UNDEFINED) {
                 uiMode = (uiMode&~UI_MODE_NIGHT_MASK)
                         | (delta.uiMode&UI_MODE_NIGHT_MASK);
+            }
+            if ((delta.uiMode&UI_MODE_ALLIANCE_MASK) != UI_MODE_ALLIANCE_UNDEFINED) {
+            	uiMode = (uiMode&~UI_MODE_ALLIANCE_MASK)
+            			| (delta.uiMode&UI_MODE_ALLIANCE_MASK);
             }
         }
         if (delta.screenWidthDp != SCREEN_WIDTH_DP_UNDEFINED
@@ -1100,7 +1119,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
                     getScreenLayoutNoDirection(delta.screenLayout)) {
             changed |= ActivityInfo.CONFIG_SCREEN_LAYOUT;
         }
-        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED)
+        if (delta.uiMode != (UI_MODE_TYPE_UNDEFINED|UI_MODE_NIGHT_UNDEFINED|UI_MODE_ALLIANCE_UNDEFINED)
                 && uiMode != delta.uiMode) {
             changed |= ActivityInfo.CONFIG_UI_MODE;
         }
@@ -1651,6 +1670,17 @@ public final class Configuration implements Parcelable, Comparable<Configuration
                 break;
         }
 
+        switch (config.uiMode & Configuration.UI_MODE_ALLIANCE_MASK) {
+        	case Configuration.UI_MODE_ALLIANCE_NO:
+        		parts.add("notalliance");
+        		break;
+        	case Configuration.UI_MODE_ALLIANCE_YES:
+        		parts.add("alliance");
+        		break;
+        	default:
+        		break;
+        }
+
         parts.add("v" + Build.VERSION.RESOURCES_SDK_INT);
         return TextUtils.join("-", parts);
     }
@@ -1750,6 +1780,10 @@ public final class Configuration implements Parcelable, Comparable<Configuration
 
         if (base.densityDpi != change.densityDpi) {
             delta.densityDpi = change.densityDpi;
+        }
+
+        if ((base.uiMode & UI_MODE_ALLIANCE_MASK) != (change.uiMode & UI_MODE_ALLIANCE_MASK)) {
+        	delta.uiMode |= change.uiMode & UI_MODE_ALLIANCE_MASK;
         }
         return delta;
     }

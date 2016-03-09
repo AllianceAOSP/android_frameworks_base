@@ -108,6 +108,21 @@ public class UiModeManager {
      */
     public static final int MODE_NIGHT_YES = Configuration.UI_MODE_NIGHT_YES >> 4;
 
+    /**
+     * Alliance mode off
+     */
+    public static final int MODE_ALLIANCE_NO = Configuration.UI_MODE_ALLIANCE_NO >> 4;
+
+    /**
+     * Alliance mode on
+     */
+    public static final int MODE_ALLIANCE_YES = Configuration.UI_MODE_ALLIANCE_YES >> 4;
+
+    /**
+     * Alliance mode other (not currently used)
+     */
+    public static final int MODE_ALLIANCE_OTHER = Configuration.UI_MODE_ALLIANCE_UNDEFINED >> 4;
+
     private IUiModeManager mService;
 
     /*package*/ UiModeManager() {
@@ -232,5 +247,26 @@ public class UiModeManager {
             }
         }
         return -1;
+    }
+
+    public void setAllianceMode(int mode) {
+    	if (mService != null) {
+    		try {
+    			mService.setAllianceMode(mode);
+    		} catch (RemoteException e) {
+    			Log.e(TAG, "setAllianceMode: RemoteException", e);
+    		}
+    	}
+    }
+
+    public int getAllianceMode() {
+    	if (mService != null) {
+    		try {
+    			return mService.getAllianceMode();
+    		} catch (RemoteException e) {
+    			Log.e(TAG, "getAllianceMode: RemoteException", e);
+    		}
+    	}
+    	return -1;
     }
 }

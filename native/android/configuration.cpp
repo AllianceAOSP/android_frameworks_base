@@ -132,6 +132,11 @@ int32_t AConfiguration_getLayoutDirection(AConfiguration* config) {
             >> ResTable_config::SHIFT_LAYOUTDIR;
 }
 
+int32_t AConfiguration_getUiModeAlliance(AConfiguration* config) {
+	return (config->uiMode&ResTable_config::MASK_UI_MODE_ALLIANCE)
+			>> ResTable_config::SHIFT_UI_MODE_ALLIANCE;
+}
+
 // ----------------------------------------------------------------------
 
 void AConfiguration_setMcc(AConfiguration* config, int32_t mcc) {
@@ -227,6 +232,11 @@ void AConfiguration_setSmallestScreenWidthDp(AConfiguration* config, int32_t val
 void AConfiguration_setLayoutDirection(AConfiguration* config, int32_t value) {
     config->screenLayout = (config->screenLayout&~ResTable_config::MASK_LAYOUTDIR)
             | ((value<<ResTable_config::SHIFT_LAYOUTDIR)&ResTable_config::MASK_LAYOUTDIR);
+}
+
+void AConfiguration_setUiModeAlliance(AConfiguration* config, int32_t uiModeAlliance) {
+	config->uiMode = (config->uiMode&~ResTable_config::MASK_UI_MODE_ALLIANCE)
+			| ((uiModeAlliance<<ResTable_config::SHIFT_UI_MODE_ALLIANCE)&ResTable_config::MASK_UI_MODE_ALLIANCE);
 }
 
 // ----------------------------------------------------------------------

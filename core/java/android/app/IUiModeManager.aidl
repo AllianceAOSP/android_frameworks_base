@@ -51,4 +51,19 @@ interface IUiModeManager {
      * 2 for night, and 3 for automatic mode switching.
      */
     int getNightMode();
+
+    /**
+     * Sets Alliance mode.
+     * Accepted values are:
+     *		1 - Alliance mode off
+     *		2 - Alliance mode on
+     *      3 - Alliance mode other (for future use - currently not used)
+     */
+     void setAllianceMode(int mode);
+
+     /**
+      * Gets the currently configured Alliance mode.
+      * Returns 1 for Alliance mode off, 2 for Alliance mode on, 3 for Alliance mode other (not used).
+      */
+      int getAllianceMode();
 }
