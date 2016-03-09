@@ -14,12 +14,6 @@ import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 
-/**
- * A class that represents a quick settings tile
- *
- * <p>The {@link cyanogenmod.app.CustomTile.Builder} has been added to make it
- * easier to construct CustomTiles.</p>
- */
 public class CustomTile implements Parcelable {
 
     /** Max count allowed by PseudoGridView within SystemUi **/
@@ -898,24 +892,6 @@ public class CustomTile implements Parcelable {
                 }
             };
 
-    /**
-     * Builder class for {@link cyanogenmod.app.CustomTile} objects.
-     *
-     * Provides a convenient way to set the various fields of a {@link cyanogenmod.app.CustomTile}
-     *
-     * <p>Example:
-     *
-     * <pre class="prettyprint">
-     * CustomTile customTile = new CustomTile.Builder(mContext)
-     *         .setLabel("custom label")
-     *         .setContentDescription("custom description")
-     *         .setOnClickIntent(pendingIntent)
-     *         .setOnSettingsClickIntent(intent)
-     *         .setOnClickUri(Uri.parse("custom uri"))
-     *         .setIcon(R.drawable.ic_launcher)
-     *         .build();
-     * </pre>
-     */
     public static class Builder {
         private PendingIntent mOnClick;
         private PendingIntent mOnLongClick;
