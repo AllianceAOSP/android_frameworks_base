@@ -277,12 +277,12 @@ public class NotificationPanelView extends PanelView implements
 
         int qsContainerBG = Settings.System.getInt(getContext().getContentResolver(), "qs_container_bg", 0);
         if (qsContainerBG != 0) {
-        	Drawable bg = mQsContainer.getBackground();
-        	if (bg instanceof ShapeDrawable) {
-        		((ShapeDrawable) bg).getPaint().setColor(qsContainerBG);
-        	} else if (bg instanceof GradientDrawable) {
-        		((GradientDrawable) bg).setColor(qsContainerBG);
-        	}
+            Drawable bg = mQsContainer.getBackground();
+            if (bg instanceof ShapeDrawable) {
+                ((ShapeDrawable) bg).getPaint().setColor(qsContainerBG);
+            } else if (bg instanceof GradientDrawable) {
+                ((GradientDrawable) bg).setColor(qsContainerBG);
+            }
         }
 
         // recompute internal state when qspanel height changes
@@ -815,11 +815,7 @@ public class NotificationPanelView extends PanelView implements
                 && mQsExpansionEnabled) {
             mTwoFingerQsExpandPossible = true;
         }
-        boolean twoFingerQSEvent = mTwoFingerQsExpandPossible && (event.getActionMasked() ==
-                MotionEvent.ACTION_POINTER_DOWN && event.getPointerCount() == 2);
-        boolean oneFingerQSOverride = oneFingerQuickPulldown && event.getActionMasked() ==
-                MotionEvent.ACTION_DOWN && shouldQuickSettingsIntercept(event.getX(), event.getY(), -1, false);
-        if ((twoFingerQSEvent || oneFingerQSOverride) && isOpenQsEvent(event)
+        if (mTwoFingerQsExpandPossible && isOpenQsEvent(event)
                 && event.getY(event.getActionIndex()) < mStatusBarMinHeight) {
             MetricsLogger.count(mContext, COUNTER_PANEL_OPEN_QS, 1);
             mQsExpandImmediate = true;
@@ -857,7 +853,13 @@ public class NotificationPanelView extends PanelView implements
                 && (event.isButtonPressed(MotionEvent.BUTTON_SECONDARY)
                         || event.isButtonPressed(MotionEvent.BUTTON_TERTIARY));
 
-        return twoFingerDrag || stylusButtonClickDrag || mouseButtonClickDrag;
+        final float w = getMeasuredWidth();
+        final float x = event.getX();
+        float region = (w * (1.f / 4.f));
+        final boolean showQSOverride = oneFingerQuickPulldown && isLayoutRtl() ? (x < region)
+                : (w - region < x) && mStatusBarState == StatusBarState.SHADE;
+
+        return twoFingerDrag || showQSOverride || stylusButtonClickDrag || mouseButtonClickDrag;
     }
 
     private void handleQsDown(MotionEvent event) {
@@ -1514,24 +1516,16 @@ public class NotificationPanelView extends PanelView implements
      * @return Whether we should intercept a gesture to open Quick Settings.
      */
     private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff) {
-        return shouldQuickSettingsIntercept(x, y, yDiff, true);
-    }
-
-    private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff, boolean useHeader) {
         if (!mQsExpansionEnabled || mCollapsedOnDown) {
             return false;
         }
         View header = mKeyguardShowing ? mKeyguardStatusBar : mHeader;
-        boolean onHeader = useHeader && x >= header.getX() && x <= header.getX() + header.getWidth()
+        boolean onHeader = x >= header.getX() && x <= header.getX() + header.getWidth() 
                 && y >= header.getTop() && y <= header.getBottom();
-        final float w = getMeasuredWidth();
-        float region = (w * (1.f/3.f));
-        final boolean showQSOverride = isLayoutRtl() ? (x < region) : (w - region < x)
-                && mStatusBarState == StatusBarState.SHADE;
         if (mQsExpanded) {
             return onHeader || (mScrollView.isScrolledToBottom() && yDiff < 0) && isInQsArea(x, y);
         } else {
-            return onHeader || showQSOverride;
+            return onHeader;
         }
     }
 
