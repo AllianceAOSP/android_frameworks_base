@@ -667,13 +667,13 @@ public final class Configuration implements Parcelable, Comparable<Configuration
     public static final int NATIVE_CONFIG_LAYOUTDIR = 0x4000;
 
     /** Constant of {@link #uiMode}: bits that encode the Alliance mode. */
-    public static final int UI_MODE_ALLIANCE_MASK = 0x31;
+    public static final int UI_MODE_ALLIANCE_MASK = 0x30;
     /** Value indicating that no Alliance mode type has been set. */
     public static final int UI_MODE_ALLIANCE_UNDEFINED = 0x00;
     /** Value that corresponds to the 'notalliance' resource qualifier. */
-    public static final int UI_MODE_ALLIANCE_NO = 0x11;
+    public static final int UI_MODE_ALLIANCE_NO = 0x10;
     /** Value that corresponds to the 'alliance' resource qualifier. */
-    public static final int UI_MODE_ALLIANCE_YES = 0x21;
+    public static final int UI_MODE_ALLIANCE_YES = 0x20;
 
     /**
      * Construct an invalid Configuration.  You must call {@link #setToDefaults}

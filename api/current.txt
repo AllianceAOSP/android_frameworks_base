@@ -5393,6 +5393,8 @@ package android.app {
     method public int getCurrentModeType();
     method public int getNightMode();
     method public void setNightMode(int);
+    method public int getAllianceMode();
+    method public void setAllianceMode();
     field public static java.lang.String ACTION_ENTER_CAR_MODE;
     field public static java.lang.String ACTION_ENTER_DESK_MODE;
     field public static java.lang.String ACTION_EXIT_CAR_MODE;
@@ -5403,6 +5405,9 @@ package android.app {
     field public static final int MODE_NIGHT_AUTO = 0; // 0x0
     field public static final int MODE_NIGHT_NO = 1; // 0x1
     field public static final int MODE_NIGHT_YES = 2; // 0x2
+    field public static final int MODE_ALLIANCE_OTHER = 0; // 0x0
+    field public static final int MODE_ALLIANCE_NO = 1; // 0x1
+    field public static final int MODE_ALLIANCE_YES = 2; // 0x2
   }
 
   public final class VoiceInteractor {
@@ -9705,6 +9710,10 @@ package android.content.res {
     field public static final int UI_MODE_TYPE_TELEVISION = 4; // 0x4
     field public static final int UI_MODE_TYPE_UNDEFINED = 0; // 0x0
     field public static final int UI_MODE_TYPE_WATCH = 6; // 0x6
+    field public static final int UI_MODE_ALLIANCE_MASK = 48; // 0x30
+    field public static final int UI_MODE_ALLIANCE_NO = 16; // 0x10
+    field public static final int UI_MODE_NIGHT_UNDEFINED = 0; // 0x0
+    field public static final int UI_MODE_NIGHT_YES = 32; // 0x20
     field public int densityDpi;
     field public float fontScale;
     field public int hardKeyboardHidden;

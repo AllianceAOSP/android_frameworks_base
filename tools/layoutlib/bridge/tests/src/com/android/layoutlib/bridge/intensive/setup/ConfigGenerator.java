@@ -173,7 +173,7 @@ public class ConfigGenerator {
         // some default qualifiers.
         config.setUiModeQualifier(new UiModeQualifier(UiMode.NORMAL));
         config.setNightModeQualifier(new NightModeQualifier(NightMode.NOTNIGHT));
-        //config.setAllianceModeQualifier(new AllianceModeQualifier(AllianceMode.NOTALLIANCE));
+        config.setAllianceModeQualifier(new AllianceModeQualifier(AllianceMode.NOTALLIANCE));
         config.setCountryCodeQualifier(new CountryCodeQualifier());
         config.setLayoutDirectionQualifier(new LayoutDirectionQualifier());
         config.setNetworkCodeQualifier(new NetworkCodeQualifier());
