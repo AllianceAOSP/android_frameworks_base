@@ -26,5 +26,8 @@
     <integer name="recents_animate_task_bar_enter_delay">275</integer>
     <integer name="recents_animate_task_bar_exit_duration">125</integer>
 
+    <!-- Number of rows in quick settings panel -->
+    <integer name="quick_settings_rows_count">3</integer>
+
 </resources>
 

@@ -126,6 +126,8 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
     private int[] mTmpLoc;
     public QSTileView mTileView;
 
+    private int rows;
+
     public QSDragPanel(Context context) {
         this(context, null);
     }
@@ -773,9 +775,9 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
 
     public int getTilesPerPage(boolean firstPage) {
         if ((!mFirstRowLarge && firstPage) || !firstPage) {
-            return QSTileHost.TILES_PER_PAGE + 3 * moreSlots + 1;
+            return QSTileHost.TILES_PER_PAGE + 3 * rows + (3 + rows) * moreSlots + 1;
         }
-        return QSTileHost.TILES_PER_PAGE + 2 * moreSlots;
+        return QSTileHost.TILES_PER_PAGE + 3 * rows + (2 + rows) * moreSlots;
     }
 
     @Override
@@ -1780,7 +1782,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
         mBrightnessPaddingTop = res.getDimensionPixelSize(R.dimen.qs_brightness_padding_top);
         mPageIndicatorHeight = res.getDimensionPixelSize(R.dimen.qs_panel_page_indicator_height);
         if (isLaidOut()) {
-            updateNumColumns();
+            updateColumnsRows();
             if (mListening) {
                 refreshAllTiles();
             }
@@ -1788,13 +1790,17 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
         }
     }
 
-    public void updateNumColumns() {
+    public void updateColumnsRows() {
         final Resources res = mContext.getResources();
         final ContentResolver resolver = mContext.getContentResolver();
         int defColumns = Math.max(1, res.getInteger(R.integer.quick_settings_num_columns));
         int columns = Settings.System.getIntForUser(resolver,
                 Settings.System.QS_NUMBER_OF_COLUMNS, defColumns,
                 UserHandle.USER_CURRENT);
+        int defRows = Math.max(1, res.getInteger(R.integer.quick_settings_rows_count));
+        int numberOfRows = Settings.System.getIntForUser(resolver,
+                Settings.System.QS_NUMBER_OF_ROWS, defRows, UserHandle.USER_CURRENT);
+        rows = numberOfRows - defRows;
         switch (columns) {
             case 3:
                 moreSlots = 0;

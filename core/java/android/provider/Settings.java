@@ -3585,6 +3585,12 @@ public final class Settings {
          */
         public static final String BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR = "battery_meter_link_frame_with_icon_color";
 
+        /**
+         * Number of rows in quick settings panel
+         * @hide
+         */
+        public static final String QS_NUMBER_OF_ROWS = "qs_number_of_rows";
+
 
          
         /**

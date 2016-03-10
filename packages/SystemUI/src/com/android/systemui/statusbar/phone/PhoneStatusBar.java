@@ -452,6 +452,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.BATTERY_METER_BOLT_COLOR), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.BATTERY_METER_LINK_FRAME_WITH_ICON_COLOR), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_NUMBER_OF_ROWS), false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -524,7 +526,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mIconPolicy.setCurrentUserSetup(mUserSetup);
             }
             if (mQSPanel != null) {
-                mQSPanel.updateNumColumns();
+                mQSPanel.updateColumnsRows();
             }
         }
     };
