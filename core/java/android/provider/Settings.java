@@ -3591,6 +3591,35 @@ public final class Settings {
          */
         public static final String QS_NUMBER_OF_ROWS = "qs_number_of_rows";
 
+        /**
+         * Navigation bar back button color
+         * @hide
+         */
+        public static final String NAV_BAR_BACK_BUTTON_COLOR = "nav_bar_back_button_color";
+
+        /**
+         * Navigation bar home button color
+         * @hide
+         */
+        public static final String NAV_BAR_HOME_BUTTON_COLOR = "nav_bar_home_button_color";
+
+        /**
+         * Navigation bar recents button color
+         * @hide
+         */
+        public static final String NAV_BAR_RECENTS_BUTTON_COLOR = "nav_bar_recents_button_color";
+
+        /**
+         * Link all nav bar button colors
+         * @hide
+         */
+        public static final String LINK_NAV_BAR_BUTTON_COLORS = "link_nav_bar_button_colors";
+
+        /**
+         * Linked nav bar button color
+         * @hide
+         */
+        public static final String LINKED_NAV_BAR_BUTTON_COLOR = "linked_nav_bar_button_color";
 
          
         /**

@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -57,6 +58,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.android.internal.util.AllianceUtils;
 import com.android.systemui.R;
 import com.android.systemui.UserContentObserver;
 import com.android.systemui.statusbar.policy.DeadZone;
@@ -152,6 +154,8 @@ public class NavigationBarView extends LinearLayout {
     private boolean mIsLayoutRtl;
     private boolean mLayoutTransitionsEnabled = true;
     private boolean mWakeAndUnlocking;
+
+    private boolean mLinkButtonColors;
 
     private class NavTransitionListener implements TransitionListener {
         private boolean mBackTransitioning;
@@ -366,6 +370,9 @@ public class NavigationBarView extends LinearLayout {
 
         mNavigationIconHints = hints;
 
+        mLinkButtonColors = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.LINK_NAV_BAR_BUTTON_COLORS, 0) == 1; 
+
         ((ImageView)getBackButton()).setImageDrawable(backAlt
                 ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
                 : (mVertical ? mBackLandIcon : mBackIcon));
@@ -374,7 +381,18 @@ public class NavigationBarView extends LinearLayout {
                     (0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_ALT))
                             ? (mVertical ? mRecentAltLandIcon : mRecentAltIcon)
                             : (mVertical ? mRecentLandIcon : mRecentIcon));
+
         ((ImageView)getHomeButton()).setImageDrawable(mVertical ? mHomeLandIcon : mHomeIcon);
+
+        if (!mLinkButtonColors) {
+            AllianceUtils.colorizeIcon(getContext(), ((ImageView)getBackButton()), Settings.System.NAV_BAR_BACK_BUTTON_COLOR, Color.WHITE);
+            AllianceUtils.colorizeIcon(getContext(), ((ImageView)getHomeButton()), Settings.System.NAV_BAR_HOME_BUTTON_COLOR, Color.WHITE);
+            AllianceUtils.colorizeIcon(getContext(), ((ImageView)getRecentsButton()), Settings.System.NAV_BAR_RECENTS_BUTTON_COLOR, Color.WHITE);
+        } else {
+            AllianceUtils.colorizeIcon(getContext(), ((ImageView)getBackButton()), Settings.System.LINKED_NAV_BAR_BUTTON_COLOR, Color.WHITE);
+            AllianceUtils.colorizeIcon(getContext(), ((ImageView)getHomeButton()), Settings.System.LINKED_NAV_BAR_BUTTON_COLOR, Color.WHITE);
+            AllianceUtils.colorizeIcon(getContext(), ((ImageView)getRecentsButton()), Settings.System.LINKED_NAV_BAR_BUTTON_COLOR, Color.WHITE);
+        }
 
         final boolean showImeButton = ((hints & StatusBarManager.NAVIGATION_HINT_IME_SHOWN) != 0)
                                 && !mShowDpadArrowKeys;
@@ -945,12 +963,12 @@ public class NavigationBarView extends LinearLayout {
         public void observe() {
             super.observe();
             ContentResolver resolver = getContext().getContentResolver();
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS),
-                    false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.NAV_BUTTONS_ROTATION), false, this);
-
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_MENU_ARROW_KEYS), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.NAV_BUTTONS_ROTATION), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.NAV_BAR_BACK_BUTTON_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.NAV_BAR_HOME_BUTTON_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.NAV_BAR_RECENTS_BUTTON_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(Settings.System.LINK_NAV_BAR_BUTTON_COLORS), false, this);
             // intialize mModlockDisabled
             onChange(false);
         }
@@ -979,7 +997,9 @@ public class NavigationBarView extends LinearLayout {
                     mSideButtonVisibilities[i][j] = -1;
                 }
             }
+            mLinkButtonColors = Settings.System.getInt(getContext().getContentResolver(), Settings.System.LINK_NAV_BAR_BUTTON_COLORS, 0) == 1;
             setNavigationIconHints(mNavigationIconHints, true);
+            NavigationBarView.this.invalidate();
         }
     }
 }
