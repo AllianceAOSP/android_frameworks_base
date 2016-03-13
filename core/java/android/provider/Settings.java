@@ -3621,6 +3621,12 @@ public final class Settings {
          */
         public static final String LINKED_NAV_BAR_BUTTON_COLOR = "linked_nav_bar_button_color";
 
+        /**
+         * Position of the clock on the status bar
+         * @hide
+         */
+        public static final String STATUS_BAR_CLOCK_POSITION = "status_bar_clock_position";
+
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
