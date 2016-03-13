@@ -3627,6 +3627,12 @@ public final class Settings {
          */
         public static final String STATUS_BAR_CLOCK_POSITION = "status_bar_clock_position";
 
+        /**
+         * Color of the status bar clock
+         * @hide
+         */
+        public static final String STATUS_BAR_CLOCK_COLOR = "status_bar_clock_color";
+
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to

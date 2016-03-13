@@ -22,8 +22,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
@@ -130,8 +132,11 @@ public class Clock extends TextView implements DemoMode {
 
     final void updateClock() {
         if (mDemoMode || mCalendar == null) return;
+        int mColor = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.STATUS_BAR_CLOCK_COLOR, Color.WHITE);
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         setText(getSmallTime());
+        setTextColor(mColor);
     }
 
     private final CharSequence getSmallTime() {

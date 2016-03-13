@@ -6,15 +6,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.policy.Clock;
 
-/**
- * To control your...clock
- */
+
 public class ClockController {
 
     public static final int STYLE_HIDE_CLOCK    = 0;
@@ -29,7 +28,7 @@ public class ClockController {
 
     private int mClockPosition;
     private int mAmPmStyle;
-    private int mIconTint = Color.WHITE;
+    private int mIconTint;
 
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
@@ -40,6 +39,8 @@ public class ClockController {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CLOCK_POSITION), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CLOCK_COLOR), false, this);
             updateSettings();
         }
 
@@ -51,6 +52,11 @@ public class ClockController {
         public void onChange(boolean selfChange) {
             updateSettings();
         }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            updateSettings();
+        }
     }
 
     public ClockController(View statusBar, IconMerger notificationIcons, Handler handler) {
@@ -59,6 +65,9 @@ public class ClockController {
         mLeftClock = (Clock) statusBar.findViewById(R.id.left_clock);
         mNotificationIcons = notificationIcons;
         mContext = statusBar.getContext();
+
+        mIconTint = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CLOCK_COLOR, Color.WHITE);
 
         mActiveClock = mRightClock;
         mSettingsObserver = new SettingsObserver(handler);
@@ -101,6 +110,7 @@ public class ClockController {
     private void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
         mClockPosition = Settings.System.getInt(resolver, Settings.System.STATUS_BAR_CLOCK_POSITION, STYLE_CLOCK_RIGHT);
+        mIconTint = Settings.System.getInt(resolver, Settings.System.STATUS_BAR_CLOCK_COLOR, Color.WHITE);
         updateActiveClock();
     }
 
