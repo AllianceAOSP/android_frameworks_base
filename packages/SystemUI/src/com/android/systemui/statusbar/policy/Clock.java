@@ -59,6 +59,7 @@ public class Clock extends TextView implements DemoMode {
     public static final int AM_PM_STYLE_GONE    = 2;
 
     private int mAmPmStyle = AM_PM_STYLE_GONE;
+    private int mColor;
 
     public Clock(Context context) {
         this(context, null);
@@ -132,9 +133,10 @@ public class Clock extends TextView implements DemoMode {
 
     final void updateClock() {
         if (mDemoMode || mCalendar == null) return;
-        int mColor = Settings.System.getInt(getContext().getContentResolver(),
+        mColor = Settings.System.getInt(getContext().getContentResolver(),
                 Settings.System.STATUS_BAR_CLOCK_COLOR, Color.WHITE);
         mCalendar.setTimeInMillis(System.currentTimeMillis());
+        setTextColor(mColor);
         setText(getSmallTime());
         setTextColor(mColor);
     }

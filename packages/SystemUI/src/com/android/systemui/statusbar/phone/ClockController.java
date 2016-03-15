@@ -111,6 +111,7 @@ public class ClockController {
         ContentResolver resolver = mContext.getContentResolver();
         mClockPosition = Settings.System.getInt(resolver, Settings.System.STATUS_BAR_CLOCK_POSITION, STYLE_CLOCK_RIGHT);
         mIconTint = Settings.System.getInt(resolver, Settings.System.STATUS_BAR_CLOCK_COLOR, Color.WHITE);
+        setTextColor(mIconTint);
         updateActiveClock();
     }
 

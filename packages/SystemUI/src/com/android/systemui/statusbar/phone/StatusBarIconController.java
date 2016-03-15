@@ -119,6 +119,8 @@ public class StatusBarIconController implements Tunable {
     private int mColorToChange;
     private Animator mColorTransitionAnimator;
 
+    private TextView mClock;
+
     private final Runnable mTransitionDeferringDoneRunnable = new Runnable() {
         @Override
         public void run() {
