@@ -23,4 +23,8 @@
     <color name="dexopt_secondary_text">#b3ffffff</color>
     <color name="dexopt_progress_tint">#ff6a1212</color>
 
+    <!-- Shutdown/reboot dialog -->
+    <color name="shutdown_background">#ff212121</color>
+    <color name="shutdown_primary_text">#ffffffff</color>
+
 </resources>
