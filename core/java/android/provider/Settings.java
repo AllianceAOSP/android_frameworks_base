@@ -3657,6 +3657,12 @@ public final class Settings {
          * @hide
          */
         public static final String STATUS_BAR_NOTIFICATIONS_ICONS_COLOR = "status_bar_notification_icons_color";
+
+        /**
+         * Allow the volume keys to wake the device
+         * @hide
+         */
+        public static final String WAKE_WITH_VOLUME_KEYS = "wake_with_volume_keys";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
