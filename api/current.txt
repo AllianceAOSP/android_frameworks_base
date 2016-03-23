@@ -5390,11 +5390,11 @@ package android.app {
   public class UiModeManager {
     method public void disableCarMode(int);
     method public void enableCarMode(int);
+    method public int getAllianceMode();
     method public int getCurrentModeType();
     method public int getNightMode();
+    method public void setAllianceMode(int);
     method public void setNightMode(int);
-    method public int getAllianceMode();
-    method public void setAllianceMode();
     field public static java.lang.String ACTION_ENTER_CAR_MODE;
     field public static java.lang.String ACTION_ENTER_DESK_MODE;
     field public static java.lang.String ACTION_EXIT_CAR_MODE;
@@ -5402,12 +5402,12 @@ package android.app {
     field public static final int DISABLE_CAR_MODE_GO_HOME = 1; // 0x1
     field public static final int ENABLE_CAR_MODE_ALLOW_SLEEP = 2; // 0x2
     field public static final int ENABLE_CAR_MODE_GO_CAR_HOME = 1; // 0x1
+    field public static final int MODE_ALLIANCE_NO = 1; // 0x1
+    field public static final int MODE_ALLIANCE_OTHER = 0; // 0x0
+    field public static final int MODE_ALLIANCE_YES = 2; // 0x2
     field public static final int MODE_NIGHT_AUTO = 0; // 0x0
     field public static final int MODE_NIGHT_NO = 1; // 0x1
     field public static final int MODE_NIGHT_YES = 2; // 0x2
-    field public static final int MODE_ALLIANCE_OTHER = 0; // 0x0
-    field public static final int MODE_ALLIANCE_NO = 1; // 0x1
-    field public static final int MODE_ALLIANCE_YES = 2; // 0x2
   }
 
   public final class VoiceInteractor {
@@ -8198,6 +8198,7 @@ package android.content {
     field public static final deprecated java.lang.String ACTION_UMS_CONNECTED = "android.intent.action.UMS_CONNECTED";
     field public static final deprecated java.lang.String ACTION_UMS_DISCONNECTED = "android.intent.action.UMS_DISCONNECTED";
     field public static final java.lang.String ACTION_UNINSTALL_PACKAGE = "android.intent.action.UNINSTALL_PACKAGE";
+    field public static final java.lang.String ACTION_UPDATE_POWER_MENU = "android.intent.action.UPDATE_POWER_MENU";
     field public static final java.lang.String ACTION_USER_BACKGROUND = "android.intent.action.USER_BACKGROUND";
     field public static final java.lang.String ACTION_USER_FOREGROUND = "android.intent.action.USER_FOREGROUND";
     field public static final java.lang.String ACTION_USER_INITIALIZE = "android.intent.action.USER_INITIALIZE";
@@ -9694,10 +9695,15 @@ package android.content.res {
     field public static final int SCREEN_HEIGHT_DP_UNDEFINED = 0; // 0x0
     field public static final int SCREEN_WIDTH_DP_UNDEFINED = 0; // 0x0
     field public static final int SMALLEST_SCREEN_WIDTH_DP_UNDEFINED = 0; // 0x0
+    field public static final java.lang.String THEME_PKG_CONFIGURATION_PERSISTENCE_PROPERTY = "themeConfig";
     field public static final int TOUCHSCREEN_FINGER = 3; // 0x3
     field public static final int TOUCHSCREEN_NOTOUCH = 1; // 0x1
     field public static final deprecated int TOUCHSCREEN_STYLUS = 2; // 0x2
     field public static final int TOUCHSCREEN_UNDEFINED = 0; // 0x0
+    field public static final int UI_MODE_ALLIANCE_MASK = 48; // 0x30
+    field public static final int UI_MODE_ALLIANCE_NO = 16; // 0x10
+    field public static final int UI_MODE_ALLIANCE_UNDEFINED = 0; // 0x0
+    field public static final int UI_MODE_ALLIANCE_YES = 32; // 0x20
     field public static final int UI_MODE_NIGHT_MASK = 48; // 0x30
     field public static final int UI_MODE_NIGHT_NO = 16; // 0x10
     field public static final int UI_MODE_NIGHT_UNDEFINED = 0; // 0x0
@@ -9710,10 +9716,6 @@ package android.content.res {
     field public static final int UI_MODE_TYPE_TELEVISION = 4; // 0x4
     field public static final int UI_MODE_TYPE_UNDEFINED = 0; // 0x0
     field public static final int UI_MODE_TYPE_WATCH = 6; // 0x6
-    field public static final int UI_MODE_ALLIANCE_MASK = 48; // 0x30
-    field public static final int UI_MODE_ALLIANCE_NO = 16; // 0x10
-    field public static final int UI_MODE_NIGHT_UNDEFINED = 0; // 0x0
-    field public static final int UI_MODE_NIGHT_YES = 32; // 0x20
     field public int densityDpi;
     field public float fontScale;
     field public int hardKeyboardHidden;
@@ -14871,6 +14873,7 @@ package android.media {
     method public void setRingerMode(int);
     method public deprecated void setRouting(int, int, int);
     method public void setSpeakerphoneOn(boolean);
+    method public void setStreamMaxVolume(int, int);
     method public deprecated void setStreamMute(int, boolean);
     method public deprecated void setStreamSolo(int, boolean);
     method public void setStreamVolume(int, int, int);
@@ -26515,6 +26518,8 @@ package android.provider {
     field public static final deprecated java.lang.String INSTALL_NON_MARKET_APPS = "install_non_market_apps";
     field public static final java.lang.String MODE_RINGER = "mode_ringer";
     field public static final java.lang.String NETWORK_PREFERENCE = "network_preference";
+    field public static final java.lang.String POLICY_CONTROL_SELECTED = "policy_control_selected";
+    field public static final java.lang.String POLICY_CONTROL_STYLE = "policy_control_style";
     field public static final java.lang.String RADIO_BLUETOOTH = "bluetooth";
     field public static final java.lang.String RADIO_CELL = "cell";
     field public static final java.lang.String RADIO_NFC = "nfc";
@@ -26598,6 +26603,7 @@ package android.provider {
     field public static final java.lang.String PARENTAL_CONTROL_ENABLED = "parental_control_enabled";
     field public static final java.lang.String PARENTAL_CONTROL_LAST_UPDATE = "parental_control_last_update";
     field public static final java.lang.String PARENTAL_CONTROL_REDIRECT_URL = "parental_control_redirect_url";
+    field public static final java.lang.String QS_SHOW_BRIGHTNESS_SLIDER = "qs_show_brightness_slider";
     field public static final java.lang.String SELECTED_INPUT_METHOD_SUBTYPE = "selected_input_method_subtype";
     field public static final java.lang.String SETTINGS_CLASSNAME = "settings_classname";
     field public static final java.lang.String SKIP_FIRST_USE_HINTS = "skip_first_use_hints";
@@ -26657,12 +26663,25 @@ package android.provider {
     method public static boolean putString(android.content.ContentResolver, java.lang.String, java.lang.String);
     method public static deprecated void setShowGTalkServiceStatus(android.content.ContentResolver, boolean);
     field public static final java.lang.String ACCELEROMETER_ROTATION = "accelerometer_rotation";
+    field public static final java.lang.String ACTIVITY_ANIMATION_DURATION = "activity_animation_duration";
     field public static final deprecated java.lang.String ADB_ENABLED = "adb_enabled";
     field public static final deprecated java.lang.String AIRPLANE_MODE_ON = "airplane_mode_on";
     field public static final deprecated java.lang.String AIRPLANE_MODE_RADIOS = "airplane_mode_radios";
     field public static final java.lang.String ALARM_ALERT = "alarm_alert";
     field public static final deprecated java.lang.String ALWAYS_FINISH_ACTIVITIES = "always_finish_activities";
     field public static final deprecated java.lang.String ANDROID_ID = "android_id";
+    field public static final java.lang.String[] ANIMATION_ACTIVITY;
+    field public static final java.lang.String ANIMATION_EXIT_ONLY = "animation_exit_only";
+    field public static final java.lang.String ANIMATION_IME_DURATION = "animation_ime_duration";
+    field public static final java.lang.String ANIMATION_IME_ENTER = "animation_ime_enter";
+    field public static final java.lang.String ANIMATION_IME_EXIT = "animation_ime_exit";
+    field public static final java.lang.String ANIMATION_IME_INTERPOLATOR = "animation_ime_interpolator";
+    field public static final java.lang.String ANIMATION_LISTVIEW = "animation_listview";
+    field public static final java.lang.String ANIMATION_LISTVIEW_INTERPOLATOR = "animation_listview_interpolator";
+    field public static final java.lang.String ANIMATION_NO_OVERRIDE = "animation_no_override";
+    field public static final java.lang.String ANIMATION_POWER_MENU = "animation_power_menu";
+    field public static final java.lang.String ANIMATION_REVERSE_EXIT = "animation_reverse_exit";
+    field public static final java.lang.String ANIMATION_TOAST = "animation_toast";
     field public static final deprecated java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
     field public static final deprecated java.lang.String AUTO_TIME = "auto_time";
     field public static final deprecated java.lang.String AUTO_TIME_ZONE = "auto_time_zone";
@@ -26693,16 +26712,36 @@ package android.provider {
     field public static final deprecated java.lang.String MODE_RINGER = "mode_ringer";
     field public static final java.lang.String MODE_RINGER_STREAMS_AFFECTED = "mode_ringer_streams_affected";
     field public static final java.lang.String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
+    field public static final java.lang.String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
+    field public static final java.lang.String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
+    field public static final java.lang.String NAVIGATION_BAR_HEIGHT_LANDSCAPE = "navigation_bar_height_landscape";
+    field public static final java.lang.String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
     field public static final deprecated java.lang.String NETWORK_PREFERENCE = "network_preference";
     field public static final deprecated java.lang.String NEXT_ALARM_FORMATTED = "next_alarm_formatted";
+    field public static final java.lang.String NOTIFICATION_APP_ICON_BG_COLOR = "notification_app_icon_bg_color";
+    field public static final java.lang.String NOTIFICATION_APP_ICON_BG_MODE = "notification_app_icon_bg_mode";
+    field public static final java.lang.String NOTIFICATION_APP_ICON_COLOR_MODE = "notification_app_icon_color_mode";
+    field public static final java.lang.String NOTIFICATION_BG_COLOR = "notification_bg_color";
+    field public static final java.lang.String NOTIFICATION_GUTS_BG_COLOR = "notification_bg_guts_color";
+    field public static final java.lang.String NOTIFICATION_ICON_COLOR = "notification_icon_color";
+    field public static final java.lang.String NOTIFICATION_MEDIA_BG_MODE = "notification_media_bg_mode";
     field public static final java.lang.String NOTIFICATION_SOUND = "notification_sound";
+    field public static final java.lang.String NOTIFICATION_TEXT_COLOR = "notification_text_color";
     field public static final deprecated java.lang.String PARENTAL_CONTROL_ENABLED = "parental_control_enabled";
     field public static final deprecated java.lang.String PARENTAL_CONTROL_LAST_UPDATE = "parental_control_last_update";
     field public static final deprecated java.lang.String PARENTAL_CONTROL_REDIRECT_URL = "parental_control_redirect_url";
+    field public static final java.lang.String POWER_MENU_ICON_COLOR = "power_menu_icon_color";
+    field public static final java.lang.String POWER_MENU_PRIMARY_TEXT_COLOR = "power_menu_primary_text_color";
+    field public static final java.lang.String POWER_MENU_SECONDARY_TEXT_COLOR = "power_menu_secondary_text_color";
+    field public static final java.lang.String QS_SHOW_BRIGHTNESS_SLIDER = "qs_show_brightness_slider";
     field public static final deprecated java.lang.String RADIO_BLUETOOTH = "bluetooth";
     field public static final deprecated java.lang.String RADIO_CELL = "cell";
     field public static final deprecated java.lang.String RADIO_NFC = "nfc";
     field public static final deprecated java.lang.String RADIO_WIFI = "wifi";
+    field public static final java.lang.String RECENTS_CLEAR_ALL_DISMISS_ALL = "recents_clear_all_dismiss_all";
+    field public static final java.lang.String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
+    field public static final java.lang.String RECENTS_SHOW_CLEAR_ALL = "recents_show_clear_all";
+    field public static final java.lang.String RECENTS_SHOW_SEARCH_BAR = "recents_show_search_bar";
     field public static final java.lang.String RINGTONE = "ringtone";
     field public static final java.lang.String SCREEN_BRIGHTNESS = "screen_brightness";
     field public static final java.lang.String SCREEN_BRIGHTNESS_MODE = "screen_brightness_mode";
@@ -26715,6 +26754,7 @@ package android.provider {
     field public static final deprecated java.lang.String SHOW_PROCESSES = "show_processes";
     field public static final deprecated java.lang.String SHOW_WEB_SUGGESTIONS = "show_web_suggestions";
     field public static final java.lang.String SOUND_EFFECTS_ENABLED = "sound_effects_enabled";
+    field public static final java.lang.String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
     field public static final deprecated java.lang.String STAY_ON_WHILE_PLUGGED_IN = "stay_on_while_plugged_in";
     field public static final java.lang.String SYS_PROP_SETTING_VERSION = "sys.settings_system_version";
     field public static final java.lang.String TEXT_AUTO_CAPS = "auto_caps";
@@ -38147,6 +38187,11 @@ package android.view.animation {
     ctor public PathInterpolator(float, float);
     ctor public PathInterpolator(float, float, float, float);
     ctor public PathInterpolator(android.content.Context, android.util.AttributeSet);
+    method public float getInterpolation(float);
+  }
+
+  public class ReverseInterpolator implements android.view.animation.Interpolator {
+    ctor public ReverseInterpolator(android.view.animation.Interpolator);
     method public float getInterpolation(float);
   }
 
