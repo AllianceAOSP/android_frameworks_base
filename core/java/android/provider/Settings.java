@@ -3663,6 +3663,12 @@ public final class Settings {
          * @hide
          */
         public static final String WAKE_WITH_VOLUME_KEYS = "wake_with_volume_keys";
+
+        /**
+         * Don't allow the keyboard to fill the screen
+         * @hide
+         */
+        public static final String DISABLE_FULL_SCREEN_KEYBOARD = "disable_full_screen_keyboard";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
