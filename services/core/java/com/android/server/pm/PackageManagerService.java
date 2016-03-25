@@ -222,13 +222,13 @@ import com.android.server.EventLogTags;
 import com.android.server.FgThread;
 import com.android.server.IntentResolver;
 import com.android.server.LocalServices;
-import com.android.server.policy.PhoneWindowManager;
 import com.android.server.ServiceThread;
 import com.android.server.SystemConfig;
 import com.android.server.Watchdog;
 import com.android.server.pm.PermissionsState.PermissionState;
 import com.android.server.pm.Settings.DatabaseVersion;
 import com.android.server.pm.Settings.VersionInfo;
+import com.android.server.policy.PhoneWindowManager;
 import com.android.server.storage.DeviceStorageMonitorInternal;
 
 import org.xmlpull.v1.XmlPullParser;
