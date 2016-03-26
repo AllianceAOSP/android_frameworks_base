@@ -3715,6 +3715,12 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_DATE_COLOR = "keyguard_date_color";
+
+        /**
+         * Color of the keyguard alarm
+         * @hide
+         */
+        public static final String KEYGUARD_ALARM_COLOR = "keyguard_alarm_color";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
