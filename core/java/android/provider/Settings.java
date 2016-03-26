@@ -3703,6 +3703,18 @@ public final class Settings {
          * @hide
          */
         public static final String NETWORK_TRAFFIC_COLOR = "network_traffic_color";
+
+        /**
+         * Color of the keyguard clock
+         * @hide
+         */
+        public static final String KEYGUARD_TIME_COLOR = "keyguard_time_color";
+
+        /**
+         * Color of the keyguard date
+         * @hide
+         */
+        public static final String KEYGUARD_DATE_COLOR = "keyguard_date_color";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
