@@ -3804,7 +3804,7 @@ public final class Settings {
          * Color of the camera icon on lockscreen
          * @hide
          */
-        public static final STRING KEYGUARD_CAMERA_ICON_COLOR = "keyguard_camera_icon_color";
+        public static final String KEYGUARD_CAMERA_ICON_COLOR = "keyguard_camera_icon_color";
 
         /**
          * Color of the phone icon on lockscreen
