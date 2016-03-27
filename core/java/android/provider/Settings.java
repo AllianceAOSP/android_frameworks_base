@@ -3214,23 +3214,30 @@ public final class Settings {
 
         /**
          * Whether to show the clear all button in recents
+         * @hide
          */
         public static final String RECENTS_SHOW_CLEAR_ALL = "recents_show_clear_all";
 
         /**
          * Location of the clear all button in recents
+         * @hide
          */
         public static final String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
 
         /**
          * Whether to dismiss foreground task with other tasks
+         * @hide
          */
         public static final String RECENTS_CLEAR_ALL_DISMISS_ALL = "recents_clear_all_dismiss_all";
 
+        /**
+         * @hide
+         */
         public static final String RECENTS_SHOW_SEARCH_BAR = "recents_show_search_bar";
 
         /**
          * Activity animations
+         * @hide
          */
         public static final String[] ANIMATION_ACTIVITY = new String[] {
          		"activity_open",
@@ -3248,39 +3255,75 @@ public final class Settings {
 
          /**
           * Duration of Activity animations
+          * @hide
           */
          public static final String ACTIVITY_ANIMATION_DURATION = "activity_animation_duration";
 
          /**
           * Power menu animation
+          * @hide
           */
          public static final String ANIMATION_POWER_MENU = "animation_power_menu";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_NO_OVERRIDE = "animation_no_override";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_EXIT_ONLY = "animation_exit_only";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_REVERSE_EXIT = "animation_reverse_exit";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_LISTVIEW = "animation_listview";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_LISTVIEW_INTERPOLATOR = "animation_listview_interpolator";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_TOAST = "animation_toast";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_IME_DURATION = "animation_ime_duration";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_IME_ENTER = "animation_ime_enter";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_IME_EXIT = "animation_ime_exit";
 
+         /**
+          * @hide
+          */
          public static final String ANIMATION_IME_INTERPOLATOR = "animation_ime_interpolator";
 
+         /**
+          * @hide
+          */
          public static final String QS_SHOW_BRIGHTNESS_SLIDER = "qs_show_brightness_slider";
 
          /**
          * Whether navigation bar is placed on the left side in landscape mode
          * 0 = 0ff, 1 = on
+         * @hide
          */
         public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
 
@@ -3298,19 +3341,25 @@ public final class Settings {
          * 5: Display the battery an icon in landscape mode
          * 6: Display the battery as plain text
          * default: 0
+         * @hide
          */
         public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
 
         /**
          * Navigation bar height (portrait)
+         * @hide
          */
         public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
 
         /**
          * Navigation bar height (landscape)
+         * @hide
          */
         public static final String NAVIGATION_BAR_HEIGHT_LANDSCAPE = "navigation_bar_height_landscape";
 
+        /**
+         * @hide
+         */
         public static final String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
 
         /**
@@ -3319,6 +3368,7 @@ public final class Settings {
          * 1: if the notification doesn`t include an own color
          * 2: always
          * default: 0
+         * @hide
          */
         public static final String NOTIFICATION_MEDIA_BG_MODE = "notification_media_bg_mode";
 
@@ -3328,6 +3378,7 @@ public final class Settings {
          * 1: if the notification doesn`t include an own color
          * 2: always
          * default: 0
+         * @hide
          */
         public static final String NOTIFICATION_APP_ICON_BG_MODE = "notification_app_icon_bg_mode";
 
@@ -3337,38 +3388,53 @@ public final class Settings {
          * 1: if the icon is an greyscale icon
          * 2: always
          * default: 0
+         * @hide
          */
         public static final String NOTIFICATION_APP_ICON_COLOR_MODE = "notification_app_icon_color_mode";
 
         /**
          * Color of the notifications background
+         * @hide
          */
         public static final String NOTIFICATION_BG_COLOR = "notification_bg_color";
 
         /**
          * Color of the notifications background on longpress
+         * @hide
          */
         public static final String NOTIFICATION_GUTS_BG_COLOR = "notification_bg_guts_color";
 
          /**
          * Color of the notifications icon background
+         * @hide
          */
         public static final String NOTIFICATION_APP_ICON_BG_COLOR = "notification_app_icon_bg_color";
 
         /**
          * Color of the notification text
+         * @hide
          */
         public static final String NOTIFICATION_TEXT_COLOR = "notification_text_color";
 
         /**
          * Color of notification icon
+         * @hide
          */
         public static final String NOTIFICATION_ICON_COLOR = "notification_icon_color";
 
+        /**
+         * @hide
+         */
         public static final String POWER_MENU_ICON_COLOR = "power_menu_icon_color";
 
+        /**
+         * @hide
+         */
         public static final String POWER_MENU_PRIMARY_TEXT_COLOR = "power_menu_primary_text_color";
 
+        /**
+         * @hide
+         */
         public static final String POWER_MENU_SECONDARY_TEXT_COLOR = "power_menu_secondary_text_color";
 
         /**
