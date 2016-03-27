@@ -154,6 +154,7 @@ public class KeyguardStatusView extends GridLayout {
         refreshTime();
         refreshAlarmStatus(nextAlarm);
         refreshColors();
+        refreshVisibilities();
     }
 
     void refreshAlarmStatus(AlarmManager.AlarmClockInfo nextAlarm) {
@@ -194,6 +195,7 @@ public class KeyguardStatusView extends GridLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         KeyguardUpdateMonitor.getInstance(mContext).registerCallback(mInfoCallback);
+        refreshVisibilities();
     }
 
     @Override
@@ -231,6 +233,16 @@ public class KeyguardStatusView extends GridLayout {
         int alarmColor = Settings.System.getInt(resolver, Settings.System.KEYGUARD_ALARM_COLOR, 0xb3ffffff);
         if (mAlarmStatusView != null) {
             mAlarmStatusView.setTextColor(alarmColor);
+        }
+    }
+
+    private void refreshVisibilities() {
+        boolean showClock = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.KEYGUARD_SHOW_CLOCK, 1) == 1;
+        if (showClock) {
+            mClockView.setVisibility(View.VISIBLE);
+        } else {
+            mClockView.setVisibility(View.GONE);
         }
     }
 

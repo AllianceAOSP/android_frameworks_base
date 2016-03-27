@@ -3811,6 +3811,12 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_PHONE_ICON_COLOR = "keyguard_phone_icon_color";
+
+        /**
+         * Show/hide the clock on the lockscreen
+         * @hide
+         */
+        public static final String KEYGUARD_SHOW_CLOCK = "keyguard_show_clock";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
