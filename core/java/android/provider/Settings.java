@@ -3805,6 +3805,12 @@ public final class Settings {
          * @hide
          */
         public static final STRING KEYGUARD_CAMERA_ICON_COLOR = "keyguard_camera_icon_color";
+
+        /**
+         * Color of the phone icon on lockscreen
+         * @hide
+         */
+        public static final String KEYGUARD_PHONE_ICON_COLOR = "keyguard_phone_icon_color";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
