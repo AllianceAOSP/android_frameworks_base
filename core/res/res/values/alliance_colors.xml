@@ -22,6 +22,7 @@
     <color name="dexopt_primary_text">#ffffffff</color>
     <color name="dexopt_secondary_text">#b3ffffff</color>
     <color name="dexopt_progress_tint">#ff6a1212</color>
+    <color name="dexopt_circle_color">#cc121212</color>
 
     <!-- Shutdown/reboot dialog -->
     <color name="shutdown_background">#ff212121</color>
