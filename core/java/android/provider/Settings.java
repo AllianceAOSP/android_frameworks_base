@@ -3721,6 +3721,18 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_ALARM_COLOR = "keyguard_alarm_color";
+
+        /**
+         * Color of the keyguard lock icon
+         * @hide
+         */
+        public static final String KEYGUARD_LOCK_ICON_COLOR = "keyguard_lock_icon_color";
+
+        /**
+         * Show or hide charging current on lockscreen when device is plugged in
+         * @hide
+         */
+        public static final String KEYGUARD_SHOW_CHARGING_CURRENT = "keyguard_show_charging_current";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
