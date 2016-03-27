@@ -244,6 +244,14 @@ public class KeyguardStatusView extends GridLayout {
         } else {
             mClockView.setVisibility(View.GONE);
         }
+
+        boolean showDate = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.KEYGUARD_SHOW_DATE, 1) == 1;
+        if (showDate) {
+            mDateView.setVisibility(View.VISIBLE);
+        } else {
+            mDateView.setVisibility(View.GONE);
+        }
     }
 
     // DateFormat.getBestDateTimePattern is extremely expensive, and refresh is called often.

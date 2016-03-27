@@ -3817,6 +3817,12 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_SHOW_CLOCK = "keyguard_show_clock";
+
+        /**
+         * Show/hide the date on the lockscreen
+         * @hide
+         */
+        public static final String KEYGUARD_SHOW_DATE = "keyguard_show_date";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
