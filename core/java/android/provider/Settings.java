@@ -3799,6 +3799,12 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_SHOW_CHARGING_CURRENT = "keyguard_show_charging_current";
+
+        /**
+         * Color of the camera icon on lockscreen
+         * @hide
+         */
+        public static final STRING KEYGUARD_CAMERA_ICON_COLOR = "keyguard_camera_icon_color";
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
