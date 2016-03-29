@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/shutdown_background"
+    android:background="@drawable/dexopt_bg"
     android:padding="@dimen/shutdown_margin">
 
     <ImageView

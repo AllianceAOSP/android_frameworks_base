@@ -25,7 +25,6 @@
     <color name="dexopt_circle_color">#cc121212</color>
 
     <!-- Shutdown/reboot dialog -->
-    <color name="shutdown_background">#ff212121</color>
     <color name="shutdown_primary_text">#ffffffff</color>
 
 </resources>
