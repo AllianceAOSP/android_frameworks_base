@@ -178,7 +178,6 @@
 
   <!-- Shutdown/reboot screen -->
   <java-symbol type="layout" name="shutdown_layout" />
-  <java-symbol type="color" name="shutdown_background" />
   <java-symbol type="color" name="shutdown_primary_text" />
   <java-symbol type="dimen" name="shutdown_margin" />
   <java-symbol type="dimen" name="shutdown_logo_margin_top" />
