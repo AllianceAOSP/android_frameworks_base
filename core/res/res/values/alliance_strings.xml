@@ -43,7 +43,7 @@
 
     <!-- Power menu items -->
     <string name="global_action_search">Search</string>
-    <string name="global_action_voice_search">Vocie search</string>
+    <string name="global_action_voice_search">Voice search</string>
     <string name="global_action_screenshot">Screenshot</string>
 
     <!-- Title of an application permission, listed so the user can choose whether they want the application to do this. -->
