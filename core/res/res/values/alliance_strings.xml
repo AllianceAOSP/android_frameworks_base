@@ -45,6 +45,7 @@
     <string name="global_action_search">Search</string>
     <string name="global_action_voice_search">Voice search</string>
     <string name="global_action_screenshot">Screenshot</string>
+    <string name="global_action_flashlight">Flashlight</string>
 
     <!-- Title of an application permission, listed so the user can choose whether they want the application to do this. -->
     <string name="permlab_setKeyguardWallpaper">set keyguard wallpaper</string>

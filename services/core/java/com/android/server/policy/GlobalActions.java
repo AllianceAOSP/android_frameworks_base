@@ -42,6 +42,9 @@ import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuff.Mode;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraAccessException;
 import android.Manifest;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -124,6 +127,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mHasTelephony;
     private boolean mHasVibrator;
     private final boolean mShowSilentToggle;
+    private static boolean mShowFlashlight;
 
     String mActions;
 
@@ -368,6 +372,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 mItems.add(getVoiceAssistAction());
             } else if (GLOBAL_ACTION_KEY_ASSIST.equals(actionKey)) {
                 mItems.add(getAssistAction());
+            } else if (GLOBAL_ACTION_KEY_FLASHLIGHT.equals(actionKey)) {
+                mItems.add(getFlashlightAction());
             } else {
                 Log.e(TAG, "Invalid global action key " + actionKey);
             }
@@ -627,6 +633,35 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             }
 
             @Override
+            public boolean showBeforeProvisioning() {
+                return false;
+            }
+        };
+    }
+
+    private Action getFlashlightAction() {
+        return new SinglePressAction(com.android.internal.R.drawable.ic_lock_flashlight,
+                R.string.global_action_flashlight) {
+            public void onPress() {
+                try {
+                    CameraManager cameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+                    for (final String cameraId : cameraManager.getCameraIdList()) {
+                        CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+                        int orientation = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
+                        if (orientation == CameraCharacteristics.LENS_FACING_BACK) {
+                            cameraManager.setTorchMode(cameraId, !mShowFlashlight);
+                            mShowFlashlight = !mShowFlashlight;
+                        }
+                    }
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            public boolean showDuringKeyguard() {
+                return true;
+            }
+
             public boolean showBeforeProvisioning() {
                 return false;
             }
