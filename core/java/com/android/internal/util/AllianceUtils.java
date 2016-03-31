@@ -1,6 +1,10 @@
 package com.android.internal.util;
 
+import android.app.ActivityManagerNative;
+import android.app.IActivityManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -16,21 +20,38 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.internal.util.ImageUtils;
+import com.android.internal.util.alliance.CMDProcessor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.CharSequence;
 import java.lang.Math;
 import java.util.Arrays;
+import java.util.Date;
 
 public class AllianceUtils {
+
+    private static final String TAG = "AllianceUtils";
 
     public static int dpToPx(Context context, int dp) {
         return (int) ((dp * context.getResources().getDisplayMetrics().density) + 0.5);
@@ -263,5 +284,253 @@ public class AllianceUtils {
     public static int getIconColorDark(Context context, String key) {
         final int color = Settings.System.getInt(context.getContentResolver(), key, 0x7a000000);
         return (153 << 24) | (color & 0x00ffffff);
+    }
+
+    @SuppressWarnings("MethodWithMultipleReturnPoints")
+    public static boolean checkSu() {
+        if (!new File("/system/xbin/su").exists()) {
+            Log.e(TAG, "su binary not found.");
+            return false;
+        }
+        try {
+            if (CMDProcessor.runSuCommand("ls /data/app-private").success()) {
+                Log.i(TAG, "su found, permissions ok");
+                return true;
+            } else {
+                Log.i(TAG, "su found, permission not granted");
+                return false;
+            }
+        } catch (NullPointerException e) {
+            Log.e(TAG, "NPE thrown while looking for su binary", e);
+            return false;
+        }
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        boolean state = false;
+        if (context != null) {
+            ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                Log.i(TAG, "No data connection");
+                state = false;
+            }
+        }
+        return state;
+    }
+
+    public static boolean checkBusyBox() {
+        if (!new File("/system/bin/busybox").exists() && !new File("/system/xbin/busybox").exists()) {
+            Log.e(TAG, "BusyBox not found.");
+            return false;
+        }
+        try {
+            if (!CMDProcessor.runSuCommand("busybox mount").success()) {
+                Log.e(TAG, "BusyBox error!");
+                return false;
+            }
+        } catch (NullPointerException e) {
+            Log.e(TAG, "NPE thrown while checking BusyBox", e);
+            return false;
+        }
+        return true;
+    }
+
+    public static String[] getMounts(CharSequence path) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("/proc/mounts"), 256);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains(path)) {
+                    return line.split(" ");
+                }
+            }
+        } catch (FileNotFoundException ignored) {
+            Log.d(TAG, "/proc/mounts does not exist.");
+        } catch (IOException ignored) {
+            Log.d(TAG, "Error reading /proc/mounts.");
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean getMount(String mount) {
+        String[] mounts = getMounts("/system");
+        if (mounts != null && mounts.length >= 3) {
+            String device = mounts[0];
+            String path = mounts[1];
+            String point = mounts[2];
+            String preferredMountCmd = new String("mount -o " + mount + ",remount -t " + point + ' ' + device + ' ' + path);
+            if (CMDProcessor.runSuCommand(preferredMountCmd).success()) {
+                return true;
+            }
+        }
+        String fallbackMountCmd = new String("busybox mount -o remount," + mount + " /system");
+        return CMDProcessor.runSuCommand(fallbackMountCmd).success();
+    }
+
+    public static String readOneLine(String fname) {
+        BufferedReader reader = null;
+        String line = null;
+        try {
+            reader = new BufferedReader(new FileReader(fname), 1024);
+            line = reader.readLine();
+        } catch (FileNotFoundException ignored) {
+            Log.d(TAG, "File not found! Trying via shell...");
+            return readFileViaShell(fname, true);
+        } catch (IOException e) {
+            Log.d(TAG, "IOException while reading file system", e);
+            return readFileViaShell(fname, true);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return line;
+    }
+
+    public static String readFileViaShell(String filePath, boolean useSu) {
+        String command = new String("cat " + filePath);
+        return useSu ? CMDProcessor.runSuCommand(command).getStdout() : CMDProcessor.runShellCommand(command).getStdout();
+    }
+
+    public static boolean writeOneLine(String filename, String value) {
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(filename);
+            fileWriter.write(value);
+        } catch (IOException e) {
+            String error = "Error writing { " + value + " } to file: " + filename;
+            Log.e(TAG, error, e);
+            return false;
+        } finally {
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
+    public static String[] getAvailableIOSchedulers() {
+        String[] schedulers = null;
+        String[] aux = readStringArray("/sys/bloack/mmcblk0/queue/scheduler");
+        if (aux != null) {
+            schedulers = new String[aux.length];
+            for (int i = 0; i < aux.length; i++) {
+                schedulers[i] = aux[i].charAt(0) == '[' ? aux[i].substring(1, aux[i].length() - 1) : aux[i];
+            }
+        }
+
+        return schedulers;
+    }
+
+    private static String[] readStringArray(String fname) {
+        String line = readOneLine(fname);
+        if (line != null) {
+            return line.split(" ");
+        }
+        return null;
+    }
+
+    public static String getIOScheduler() {
+        String scheduler = null;
+        String[] schedulers = readStringArray("/sys/block/mmcblk0/queue/scheduler");
+        if (schedulers != null) {
+            for (String s : schedulers) {
+                if (s.charAt(0) == '[') {
+                    scheduler = s.substring(1, s.length() - 1);
+                    break;
+                }
+            }
+        }
+        return scheduler;
+    }
+
+    public static void msgLong(Context context, String msg) {
+        if (context != null && msg != null) {
+            Toast.makeText(context, msg.trim(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static void msgShort(Context context, String msg) {
+        if (context != null && msg != null) {
+            Toast.makeText(context, msg.trim(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void sendMsg(Context context, String msg) {
+        if (context != null && msg != null) {
+            msgLong(context, msg);
+        }
+    }
+
+    @SuppressWarnings("UnnecessaryFullyQualifiedName")
+    public static String getTimestamp(Context context) {
+        String timestamp = "unknown";
+        Date now = new Date();
+        java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(context);
+        java.text.DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(context);
+        if (dateFormat != null && timeFormat != null) {
+            timestamp = dateFormat.format(now) + ' ' + timeFormat.format(now);
+        }
+        return timestamp;
+    }
+
+    public static boolean isPackageInstalled(String packageName, PackageManager pm) {
+        try {
+            String version = pm.getPackageInfo(packageName, 0).versionName;
+            if (version == null) {
+                return false;
+            }
+        } catch (NameNotFoundException notFound) {
+            Log.e(TAG, "Package not found!", notFound);
+            return false;
+        }
+        return true;
+    }
+
+    public static void restartSystemUI() {
+        CMDProcessor.startSuCommand("pkill -TERM -f com.android.systemui");
+    }
+
+    public static void restartSystem() {
+        try {
+            final IActivityManager iam = ActivityManagerNative.asInterface(ServiceManager.checkService("activity"));
+            if (iam != null) {
+                iam.restart();
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to restart");
+        }
+    }
+
+    public static void setSystemProp(String prop, String val) {
+        CMDProcessor.startSuCommand("setprop " + prop + " " + val);
+    }
+
+    public static String getSystemProp(String prop, String def) {
+        String result = null;
+        try {
+            result = SystemProperties.get(prop, def);
+        } catch (IllegalArgumentException iae) {
+            Log.e(TAG, "Failed to get prop: " + prop);
+        }
+        return result == null ? def : result;
     }
 }
