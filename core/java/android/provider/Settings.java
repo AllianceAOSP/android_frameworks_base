@@ -3823,6 +3823,59 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_SHOW_DATE = "keyguard_show_date";
+
+        /**
+         * Options for displaying am/pm alongside clock in status bar
+         * 0 - Normal
+         * 1 - Small
+         * 2 - Hidden
+         * @hide
+         */
+        public static final String STATUS_BAR_CLOCK_AM_PM = "status_bar_clock_am_pm";
+
+        /**
+         * Options for displaying the date alongside clock in status bar
+         * 0 - Normal
+         * 1 - Small
+         * 2 - Hidden
+         * @hide
+         */
+        public static final String STATUS_BAR_DATE = "status_bar_date";
+
+        /**
+         * Options for status bar date case
+         * 0 - Normal
+         * 1 - Lowercase
+         * 2 - Uppercase
+         * @hide
+         */
+        public static final String STATUS_BAR_DATE_CASE = "status_bar_date_case";
+
+        /**
+         * Format for the status bar date
+         * 0 - dd/MM/yy
+         * 1 - MM/dd/yy
+         * 2 - yyyy-MM-dd
+         * 3 - yyyy-dd-MM
+         * 4 - dd-MM-yyyy
+         * 5 - MM-dd-yyyy
+         * 6 - MMM dd
+         * 7 - MMM dd, yyyy
+         * 8 - MMMM dd, yyyy
+         * 9 - EEE
+         * 10 - EEE dd
+         * 11 - EEE dd/MM
+         * 12 - EEE MM/dd
+         * 13 - EEE dd MMM
+         * 14 - EEE MMM dd
+         * 15 - EEE MMMM dd
+         * 16 - EEEE dd/MM
+         * 17 - EEEE MM/dd
+         * @hide
+         */
+        public static final String STATUS_BAR_DATE_FORMAT = "status_bar_date_format";
+
+
          
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
