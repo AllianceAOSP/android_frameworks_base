@@ -3875,6 +3875,12 @@ public final class Settings {
          */
         public static final String STATUS_BAR_DATE_FORMAT = "status_bar_date_format";
 
+        /**
+         * Option to display seconds in the status bar clock
+         * @hide
+         */
+        public static final String STATUS_BAR_SECONDS_CLOCK = "status_bar_seconds_clock";
+
 
          
         /**

@@ -46,7 +46,10 @@ import com.android.systemui.statusbar.phone.PhoneStatusBar;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TimeZone;
 
 import libcore.icu.LocaleData;
@@ -84,6 +87,8 @@ public class Clock extends TextView implements DemoMode {
     private SettingsObserver mSettingsObserver;
     private PhoneStatusBar mStatusBar;
     private Context mContext;
+    private Handler mHandler;
+    private TimerTask mSeconds;
 
     public Clock(Context context) {
         this(context, null);
@@ -96,6 +101,7 @@ public class Clock extends TextView implements DemoMode {
     public Clock(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = context;
+        mHandler = new Handler();
     }
 
     @Override
@@ -222,6 +228,12 @@ public class Clock extends TextView implements DemoMode {
         }
         CharSequence dateString = null;
         String result = sdf.format(mCalendar.getTime());
+
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_SECONDS_CLOCK, 0) == 1) {
+            String temp = result;
+        result = String.format("%s:%02d", temp, new GregorianCalendar().get(Calendar.SECOND));
+        }
 
         if (mDateStyle != DATE_GONE) {
             Date now = new Date();
@@ -382,6 +394,20 @@ public class Clock extends TextView implements DemoMode {
                 Settings.System.STATUS_BAR_DATE, DATE_GONE, UserHandle.USER_CURRENT);
         mDateCase = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUS_BAR_DATE_CASE, DATE_NORMAL_CASE, UserHandle.USER_CURRENT);
+
+        mSeconds = new TimerTask() {
+            @Override
+            public void run() {
+                Runnable updater = new Runnable() {
+                    public void run() {
+                        updateClock();
+                    }
+                };
+                mHandler.post(updater);
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(mSeconds, 0, 1001);
 
         if (mAttached) {
             updateClock();
