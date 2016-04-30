@@ -179,6 +179,17 @@ public class AllianceUtils {
         }
     }
 
+    public static void colorizeIconAtop(Context context, ImageView imageView, String key, int defaultColor) {
+        final int color = Settings.System.getInt(context.getContentResolver(), key, defaultColor);
+        if (imageView.getDrawable() != null) {
+            if (color == 0) {
+                imageView.setColorFilter(null);
+            } else {
+                imageView.setColorFilter(color, Mode.SRC_ATOP);
+            }
+        }
+    }
+
     public static void colorizeIcon(Context context, ImageButton imageButton, String key, int defaultColor) {
         final int color = Settings.System.getInt(context.getContentResolver(), key, defaultColor);
         if (imageButton.getDrawable() != null) {
