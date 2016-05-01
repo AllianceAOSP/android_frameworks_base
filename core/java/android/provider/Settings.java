@@ -3438,6 +3438,11 @@ public final class Settings {
         public static final String POWER_MENU_SECONDARY_TEXT_COLOR = "power_menu_secondary_text_color";
 
         /**
+        * @hide
+        */
+        public static final String TOAST_TEXT_COLOR = "toast_text_color";
+
+        /**
          * Whether to show 4 QS tiles per row instead of the default 3.
          * @hide
          */
