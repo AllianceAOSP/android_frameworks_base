@@ -35,7 +35,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
-import com.android.internal.util.AllianceUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -265,7 +264,6 @@ public class Toast {
         View v = inflate.inflate(com.android.internal.R.layout.transient_notification, null);
         TextView tv = (TextView)v.findViewById(com.android.internal.R.id.message);
         tv.setText(text);
-        AllianceUtils.colorizeText(context, tv, Settings.System.TOAST_TEXT_COLOR, 0xffffffff);
         
         result.mNextView = v;
         result.mDuration = duration;
