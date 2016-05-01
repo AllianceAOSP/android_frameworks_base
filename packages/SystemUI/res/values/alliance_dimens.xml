@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2016, AllianceROM
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+-->
+<resources>
+    
+    <!-- Recents Clear All FAB -->
+    <dimen name="floating_action_button_size">54dp</dimen>
+    <dimen name="floating_action_button_translation_z">12dp</dimen>
+    <dimen name="floating_action_button_margin_side">32dp</dimen>
+    <dimen name="floating_action_button_margin_bottom">72dp</dimen>
+    <dimen name="floating_action_button_margin_top">24dp</dimen>
+
+    <!-- height of the qs page indicator -->
+    <dimen name="qs_panel_page_indicator_height">8dp</dimen>
+
+    <dimen name="qs_detail_item_height_twoline">72dp</dimen>
+    <dimen name="detail_exterior_padding">8dp</dimen>
+
+    <!-- The width of the view containing navigation buttons -->
+    <dimen name="navigation_key_width">70dp</dimen>
+
+    <!-- The width of the view containing the menu/ime navigation bar icons -->
+    <dimen name="navigation_extra_key_width">36dp</dimen>
+
+    <!-- The padding on the side of the navigation bar. Must be greater than or equal to
+         navigation_extra_key_width -->
+    <dimen name="navigation_side_padding">36dp</dimen>
+
+    <!-- Default distance beyond which snaps to the matching target -->
+    <dimen name="navbar_search_snap_margin">40dip</dimen>
+
+    <!-- Diameter of outer shape drawable shown in navbar search-->
+    <dimen name="navbar_search_outerring_diameter">340dp</dimen>
+
+    <!-- Diameter of outer shape drawable shown in navbar search. Should be 1/2 of above value -->
+    <dimen name="navbar_search_outerring_radius">170dp</dimen>
+
+    <!-- Height of search panel including navigation bar height -->
+    <dimen name="navbar_search_panel_height">230dip</dimen>
+
+    <!-- Status bar network traffic -->
+    <dimen name="net_traffic_single_text_size">10dp</dimen>
+    <dimen name="net_traffic_multi_text_size">7dp</dimen>
+
+</resources>
