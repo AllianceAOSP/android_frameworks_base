@@ -3443,6 +3443,21 @@ public final class Settings {
         public static final String TOAST_TEXT_COLOR = "toast_text_color";
 
         /**
+         * @hide
+         */
+        public static final String SETTINGS_MENU_ICON_COLOR = "settings_menu_icon_color";
+
+        /**
+        * @hide
+        */
+        public static final String SETTINGS_LIST_TEXT_COLOR = "settings_list_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String SETTINGS_CATEGORY_TEXT_COLOR = "settings_category_text_color";
+
+        /**
          * Whether to show 4 QS tiles per row instead of the default 3.
          * @hide
          */
