@@ -3458,6 +3458,26 @@ public final class Settings {
         public static final String SETTINGS_CATEGORY_TEXT_COLOR = "settings_category_text_color";
 
         /**
+        * @hide
+        */
+        public static final String MASTER_TEXT_COLOR_SWITCH = "master_text_color_switch";
+
+        /**
+        * @hide
+        */
+        public static final String MAIN_TEXT_COLOR = "main_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String LINK_TEXT_COLOR = "link_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String HINT_TEXT_COLOR = "hint_text_color";
+
+        /**
          * Whether to show 4 QS tiles per row instead of the default 3.
          * @hide
          */
