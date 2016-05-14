@@ -3478,6 +3478,11 @@ public final class Settings {
         public static final String HINT_TEXT_COLOR = "hint_text_color";
 
         /**
+        * @hide
+        */
+        public static final String APP_ALERT_TEXT_COLOR = "app_alert_text_color";
+
+        /**
          * Whether to show 4 QS tiles per row instead of the default 3.
          * @hide
          */
