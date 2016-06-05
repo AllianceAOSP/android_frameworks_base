@@ -3881,6 +3881,18 @@ public final class Settings {
          */
         public static final String STATUS_BAR_SECONDS_CLOCK = "status_bar_seconds_clock";
 
+        /**
+         * Show/hide the lock icon on keyguard
+         * @hide
+         */
+        public static final String KEYGUARD_LOCK_ICON_VISIBILITY = "keyguard_lock_icon_visibility";
+
+        /**
+         * Expanded state for lockscreen shortcuts
+         * @hide
+         */
+        public static final String KEYGUARD_SHORTCUTS_EXPANDED = "keyguard_shortcuts_expanded";
+
 
          
         /**
@@ -5720,6 +5732,24 @@ public final class Settings {
          * @hide
          */
         public static final String QS_LOCATION_ADVANCED = "qs_location_advanced";
+
+        /**
+         * Lockscreen shortcuts
+         * @hide
+         */
+        public static final String LOCKSCREEN_SHORTCUTS = "lockscreen_shortcuts";
+
+        /**
+         * Enable/disable the camera shortcut on keyguard
+         * @hide
+         */
+        public static final String KEYGUARD_CAMERA_SHORTCUT_ENABLE = "keyguard_camera_shortcut_enable";
+
+        /**
+         * Enable/disable the left shortcut (voice assist) on keyguard
+         * @hide
+         */
+        public static final String KEYGUARD_LEFT_SHORTCUT_ENABLE = "keyguard_left_shortcut_enable";
 
         /**
          * @deprecated Use {@link android.provider.Settings.Global#WIFI_NETWORKS_AVAILABLE_NOTIFICATION_ON}

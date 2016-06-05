@@ -56,4 +56,7 @@
     <dimen name="net_traffic_single_text_size">10dp</dimen>
     <dimen name="net_traffic_multi_text_size">7dp</dimen>
 
+    <!-- Keyguard shortcuts -->
+    <dimen name="keyguard_shortcut_item_margin">10dp</dimen>
+
 </resources>

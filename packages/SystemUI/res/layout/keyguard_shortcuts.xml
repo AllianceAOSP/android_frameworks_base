@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.systemui.KeyguardShortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:systemui="http://schemas.android.com/apk/res/com.android.systemui"
+	android:id="@+id/shortcuts_container"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<HorizontalScrollView
+		android:id="@+id/shortcuts_list"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal">
+
+		<LinearLayout
+			android:id="@+id/shortcut_items"
+			android:layout_width="wrap_content"
+			android:layout_height="@android:dimen/app_icon_size"
+			android:orientation="horizontal" />
+
+	</HorizontalScrollView>
+
+	<ImageView
+		android:id="@+id/shortcuts_trigger"
+		android:src="@drawable/ic_expand_shortcuts"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal"
+		android:contentDescription="@null"
+		android:scaleType="centerInside"
+		android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+</com.android.systemui.KeyguardShortcuts>

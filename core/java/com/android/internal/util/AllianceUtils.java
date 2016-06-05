@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -532,5 +533,11 @@ public class AllianceUtils {
             Log.e(TAG, "Failed to get prop: " + prop);
         }
         return result == null ? def : result;
+    }
+
+    public static boolean isLandscapePhone(Context context) {
+        Configuration config = context.getResources().getConfiguration();
+        return config.orientation == Configuration.ORIENTATION_LANDSCAPE
+                && config.smallestScreenWidthDp < 600;
     }
 }
