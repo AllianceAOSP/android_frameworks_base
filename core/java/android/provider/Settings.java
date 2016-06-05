@@ -3438,6 +3438,51 @@ public final class Settings {
         public static final String POWER_MENU_SECONDARY_TEXT_COLOR = "power_menu_secondary_text_color";
 
         /**
+        * @hide
+        */
+        public static final String TOAST_TEXT_COLOR = "toast_text_color";
+
+        /**
+         * @hide
+         */
+        public static final String SETTINGS_MENU_ICON_COLOR = "settings_menu_icon_color";
+
+        /**
+        * @hide
+        */
+        public static final String SETTINGS_LIST_TEXT_COLOR = "settings_list_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String SETTINGS_CATEGORY_TEXT_COLOR = "settings_category_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String MASTER_TEXT_COLOR_SWITCH = "master_text_color_switch";
+
+        /**
+        * @hide
+        */
+        public static final String MAIN_TEXT_COLOR = "main_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String LINK_TEXT_COLOR = "link_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String HINT_TEXT_COLOR = "hint_text_color";
+
+        /**
+        * @hide
+        */
+        public static final String APP_ALERT_TEXT_COLOR = "app_alert_text_color";
+
+        /**
          * Whether to show 4 QS tiles per row instead of the default 3.
          * @hide
          */

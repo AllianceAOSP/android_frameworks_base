@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -58,6 +59,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import com.android.internal.util.AllianceUtils;
 
 import java.lang.ref.WeakReference;
 
@@ -616,7 +618,7 @@ public class AlertController {
                 // Display the title if a title is supplied, else hide it.
                 mTitleView = (TextView) mWindow.findViewById(R.id.alertTitle);
                 mTitleView.setText(mTitle);
-
+                AllianceUtils.colorizeText(mContext, mTitleView, Settings.System.APP_ALERT_TEXT_COLOR, 0xff000000);
                 // Do this last so that if the user has supplied any icons we
                 // use them instead of the default ones. If the user has
                 // specified 0 then make it disappear.

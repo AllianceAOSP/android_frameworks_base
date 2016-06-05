@@ -141,6 +141,9 @@ import android.view.textservice.SpellCheckerSubtype;
 import android.view.textservice.TextServicesManager;
 import android.widget.RemoteViews.RemoteView;
 
+import android.provider.Settings;
+import android.content.ContentResolver;
+
 import com.android.internal.util.FastMath;
 import com.android.internal.widget.EditableInputConnection;
 
@@ -309,6 +312,10 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     // System wide time for last cut, copy or text changed action.
     static long sLastCutCopyOrTextChangedTime;
 
+    private boolean mColorSwitch;
+    private int mColor;
+    private int mColor2;
+    private int mColor3;
     private ColorStateList mTextColor;
     private ColorStateList mHintTextColor;
     private ColorStateList mLinkTextColor;
@@ -3931,23 +3938,42 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     }
 
     private void updateTextColors() {
+    	updateColor();
         boolean inval = false;
         int color = mTextColor.getColorForState(getDrawableState(), 0);
         if (color != mCurTextColor) {
-            mCurTextColor = color;
+        		mColorSwitch = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System. MASTER_TEXT_COLOR_SWITCH, 0) == 1;
+				if(mColorSwitch){
+            	mCurTextColor = mColor;
+           		 } else {
+            	mCurTextColor = color;  
+        		}
             inval = true;
         }
         if (mLinkTextColor != null) {
             color = mLinkTextColor.getColorForState(getDrawableState(), 0);
             if (color != mTextPaint.linkColor) {
-                mTextPaint.linkColor = color;
+            	mColorSwitch = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System. MASTER_TEXT_COLOR_SWITCH, 0) == 1;
+				if(mColorSwitch){
+                	mTextPaint.linkColor = mColor2;
+                } else {
+                	mTextPaint.linkColor = color;
+                }	
                 inval = true;
             }
         }
         if (mHintTextColor != null) {
             color = mHintTextColor.getColorForState(getDrawableState(), 0);
             if (color != mCurHintTextColor) {
+            	mColorSwitch = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System. MASTER_TEXT_COLOR_SWITCH, 0) == 1;
+			if(mColorSwitch){
+                mCurHintTextColor = mColor3;
+                } else {
                 mCurHintTextColor = color;
+            	}
                 if (mText.length() == 0) {
                     inval = true;
                 }
@@ -3958,6 +3984,15 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
             if (mEditor != null) mEditor.invalidateTextDisplayList();
             invalidate();
         }
+    }
+
+    private void updateColor() {
+        mColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.MAIN_TEXT_COLOR, 0xff000000);
+        mColor2 = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.LINK_TEXT_COLOR, 0xff000000);
+        mColor3 = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.HINT_TEXT_COLOR, 0xff000000);
     }
 
     @Override
