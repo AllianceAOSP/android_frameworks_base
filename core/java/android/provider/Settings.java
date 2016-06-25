@@ -3926,6 +3926,18 @@ public final class Settings {
          */
         public static final String STATUS_BAR_SECONDS_CLOCK = "status_bar_seconds_clock";
 
+        /**
+         * QS Tile Animation
+         * @hide
+         */
+        public static final String QS_TILE_ANIMATION = "qs_tile_animation";
+
+        /**
+         * QS Tile Animation Duration
+         * @hide
+         */
+        public static final String QS_TILE_ANIMATION_DURATION = "qs_tile_animation_duration";
+
 
          
         /**

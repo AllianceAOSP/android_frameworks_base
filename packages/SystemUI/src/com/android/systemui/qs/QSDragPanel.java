@@ -18,6 +18,8 @@ package com.android.systemui.qs;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -718,6 +720,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
             public void onClick(View v) {
                 if (!mEditing || r.tile instanceof EditTile) {
                     r.tile.click();
+                    setTileAnimation(r);
                 }
             }
         };
@@ -726,6 +729,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
             public void onClick(View v) {
                 if (!mEditing) {
                     r.tile.secondaryClick();
+                    setTileAnimation(r);
                 }
             }
         };
@@ -734,6 +738,7 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
             public boolean onLongClick(View v) {
                 if (!mEditing) {
                     r.tile.longClick();
+                    setTileAnimation(r);
                 } else {
                     QSDragPanel.this.onLongClick(r.tileView);
                 }
@@ -757,10 +762,42 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
     }
 
     public void updateIcons() {
-        int mQsText = Settings.System.getInt(mContext.getContentResolver(),
+        ContentResolver resolver = mContext.getContentResolver();
+        int mQsText = Settings.System.getInt(resolver,
                 Settings.System.QUICK_SETTINGS_TILE_TEXT_COLOR, Color.WHITE);
-        int mQsIcon = Settings.System.getInt(mContext.getContentResolver(),
+        int mQsIcon = Settings.System.getInt(resolver,
                 Settings.System.QUICK_SETTINGS_ICON_COLOR, Color.WHITE);
+    }
+
+    private void setTileAnimation(TileRecord record) {
+        ContentResolver resolver = mContext.getContentResolver();
+        ObjectAnimator tileAnimation = null;
+        int animationStyle = Settings.System.getIntForUser(resolver,
+                Settings.System.QS_TILE_ANIMATION, 0, UserHandle.USER_CURRENT);
+        int animationDuration = Settings.System.getIntForUser(resolver,
+                Settings.System.QS_TILE_ANIMATION_DURATION, 1500, UserHandle.USER_CURRENT);
+
+        switch (animationStyle) {
+            case 1:
+                tileAnimation = ObjectAnimator.ofFloat(record.tileView, "rotationY", 0f, 360f);
+                tileAnimation.setDuration(animationDuration);
+                tileAnimation.start();
+                break;
+            case 2:
+                tileAnimation = ObjectAnimator.ofFloat(record.tileView, "rotation", 0f, 360f);
+                tileAnimation.setDuration(animationDuration);
+                tileAnimation.start();
+                break;
+            case 3:
+                ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(record.tileView, "scaleX", 0f, 1f);
+                ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(record.tileView, "scaleY", 0f, 1f);
+                scaleUpX.setDuration(animationDuration);
+                scaleUpY.setDuration(animationDuration);
+                AnimatorSet scaleUp = new AnimatorSet();
+                scaleUp.play(scaleUpX).with(scaleUpY);
+                scaleUp.start();
+                break;
+        }
     }
 
     private void removeDraggingRecord() {
