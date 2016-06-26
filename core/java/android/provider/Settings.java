@@ -3938,6 +3938,12 @@ public final class Settings {
          */
         public static final String QS_TILE_ANIMATION_DURATION = "qs_tile_animation_duration";
 
+        /**
+         * QS Tile Animation Interpolator
+         * @hide
+         */
+        public static final String QS_TILE_ANIMATION_INTERPOLATOR = "qs_tile_animation_interpolator";
+
 
          
         /**

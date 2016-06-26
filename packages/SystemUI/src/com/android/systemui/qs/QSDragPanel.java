@@ -47,6 +47,15 @@ import android.support.v4.view.ViewPager;
 import android.util.ArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -772,31 +781,81 @@ public class QSDragPanel extends QSPanel implements View.OnDragListener, View.On
     private void setTileAnimation(TileRecord record) {
         ContentResolver resolver = mContext.getContentResolver();
         ObjectAnimator tileAnimation = null;
+        Interpolator interpolator = null;
         int animationStyle = Settings.System.getIntForUser(resolver,
                 Settings.System.QS_TILE_ANIMATION, 0, UserHandle.USER_CURRENT);
         int animationDuration = Settings.System.getIntForUser(resolver,
                 Settings.System.QS_TILE_ANIMATION_DURATION, 1500, UserHandle.USER_CURRENT);
+        int tileInterpolator = Settings.System.getIntForUser(resolver,
+                Settings.System.QS_TILE_ANIMATION_INTERPOLATOR, 0, UserHandle.USER_CURRENT);
+
+        switch (tileInterpolator) {
+            case 0:
+            default:
+                interpolator = new LinearInterpolator();
+                break;
+            case 1:
+                interpolator = new AccelerateInterpolator();
+                break;
+            case 2:
+                interpolator = new DecelerateInterpolator();
+                break;
+            case 3:
+                interpolator = new AccelerateDecelerateInterpolator();
+                break;
+            case 4:
+                interpolator = new BounceInterpolator();
+                break;
+            case 5:
+                interpolator = new AnticipateInterpolator();
+                break;
+            case 6:
+                interpolator = new OvershootInterpolator();
+                break;
+            case 7:
+                interpolator = new AnticipateOvershootInterpolator();
+                break;
+        }
 
         switch (animationStyle) {
             case 1:
                 tileAnimation = ObjectAnimator.ofFloat(record.tileView, "rotationY", 0f, 360f);
-                tileAnimation.setDuration(animationDuration);
-                tileAnimation.start();
                 break;
             case 2:
                 tileAnimation = ObjectAnimator.ofFloat(record.tileView, "rotation", 0f, 360f);
-                tileAnimation.setDuration(animationDuration);
-                tileAnimation.start();
                 break;
             case 3:
-                ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(record.tileView, "scaleX", 0f, 1f);
-                ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(record.tileView, "scaleY", 0f, 1f);
-                scaleUpX.setDuration(animationDuration);
-                scaleUpY.setDuration(animationDuration);
+                tileAnimation = null;
+                ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(record.tileView, "scaleX", 1f, 0.5f);
+                ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(record.tileView, "scaleY", 1f, 0.5f);
+                AnimatorSet scaleDown = new AnimatorSet();
+                scaleDown.setDuration(animationDuration / 2 - (animationDuration / 6));
+                scaleDown.setInterpolator(interpolator);  
+                scaleDown.play(scaleDownX).with(scaleDownY);
+                scaleDown.start();           
+                ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(record.tileView, "scaleX", 0.5f, 1.2f);
+                ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(record.tileView, "scaleY", 0.5f, 1.2f);
                 AnimatorSet scaleUp = new AnimatorSet();
+                scaleUp.setDuration(animationDuration / 2 - (animationDuration / 6));
+                scaleUp.setInterpolator(interpolator);
+                scaleUp.setStartDelay(animationDuration / 2 - (animationDuration / 6));
                 scaleUp.play(scaleUpX).with(scaleUpY);
                 scaleUp.start();
+                ObjectAnimator scaleDownX2 = ObjectAnimator.ofFloat(record.tileView, "scaleX", 1.2f, 1f);
+                ObjectAnimator scaleDownY2 = ObjectAnimator.ofFloat(record.tileView, "scaleY", 1.2f, 1f);
+                AnimatorSet scaleDown2 = new AnimatorSet();
+                scaleDown2.setDuration(animationDuration / 3);
+                scaleDown2.setInterpolator(interpolator);
+                scaleDown2.setStartDelay(animationDuration - (animationDuration / 3));
+                scaleDown2.play(scaleDownX2).with(scaleDownY2);
+                scaleDown2.start();
                 break;
+        }
+
+        if (tileAnimation != null) {
+            tileAnimation.setDuration(animationDuration);
+            tileAnimation.setInterpolator(interpolator);
+            tileAnimation.start();
         }
     }
 
