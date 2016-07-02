@@ -69,4 +69,16 @@
         <item>restart_systemui</item>
      </string-array>
 
+     <!-- Full Screen Power Menu -->
+     <string-array name="power_dialog_titles_main_entries">
+        <item>Power off</item>
+        <item>Reboot</item>
+        <item>Airplane Mode</item>
+    </string-array>
+    <string-array name="power_dialog_titles_main_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
 </resources>

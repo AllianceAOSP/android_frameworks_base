@@ -44,4 +44,9 @@
     <dimen name="shutdown_shadow_margin_top">145dp</dimen>
     <dimen name="shutdown_primary_text_margin_top">14dp</dimen>
 
+    <!-- Full Screen Power Menu -->
+    <dimen name="gradient_radius">436dp</dimen>
+    <dimen name="gradient_radius_small">128dp</dimen>
+    <dimen name="gradient_radius_extra_small">20dp</dimen>
+
 </resources>

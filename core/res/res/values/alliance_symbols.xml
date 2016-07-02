@@ -189,4 +189,49 @@
   <java-symbol type="id" name="shutdown_logo_shadow" />
   <java-symbol type="id" name="shutdown_message" />
 
+    <!-- Full Screen Power Menu -->
+  <java-symbol type="drawable" name="power_dialog_airplane_on" />
+  <java-symbol type="drawable" name="power_dialog_airplane_off" />
+  <java-symbol type="drawable" name="power_dialog_screenshot" />
+  <java-symbol type="drawable" name="power_dialog_settings" />
+  <java-symbol type="drawable" name="power_dialog_flashlight_on" />
+  <java-symbol type="drawable" name="power_dialog_flashlight_off" />
+  <java-symbol type="drawable" name="power_dialog_search" />
+  <java-symbol type="drawable" name="power_dialog_voice" />
+  <java-symbol type="drawable" name="power_dialog_lock" />
+  <java-symbol type="drawable" name="power_dialog_ring" />
+  <java-symbol type="drawable" name="power_dialog_silent" />
+  <java-symbol type="drawable" name="power_dialog_vibrate" />
+  <java-symbol type="drawable" name="power_dialog_back_arrow" />
+  <java-symbol type="id" name="power_dialog_power_item" />
+  <java-symbol type="id" name="power_dialog_reboot_item" />
+  <java-symbol type="id" name="power_dialog_airplane_item" />
+  <java-symbol type="id" name="power_dialog_screenshot_item" />
+  <java-symbol type="id" name="power_dialog_settings_item" />
+  <java-symbol type="id" name="power_dialog_flashlight_item" />
+  <java-symbol type="id" name="power_dialog_search_item" />
+  <java-symbol type="id" name="power_dialog_voice_item" />
+  <java-symbol type="id" name="power_dialog_lock_item" />
+  <java-symbol type="id" name="power_dialog_audio_item" />
+  <java-symbol type="id" name="power_dialog_reboot_reboot" />
+  <java-symbol type="id" name="power_dialog_reboot_soft" />
+  <java-symbol type="id" name="power_dialog_reboot_recovery" />
+  <java-symbol type="id" name="power_dialog_reboot_bootloader" />
+  <java-symbol type="id" name="power_dialog_reboot_systemui" />
+  <java-symbol type="id" name="power_dialog_dummy_view" />
+  <java-symbol type="id" name="power_dialog_item_title" />
+  <java-symbol type="id" name="power_dialog_item_icon" />
+  <java-symbol type="id" name="power_dialog_back" />
+  <java-symbol type="id" name="power_dialog_root" />
+  <java-symbol type="layout" name="full_screen_power_dialog" />
+  <java-symbol type="layout" name="power_dialog_large_item" />
+  <java-symbol type="layout" name="power_dialog_small_item" />
+  <java-symbol type="string" name="power_dialog_power_off" />
+  <java-symbol type="string" name="power_dialog_reboot" />
+  <java-symbol type="string" name="power_dialog_reboot_bootloader" />
+  <java-symbol type="string" name="power_dialog_reboot_recovery" />
+  <java-symbol type="string" name="power_dialog_reboot_soft" />
+  <java-symbol type="string" name="power_dialog_reboot_systemui" />
+  <java-symbol type="style" name="FullscreenPowerMenuAnimation" />
+
 </resources>

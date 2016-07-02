@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/power_dialog_item_rectangle"
+    android:layout_width="220dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/power_dialog_large_item_ripple_bg"
+    android:layout_centerInParent="true"
+    android:clickable="true"
+    android:focusable="true"
+    android:elevation="14dp"
+    android:outlineProvider="bounds">
+    <TextView
+        android:id="@+id/power_dialog_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:paddingBottom="9dp"
+        android:paddingTop="4.5dp"
+        style="?android:attr/textAppearanceLarge"
+        android:singleLine="true"
+        android:textColor="#ffffffff" />
+</RelativeLayout>

@@ -2,11 +2,14 @@ package com.android.internal.util;
 
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -21,8 +24,13 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
@@ -46,13 +54,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.CharSequence;
+import java.lang.InterruptedException;
 import java.lang.Math;
+import java.lang.Object;
+import java.lang.Runnable;
+import java.lang.Thread;
 import java.util.Arrays;
 import java.util.Date;
 
 public class AllianceUtils {
 
     private static final String TAG = "AllianceUtils";
+
+    private static final Object mScreenshotLock = new Object();
+    private static ServiceConnection mScreenshotConnection = null;
 
     public static int dpToPx(Context context, int dp) {
         return (int) ((dp * context.getResources().getDisplayMetrics().density) + 0.5);
@@ -550,5 +565,114 @@ public class AllianceUtils {
         Configuration config = context.getResources().getConfiguration();
         return config.orientation == Configuration.ORIENTATION_LANDSCAPE
                 && config.smallestScreenWidthDp < 600;
+    }
+
+    public static int getAudioMode(Context context) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        switch (audioManager.getRingerMode()) {
+            case AudioManager.RINGER_MODE_NORMAL:
+            default:
+                return 0;
+            case AudioManager.RINGER_MODE_SILENT:
+                return 1;
+            case AudioManager.RINGER_MODE_VIBRATE:
+                return 2;
+        }
+    }
+
+    public static void setAudioMode(Context context, int mode) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        switch (mode) {
+            case 0:
+            default:
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                break;
+            case 1:
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                break;
+            case 2:
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                break;
+        }
+    }
+
+    public static boolean isAirplaneModeOn(Context context) {
+        return Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+    }
+
+    private static Runnable getScreenshotRunnable(Context context) {
+        final Context mContext = context;
+        final Runnable screenshotTimeout = new Runnable() {
+            @Override
+            public void run() {
+                synchronized(mScreenshotLock) {
+                    if (mScreenshotConnection != null) {
+                        mContext.unbindService(mScreenshotConnection);
+                        mScreenshotConnection = null;
+                    }
+                }
+            }
+        };
+        return screenshotTimeout;
+    }
+
+    public static void takeScreenshot(Context context) {
+        final Handler screenshotHandler = new Handler();
+        final Context mContext = context;
+        synchronized (mScreenshotLock) {
+            if (mScreenshotConnection != null) {
+                return;
+            }
+            ComponentName component = new ComponentName("com.android.systemui", "com.android.systemui.screenshot.TakeScreenshotService");
+            Intent intent = new Intent();
+            intent.setComponent(component);
+            ServiceConnection connection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    synchronized (mScreenshotLock) {
+                        if (mScreenshotConnection != this) {
+                            return;
+                        }
+                        Messenger messenger = new Messenger(service);
+                        Message msg = Message.obtain(null, 1);
+                        final ServiceConnection mConnection = this;
+                        Handler handler = new Handler(screenshotHandler.getLooper()) {
+                            @Override
+                            public void handleMessage(Message msg) {
+                                synchronized (mScreenshotLock) {
+                                    if (mScreenshotConnection == mConnection) {
+                                        mContext.unbindService(mScreenshotConnection);
+                                        mScreenshotConnection = null;
+                                        screenshotHandler.removeCallbacks(getScreenshotRunnable(mContext));
+                                    }
+                                }
+                            }
+                        };
+                        msg.replyTo = new Messenger(handler);
+                        msg.arg1 = msg.arg2 = 0;
+
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            messenger.send(msg);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {}
+            };
+
+            if (mContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)) {
+                mScreenshotConnection = connection;
+                screenshotHandler.postDelayed(getScreenshotRunnable(mContext), 10000);
+            }
+        }
     }
 }

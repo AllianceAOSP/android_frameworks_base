@@ -119,5 +119,11 @@
         <item name="windowEnterAnimation">@anim/translucent_enter</item>
         <item name="windowExitAnimation">@anim/translucent_exit</item>
     </style>
+
+    <!-- Full Screen Power Menu -->
+    <style name="FullscreenPowerMenuAnimation">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/fullscreen_power_menu_out</item>
+    </style>
     
 </resources>

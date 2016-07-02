@@ -134,6 +134,7 @@ import com.android.internal.util.ScreenShapeHelper;
 import com.android.internal.widget.PointerLocationView;
 import com.android.server.GestureLauncherService;
 import com.android.server.LocalServices;
+import com.android.server.policy.FullScreenPowerDialog;
 import com.android.server.policy.keyguard.KeyguardServiceDelegate;
 import com.android.server.policy.keyguard.KeyguardServiceDelegate.DrawnListener;
 
@@ -322,6 +323,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     AppOpsManager mAppOpsManager;
     WindowManager mWm;
 
+    FullScreenPowerDialog mFullScreenPowerDialog = null;
     // Vibrator pattern for haptic feedback of a long press.
     long[] mLongPressVibePattern;
 
@@ -735,7 +737,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     showRecentApps(false);
                     break;
                 case MSG_DISPATCH_SHOW_GLOBAL_ACTIONS:
-                    showGlobalActionsInternal();
+                    if (Settings.System.getInt(mContext.getContentResolver(), Settings.System.USE_FULL_SCREEN_POWER_MENU, 0) != 0) {
+                        showFullScreenPowerMenu();
+                    } else {
+                        showGlobalActionsInternal();
+                    }
                     break;
                 case MSG_KEYGUARD_DRAWN_COMPLETE:
                     if (DEBUG_WAKEUP) Slog.w(TAG, "Setting mKeyguardDrawComplete");
@@ -1299,7 +1305,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (!performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false)) {
                     performAuditoryFeedbackForAccessibilityIfNeed();
                 }
-                showGlobalActionsInternal();
+                if (Settings.System.getInt(mContext.getContentResolver(), Settings.System.USE_FULL_SCREEN_POWER_MENU, 0) != 0) {
+                    showFullScreenPowerMenu();
+                } else {
+                    showGlobalActionsInternal();
+                }
                 break;
             case LONG_PRESS_POWER_SHUT_OFF:
             case LONG_PRESS_POWER_SHUT_OFF_NO_CONFIRM:
@@ -1375,7 +1385,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (!performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false)) {
                 performAuditoryFeedbackForAccessibilityIfNeed();
             }
-            showGlobalActionsInternal();
+            if (Settings.System.getInt(mContext.getContentResolver(), Settings.System.USE_FULL_SCREEN_POWER_MENU, 0) != 0) {
+                showFullScreenPowerMenu();
+            } else {
+                showGlobalActionsInternal();
+            }
         }
     };
 
@@ -1390,6 +1404,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     public void showGlobalActions() {
         mHandler.removeMessages(MSG_DISPATCH_SHOW_GLOBAL_ACTIONS);
         mHandler.sendEmptyMessage(MSG_DISPATCH_SHOW_GLOBAL_ACTIONS);
+    }
+
+    void showFullScreenPowerMenu() {
+        mFullScreenPowerDialog = FullScreenPowerDialog.create(mContext);
     }
 
     void showGlobalActionsInternal() {

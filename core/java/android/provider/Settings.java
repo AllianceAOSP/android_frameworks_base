@@ -3944,6 +3944,12 @@ public final class Settings {
          */
         public static final String QS_TILE_ANIMATION_INTERPOLATOR = "qs_tile_animation_interpolator";
 
+        /**
+         * Full Screen Power Menu -->
+         * @hide
+         */
+        public static final String USE_FULL_SCREEN_POWER_MENU = "use_full_screen_power_menu";
+
 
          
         /**

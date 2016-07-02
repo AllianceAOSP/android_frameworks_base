@@ -75,4 +75,12 @@
     <string name="reboot_progress">Rebooting\u2026</string>
     <string name="restart_systemui">Restart SystemUI</string>
 
+    <!-- Full Screen Power Menu -->
+    <string name="power_dialog_power_off">Power Off</string>
+    <string name="power_dialog_reboot">Reboot</string>
+    <string name="power_dialog_reboot_soft">Soft Reboot</string>
+    <string name="power_dialog_reboot_recovery">Recovery</string>
+    <string name="power_dialog_reboot_bootloader">Bootloader</string>
+    <string name="power_dialog_reboot_systemui">Restart SystemUI</string>
+
 </resources>

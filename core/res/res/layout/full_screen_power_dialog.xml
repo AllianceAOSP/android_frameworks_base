@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/power_dialog_root"
+    android:background="@drawable/gradient_bg"
+    android:clipChildren="false">
+
+    <LinearLayout
+        android:id="@+id/power_dialog_small_items_container_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="6.5"
+        android:clipChildren="false"
+        android:layout_marginTop="42dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_airplane_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_screenshot_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_settings_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_flashlight_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/power_dialog_dummy_view"
+        android:layout_centerInParent="true"
+        android:layout_width="1dp"
+        android:layout_height="32dp"
+        android:visibility="invisible" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_reboot_recovery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_reboot_soft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/power_dialog_reboot_recovery"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_reboot_reboot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/power_dialog_reboot_soft"
+        android:visibility="gone" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_reboot_bootloader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/power_dialog_reboot_recovery"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_reboot_systemui"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/power_dialog_reboot_bootloader"
+        android:visibility="gone" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_power_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/power_dialog_dummy_view"
+        android:layout_marginTop="8dp" />
+
+    <com.android.server.policy.PowerDialogLargeItem
+        android:id="@+id/power_dialog_reboot_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/power_dialog_dummy_view"
+        android:layout_marginBottom="8dp" />
+
+    <com.android.server.policy.PowerDialogSmallItem
+        android:id="@+id/power_dialog_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/power_dialog_small_items_container_bottom"
+        android:layout_marginBottom="40dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/power_dialog_small_items_container_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="6.5"
+        android:clipChildren="false"
+        android:layout_marginBottom="42dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_search_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_voice_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_lock_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+        <com.android.server.policy.PowerDialogSmallItem
+            android:id="@+id/power_dialog_audio_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+    </LinearLayout>
+
+</RelativeLayout>
