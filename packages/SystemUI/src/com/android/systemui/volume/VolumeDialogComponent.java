@@ -25,8 +25,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.view.WindowManager;
+import android.view.ViewGroup;
 
+import com.android.internal.util.AllianceUtils;
 import com.android.systemui.SystemUI;
+import com.android.systemui.R;
 import com.android.systemui.keyguard.KeyguardViewMediator;
 import com.android.systemui.qs.tiles.DndTile;
 import com.android.systemui.statusbar.phone.PhoneStatusBar;
@@ -75,6 +78,7 @@ public class VolumeDialogComponent implements VolumeComponent {
     }
 
     private void applyConfiguration() {
+        AllianceUtils.colorizeBackground(mContext, VolumeDialog.getViewGroup(), Settings.System.VOLUME_DIALOG_BACKGROUND_COLOR, mContext.getColor(R.color.system_primary_color));
         mDialog.setStreamImportant(AudioManager.STREAM_ALARM, true);
         mDialog.setStreamImportant(AudioManager.STREAM_SYSTEM, false);
         mDialog.setShowHeaders(false);

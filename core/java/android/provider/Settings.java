@@ -3950,8 +3950,12 @@ public final class Settings {
          */
         public static final String USE_FULL_SCREEN_POWER_MENU = "use_full_screen_power_menu";
 
+        /**
+         * Volume dialog background color
+         * @hide
+         */
+         public static final String VOLUME_DIALOG_BACKGROUND_COLOR = "volume_dialog_background_color";
 
-         
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add

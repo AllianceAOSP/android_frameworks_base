@@ -21,6 +21,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -28,9 +29,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.media.session.MediaSessionManager;
+import android.net.Uri;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -60,6 +64,7 @@ public class VolumeUI extends SystemUI {
     private NotificationManager mNotificationManager;
     private MediaSessionManager mMediaSessionManager;
     private ServiceMonitor mVolumeControllerService;
+    private SettingsObserver mSettingsObserver;
 
     public static VolumeDialogComponent mVolumeComponent;
 
@@ -73,6 +78,10 @@ public class VolumeUI extends SystemUI {
         mMediaSessionManager = (MediaSessionManager) mContext
                 .getSystemService(Context.MEDIA_SESSION_SERVICE);
         final ZenModeController zenController = new ZenModeControllerImpl(mContext, mHandler);
+        if (mSettingsObserver == null) {
+            mSettingsObserver = new SettingsObserver(new Handler());
+        }
+        mSettingsObserver.observe();
         mVolumeComponent = new VolumeDialogComponent(this, mContext, null, zenController);
         putComponent(VolumeComponent.class, getVolumeComponent());
         mReceiver.start();
@@ -121,6 +130,9 @@ public class VolumeUI extends SystemUI {
             if (LOGD) Log.d(TAG, "Unregistering default volume controller");
             mAudioManager.setVolumeController(null);
             mMediaSessionManager.setRemoteVolumeController(null);
+            if (mSettingsObserver != null) {
+                mSettingsObserver.unobserve();
+            }
         }
     }
 
@@ -255,6 +267,33 @@ public class VolumeUI extends SystemUI {
                             .setColor(mContext.getColor(
                                     com.android.internal.R.color.system_notification_accent_color))
                             .build());
+        }
+    }
+
+    protected class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.VOLUME_DIALOG_BACKGROUND_COLOR), false, this, UserHandle.USER_ALL);
+        }
+
+        void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            recreateDialog();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            recreateDialog();
         }
     }
 }

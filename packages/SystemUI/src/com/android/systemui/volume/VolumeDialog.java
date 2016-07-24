@@ -103,7 +103,7 @@ public class VolumeDialog {
     private final VolumeDialogController mController;
 
     private final CustomDialog mDialog;
-    private final ViewGroup mDialogView;
+    public static ViewGroup mDialogView;
     private final ViewGroup mDialogContentView;
     private final ImageButton mExpandButton;
     private final View mSettingsButton;
@@ -178,6 +178,7 @@ public class VolumeDialog {
         //mInactiveSliderTint = loadColorStateList(R.color.volume_slider_inactive);
         mDialog.setContentView(R.layout.volume_dialog);
         mDialogView = (ViewGroup) mDialog.findViewById(R.id.volume_dialog);
+        AllianceUtils.colorizeBackground(mContext, mDialogView, Settings.System.VOLUME_DIALOG_BACKGROUND_COLOR, mContext.getColor(R.color.system_primary_color));
         mDialogContentView = (ViewGroup) mDialog.findViewById(R.id.volume_dialog_content);
         mExpandButton = (ImageButton) mDialogView.findViewById(R.id.volume_expand_button);
         mExpandButton.setOnClickListener(mClickExpand);
@@ -230,6 +231,10 @@ public class VolumeDialog {
     //private ColorStateList loadColorStateList(int colorResId) {
         //return ColorStateList.valueOf(mContext.getColor(colorResId));
     //}
+
+    public static ViewGroup getViewGroup() {
+        return mDialogView;
+    }
 
     private void updateWindowWidthH() {
         final ViewGroup.LayoutParams lp = mDialogView.getLayoutParams();

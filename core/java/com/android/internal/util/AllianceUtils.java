@@ -39,6 +39,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -674,5 +675,9 @@ public class AllianceUtils {
                 screenshotHandler.postDelayed(getScreenshotRunnable(mContext), 10000);
             }
         }
+    }
+
+    public static void colorizeBackground(Context context, ViewGroup viewGroup, String key, int defaultColor) {
+        viewGroup.setBackgroundColor(Settings.System.getInt(context.getContentResolver(), key, defaultColor));
     }
 }

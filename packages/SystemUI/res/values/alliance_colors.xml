@@ -44,4 +44,6 @@
 
     <color name="white">#ffffffff</color>
 
+    <color name="volume_dialog">#ffa00f0f</color>
+
 </resources>
