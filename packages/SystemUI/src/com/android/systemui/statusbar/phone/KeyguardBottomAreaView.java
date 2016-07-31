@@ -706,10 +706,10 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
             AllianceUtils.colorizeIcon(mContext, mLockIcon, Settings.System.KEYGUARD_LOCK_ICON_COLOR, Color.WHITE);
         }
         if (mCameraImageView != null) {
-            AllianceUtils.colorizeIcon(mContext, mCameraImageView, Settings.System.KEYGUARD_CAMERA_ICON_COLOR, Color.WHITE);
+            AllianceUtils.colorizeIconAtop(mContext, mCameraImageView, Settings.System.KEYGUARD_CAMERA_ICON_COLOR, Color.WHITE);
         }
         if (mLeftAffordanceView != null) {
-            AllianceUtils.colorizeIcon(mContext, mLeftAffordanceView, Settings.System.KEYGUARD_PHONE_ICON_COLOR, Color.WHITE);
+            AllianceUtils.colorizeIconAtop(mContext, mLeftAffordanceView, Settings.System.KEYGUARD_PHONE_ICON_COLOR, Color.WHITE);
         }
     }
 }
